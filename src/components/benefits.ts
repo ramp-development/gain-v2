@@ -2,8 +2,6 @@ import { queryElement } from '$utils/queryElement';
 import { queryElements } from '$utils/queryElements';
 
 export const benefits = () => {
-  console.log('benefits');
-
   const attr = 'data-benefits';
 
   const component = queryElement(`[${attr}="component"]`);
