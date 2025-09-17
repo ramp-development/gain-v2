@@ -23,6 +23,7 @@ const context = await esbuild.context({
   sourcemap: !PRODUCTION,
   target: PRODUCTION ? 'es2020' : 'esnext',
   inject: LIVE_RELOAD ? ['./bin/live-reload.js'] : undefined,
+  external: ['gsap'], // Don't bundle GSAP since it will be loaded via CDN
   define: {
     SERVE_ORIGIN: JSON.stringify(SERVE_ORIGIN),
   },

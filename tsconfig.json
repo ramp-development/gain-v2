@@ -4,8 +4,12 @@
     "rootDir": ".",
     "baseUrl": "./",
     "paths": {
+      "$app": ["src/app"],
+      "$config/*": ["src/config/*"],
+      "$events": ["src/types"],
+      "$types": ["src/types"],
       "$utils/*": ["src/utils/*"]
     },
-    "types": ["@finsweet/ts-utils"]
+    "types": ["@finsweet/ts-utils", "gsap"]
   }
 }
