@@ -12,10 +12,7 @@ export const modernTimeline: TimelineCreator = (
 ) => {
   const tl = gsap.timeline({
     paused: true,
-    defaults: {
-      duration: context?.duration || 1.5, // Use context duration or fallback
-      ease: context?.ease || 'expo.inOut',
-    },
+    defaults: { duration: context?.duration || 1.5, ease: context?.ease || 'expo.inOut' },
   });
 
   // Find elements to animate
@@ -25,48 +22,20 @@ export const modernTimeline: TimelineCreator = (
 
   // Main content reveal
   if (eyebrowMarker) {
-    tl.from(eyebrowMarker, {
-      opacity: 0,
-      scale: 0.9,
-      duration: 1.5,
-    });
+    tl.from(eyebrowMarker, { opacity: 0, scale: 0.9, duration: 1.5 });
   }
 
   if (eyebrowText) {
-    const splitTitle = new SplitText(eyebrowText, {
-      type: 'lines',
-      mask: 'lines',
-    });
-
-    tl.from(
-      splitTitle.lines,
-      {
-        opacity: 0,
-        x: '-1rem',
-        duration: 1.5,
-        stagger: 0.1,
-      },
-      0.1
-    );
+    const splitTitle = new SplitText(eyebrowText, { type: 'lines', mask: 'lines' });
+    tl.from(splitTitle.lines, { opacity: 0, x: '-1rem', duration: 1.5, stagger: 0.1 }, 0.1);
   }
 
   if (contentBlocks) {
     contentBlocks.forEach((block, index) => {
-      const splitTitle = new SplitText(block, {
-        type: 'lines',
-        mask: 'lines',
-      });
-
+      const splitTitle = new SplitText(block, { type: 'lines', mask: 'lines' });
       const position = index === 0 ? 0.1 : '>-1.5';
 
-      tl.from(
-        splitTitle.lines,
-        {
-          yPercent: 100,
-          stagger: 0.15,
-        },
-        position
-      );
+      tl.from(splitTitle.lines, { yPercent: 100, stagger: 0.15 }, position);
     });
   }
 

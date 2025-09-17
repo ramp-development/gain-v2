@@ -15,7 +15,7 @@ export class AnimationFactory {
     element: HTMLElement,
     context?: Record<string, string>
   ): {
-    timeline: gsap.core.Timeline;
+    timeline: gsap.core.Timeline | undefined;
     triggerConfig?: ScrollTriggerConfig;
   } {
     const definition = timelineRegistry[type];

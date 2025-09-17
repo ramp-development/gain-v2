@@ -4,6 +4,7 @@ import { footerTimeline, footerTriggerConfig } from './timelines/footer';
 import { heroTimeline, heroTriggerConfig } from './timelines/hero';
 import { modernTimeline, modernTriggerConfig } from './timelines/modern';
 import { panelsTimeline, panelsTriggerConfig } from './timelines/panels';
+import { revealTimeline, revealTriggerConfig } from './timelines/reveal';
 
 /**
  * Central registry of all available animations
@@ -34,6 +35,12 @@ export const timelineRegistry: Record<string, TimelineDefinition> = {
   footer: {
     create: footerTimeline,
     triggerConfig: footerTriggerConfig,
+    defaultTrigger: 'scrub',
+  },
+
+  reveal: {
+    create: revealTimeline,
+    triggerConfig: revealTriggerConfig,
     defaultTrigger: 'scrub',
   },
 

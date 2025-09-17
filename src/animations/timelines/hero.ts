@@ -12,10 +12,7 @@ export const heroTimeline: TimelineCreator = (
 ) => {
   const tl = gsap.timeline({
     paused: true,
-    defaults: {
-      duration: context?.duration || 2, // Use context duration or default
-      ease: context?.ease || 'expo.inOut',
-    },
+    defaults: { duration: context?.duration || 2, ease: context?.ease || 'expo.inOut' },
   });
 
   // Find child elements to animate
@@ -25,10 +22,7 @@ export const heroTimeline: TimelineCreator = (
 
   // Build animation sequence
   if (nav) {
-    tl.from(nav, {
-      opacity: 0,
-      y: '-1rem',
-    });
+    tl.from(nav, { opacity: 0, y: '-1rem' });
   }
 
   if (inner) {
@@ -38,7 +32,7 @@ export const heroTimeline: TimelineCreator = (
         opacity: 0,
         y: '10rem',
         transformOrigin: 'center top',
-        scaleX: () => scaleX(), // Call the function to get current value
+        scaleX: () => scaleX(),
         scaleY: () => scaleY(),
       },
       0
@@ -47,20 +41,10 @@ export const heroTimeline: TimelineCreator = (
 
   if (title) {
     // Create SplitText instance to split the title into lines
-    const splitTitle = new SplitText(title, {
-      type: 'lines',
-      mask: 'lines',
-    });
+    const splitTitle = new SplitText(title, { type: 'lines', mask: 'lines' });
 
     // Animate the masks to reveal the text
-    tl.from(
-      splitTitle.lines,
-      {
-        yPercent: 100,
-        stagger: 0.01,
-      },
-      0.2
-    );
+    tl.from(splitTitle.lines, { yPercent: 100, stagger: 0.01 }, 0.2);
   }
 
   // Add any context-specific modifications
