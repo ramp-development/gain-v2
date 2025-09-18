@@ -1,5 +1,7 @@
 import type { TimelineDefinition } from '$types';
 
+import { cardFlipTimeline, cardFlipTriggerConfig } from './timelines/cardFlip';
+import { contentHeaderTimeline, contentHeaderTriggerConfig } from './timelines/contentHeader';
 import { footerTimeline, footerTriggerConfig } from './timelines/footer';
 import { heroTimeline, heroTriggerConfig } from './timelines/hero';
 import { modernTimeline, modernTriggerConfig } from './timelines/modern';
@@ -44,13 +46,17 @@ export const timelineRegistry: Record<string, TimelineDefinition> = {
     defaultTrigger: 'scrub',
   },
 
-  // Add more animations here as needed
-  // Example structure:
-  // fadeIn: {
-  //   create: fadeInTimeline,
-  //   triggerConfig: fadeInTriggerConfig,
-  //   defaultTrigger: 'entrance',
-  // },
+  cardFlip: {
+    create: cardFlipTimeline,
+    triggerConfig: cardFlipTriggerConfig,
+    defaultTrigger: 'entrance',
+  },
+
+  contentHeader: {
+    create: contentHeaderTimeline,
+    triggerConfig: contentHeaderTriggerConfig,
+    defaultTrigger: 'entrance',
+  },
 };
 
 /**

@@ -1,0 +1,45 @@
+import { attrs, values } from '$config/constants';
+import type { ScrollTriggerConfig, TimelineCreator } from '$types';
+import { queryElement } from '$utils/queryElement';
+import { queryElements } from '$utils/queryElements';
+
+export const contentHeaderTimeline: TimelineCreator = (
+  element: HTMLElement,
+  context?: Record<string, string>
+) => {
+  const tl = gsap.timeline({
+    paused: true,
+    defaults: { duration: context?.duration || 1.5, ease: context?.ease || 'expo.inOut' },
+  });
+
+  // Find elements to animate
+  const heading = queryElement(`[${attrs.elements}="${values.heading}"] > *`, element);
+  const paragraph = queryElement(`[${attrs.elements}="${values.paragraph}"] > *`, element);
+  const buttons = queryElements(`[${attrs.elements}="${values.button}"]`, element);
+
+  console.log({ element, heading, paragraph, buttons });
+
+  // Main content reveal
+  if (heading) {
+    const splitHeading = new SplitText(heading, { type: 'lines', mask: 'lines' });
+    tl.from(splitHeading.lines, { yPercent: 100, stagger: 0.1 });
+  }
+
+  if (paragraph) {
+    const splitParagraph = new SplitText(paragraph, { type: 'lines', mask: 'lines' });
+    tl.from(splitParagraph.lines, { yPercent: 100, stagger: 0.1 }, '<0.2');
+  }
+
+  if (buttons) {
+    tl.from(buttons, { opacity: 0, x: '1rem', stagger: 0.1 }, '<0.2');
+  }
+
+  return tl;
+};
+
+export const contentHeaderTriggerConfig: ScrollTriggerConfig = {
+  start: 'top 80%',
+  end: 'bottom top',
+  scrub: false,
+  toggleActions: 'play none none none',
+};

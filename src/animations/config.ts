@@ -34,7 +34,7 @@ export const ANIMATION_DEFAULTS = {
     stagger: 0.1,
   },
   entrance: {
-    duration: 1,
+    duration: 1.5,
     toggleActions: 'play none none none',
   },
   scrub: {

@@ -1,6 +1,8 @@
 import type { ScrollTriggerConfig, TimelineCreator } from '$types';
 import { queryElement } from '$utils/queryElement';
 
+import { moveY } from '../utils/moveY';
+
 /**
  * Hero animation - typically plays on page load
  * Animates the main hero section with staggered reveals
@@ -25,14 +27,16 @@ export const heroTimeline: TimelineCreator = (
   }
 
   if (inner) {
-    tl.from(
+    tl.fromTo(
       inner,
       {
         opacity: 0,
-        y: () => {
-          const spacer = queryElement('.u-section-spacer');
-          return spacer ? spacer.getBoundingClientRect().height : 160;
-        },
+        // y: 0,
+        y: () => moveY(true).height,
+      },
+      {
+        opacity: 1,
+        y: 0,
       },
       0
     );
@@ -56,9 +60,6 @@ export const heroTimeline: TimelineCreator = (
   return tl;
 };
 
-/**
- * Hero doesn't use ScrollTrigger - it's triggered on load
- */
 export const heroTriggerConfig: ScrollTriggerConfig = {
   start: 'bottom bottom',
   end: 'bottom top',

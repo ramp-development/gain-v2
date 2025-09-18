@@ -1,28 +1,33 @@
+import { Thresholds } from 'src/types/thresholds';
+
+import { containerThreshold } from '$utils/containerThreshold';
 import { queryElement } from '$utils/queryElement';
 import { queryElements } from '$utils/queryElements';
 
 export const benefits = () => {
   const attr = 'data-benefits';
 
-  const component = queryElement(`[${attr}="component"]`);
+  const component = queryElement<HTMLElement>(`[${attr}="component"]`);
   if (!component) return;
 
-  const tagWrap = queryElement(`[${attr}="tag-wrap"]`);
-  const list = queryElement(`[${attr}="list"]`);
+  const tagWrap = queryElement<HTMLElement>(`[${attr}="tag-wrap"]`);
+  const list = queryElement<HTMLElement>(`[${attr}="list"]`);
 
   if (!tagWrap || !list) return;
 
-  const items = queryElements(`[${attr}="item"]`, list);
-  if (!items) return;
+  const items = queryElements<HTMLElement>(`[${attr}="item"]`, list);
+  const cta = queryElement<HTMLElement>(`[${attr}="cta"]`, list);
+  if (!items || !cta) return;
 
   type FormatBenefitsProps = {
     component: HTMLElement;
     tagWrap: HTMLElement;
     list: HTMLElement;
     items: HTMLElement[];
+    cta: HTMLElement;
   };
 
-  const props: FormatBenefitsProps = { component, tagWrap, list, items: items as HTMLElement[] };
+  const props: FormatBenefitsProps = { component, tagWrap, list, items, cta };
 
   resetBenefits(props);
   formatBenefits(props);
@@ -31,7 +36,7 @@ export const benefits = () => {
     formatBenefits(props);
   });
 
-  function resetBenefits({ component, tagWrap, list, items }: FormatBenefitsProps) {
+  function resetBenefits({ component, tagWrap, list, items, cta }: FormatBenefitsProps) {
     component.removeAttribute('style');
     tagWrap.removeAttribute('style');
     list.removeAttribute('style');
@@ -40,23 +45,29 @@ export const benefits = () => {
     });
   }
 
-  function formatBenefits({ tagWrap, items }: FormatBenefitsProps) {
-    const lastItem = items[items.length - 1];
-    const rect = lastItem?.getBoundingClientRect();
-    const heightOfLastItem = rect?.height;
+  function formatBenefits({ component, tagWrap, list, items, cta }: FormatBenefitsProps) {
+    const isAboveThreshold = containerThreshold(component, Thresholds.medium, 'above');
+    const grid = tagWrap.closest('.u-grid-above');
+    const gridComputedStyle = getComputedStyle(grid);
+    const gridGap = parseFloat(gridComputedStyle.getPropertyValue('row-gap'));
 
-    let paddingTop = 0;
+    let paddingTop = isAboveThreshold ? 0 : tagWrap.getBoundingClientRect().height + gridGap;
+
     items.forEach((item, index) => {
       const endHeightOfItem = getDistanceFromParagraphToTop(item);
       item.style.paddingTop = `${paddingTop}px`;
 
-      if (index !== items.length - 1) {
-        paddingTop += endHeightOfItem;
-      }
+      paddingTop += endHeightOfItem;
     });
 
-    const totalHeight = paddingTop + heightOfLastItem;
-    tagWrap.style.height = `${totalHeight}px`;
+    cta.style.paddingTop = `${paddingTop}px`;
+
+    const totalHeight = paddingTop + cta.getBoundingClientRect().height; // come back to this???
+    if (isAboveThreshold) tagWrap.style.height = `${totalHeight}px`;
+
+    const ctaPaddingBottom1 = totalHeight - cta.getBoundingClientRect().height;
+    cta.style.paddingBottom = `${ctaPaddingBottom1}px`;
+    component.style.marginBottom = `${ctaPaddingBottom1 * -1}px`;
 
     const reversedItems = [...items].reverse();
     reversedItems.forEach((item) => {
@@ -77,6 +88,16 @@ export const benefits = () => {
 
       item.style.marginTop = `${marginTop * -1}px`;
     });
+
+    const ctaComputedStyleOfCurrentItem = getComputedStyle(cta);
+    const ctaPreviousItem = items[items.length - 1];
+    const ctaComputedStyleOfPreviousItem = getComputedStyle(ctaPreviousItem);
+
+    const ctaPaddingBottom2 = parseFloat(ctaComputedStyleOfPreviousItem.paddingBottom);
+    const ctaPaddingTop = parseFloat(ctaComputedStyleOfCurrentItem.paddingTop);
+    const ctaMarginTop = ctaPaddingBottom2 + ctaPaddingTop;
+
+    cta.style.marginTop = `${ctaMarginTop * -1}px`;
   }
 
   function getDistanceFromParagraphToTop(item: HTMLElement): number {

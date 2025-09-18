@@ -96,8 +96,11 @@ export class AnimationManager {
     // Step 7: Allow natural ScrollTrigger animations after queue is set up
     this.allowNaturalTriggers = true;
 
-    // Refresh ScrollTriggers to check if any should fire now
-    ScrollTrigger.refresh();
+    this.app.eventBus.on(Events.ANIMATION_COMPLETED, (eventData) => {
+      if (eventData.type === 'hero') {
+        this.refresh();
+      }
+    });
   }
 
   /**
@@ -117,6 +120,7 @@ export class AnimationManager {
 
       // Create timeline and config from factory
       const { timeline, triggerConfig } = this.factory.create(type, element, context);
+      if (!timeline) return;
 
       // Generate unique instance ID
       const id = `${type}_${(this.instanceIdCounter += 1)}`;
@@ -201,9 +205,14 @@ export class AnimationManager {
     console.log(`Playing queued animation: ${nextAnimation.type} (${nextAnimation.id})`);
 
     // Set up completion handler to play next
+    nextAnimation.timeline.eventCallback('onStart', () => {
+      setTimeout(() => {
+        this.playNextInQueue();
+      }, 500);
+    });
     nextAnimation.timeline.eventCallback('onComplete', () => {
+      console.log('Animation completed', nextAnimation);
       this.handleAnimationComplete(nextAnimation);
-      this.playNextInQueue();
     });
 
     this.playAnimation(nextAnimation);
@@ -283,7 +292,7 @@ export class AnimationManager {
     };
 
     // Emit generic animation completed event
-    this.app.eventBus.emit(Events.ANIMATION_COMPLETED, eventData);
+    this.app.eventBus.emit(Events.ANIMATION_COMPLETED, null, eventData);
   }
 
   /**
@@ -329,7 +338,6 @@ export class AnimationManager {
     });
     this.instances = [];
     this.animationQueue = [];
-    this.queuedAnimationIds.clear();
     this.initialized = false;
   }
 }
