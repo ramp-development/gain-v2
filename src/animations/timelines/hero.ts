@@ -1,4 +1,3 @@
-import { scaleX, scaleY } from '$config/constants';
 import type { ScrollTriggerConfig, TimelineCreator } from '$types';
 import { queryElement } from '$utils/queryElement';
 
@@ -30,10 +29,10 @@ export const heroTimeline: TimelineCreator = (
       inner,
       {
         opacity: 0,
-        y: '10rem',
-        transformOrigin: 'center top',
-        scaleX: () => scaleX(),
-        scaleY: () => scaleY(),
+        y: () => {
+          const spacer = queryElement('.u-section-spacer');
+          return spacer ? spacer.getBoundingClientRect().height : 160;
+        },
       },
       0
     );

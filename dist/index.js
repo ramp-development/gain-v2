@@ -1,1 +1,1997 @@
-"use strict";(()=>{var pt=Object.create;var k=Object.defineProperty;var ut=Object.getOwnPropertyDescriptor;var mt=Object.getOwnPropertyNames;var ft=Object.getPrototypeOf,dt=Object.prototype.hasOwnProperty;var gt=(t,e,i)=>e in t?k(t,e,{enumerable:!0,configurable:!0,writable:!0,value:i}):t[e]=i;var vt=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var yt=(t,e,i,n)=>{if(e&&typeof e=="object"||typeof e=="function")for(let s of mt(e))!dt.call(t,s)&&s!==i&&k(t,s,{get:()=>e[s],enumerable:!(n=ut(e,s))||n.enumerable});return t};var St=(t,e,i)=>(i=t!=null?pt(ft(t)):{},yt(e||!t||!t.__esModule?k(i,"default",{value:t,enumerable:!0}):i,t));var o=(t,e,i)=>gt(t,typeof e!="symbol"?e+"":e,i);var $=vt((N,z)=>{(function(t,e){typeof N=="object"&&typeof z=="object"?(z.exports=e(),z.exports.default=z.exports):typeof N=="object"?N.EventBus=e():t.EventBus=e()})(N,function(){var t=function(){this.listeners={},this.registerListener=function(i,n,s){var r=i.constructor.name;s=this.validateNumber(s||"any"),r!=="Array"&&(i=[i]),i.forEach(function(l){if(l.constructor.name!=="String")throw new Error("Only `String` and array of `String` are accepted for the event names!");e.listeners[l]=e.listeners[l]||[],e.listeners[l].push({callback:n,number:s})})},this.validateNumber=function(i){var n=i.constructor.name;if(n==="Number")return i;if(n==="String"&&i.toLowerCase()==="any")return"any";throw new Error("Only `Number` and `any` are accepted in the number of possible executions!")},this.toBeRemoved=function(i){var n=i.number;return i.execution=i.execution||0,i.execution++,!(n==="any"||i.execution<n)};var e=this;return{on:function(i,n){e.registerListener.bind(e)(i,n,"any")},once:function(i,n){e.registerListener.bind(e)(i,n,1)},exactly:function(i,n,s){e.registerListener.bind(e)(n,s,i)},die:function(i){delete e.listeners[i]},off:function(i){this.die(i)},detach:function(i,n){if(n===void 0)return e.listeners[i]=[],!0;for(var s in e.listeners[i])if(e.listeners[i].hasOwnProperty(s)&&e.listeners[i][s].callback===n)return e.listeners[i].splice(s,1),this.detach(i,n);return!0},detachAll:function(){for(var i in e.listeners)e.listeners.hasOwnProperty(i)&&this.detach(i)},emit:function(i,n){var s=[];for(var r in e.listeners)if(e.listeners.hasOwnProperty(r)&&(r===i&&Array.prototype.push.apply(s,e.listeners[r]),r.indexOf("*")>=0)){var l=r.replace(/\*\*/,"([^.]+.?)+");l=l.replace(/\*/g,"[^.]+");var h=i.match(l);h&&i===h[0]&&Array.prototype.push.apply(s,e.listeners[r])}var p=arguments;n=n||this,s.forEach(function(a,c){var f=a.callback,u=a.number;n&&(f=f.bind(n));var m=[];Object.keys(p).map(function(g){g>1&&m.push(p[g])}),e.toBeRemoved(a)&&e.listeners[i].splice(c,1),f.apply(null,m)})}}};return t})});var G=St($(),1);var Tt="1.3.11";function Y(t,e,i){return Math.max(t,Math.min(e,i))}function wt(t,e,i){return(1-i)*t+i*e}function bt(t,e,i,n){return wt(t,e,1-Math.exp(-i*n))}function Et(t,e){return(t%e+e)%e}var At=class{constructor(){o(this,"isRunning",!1);o(this,"value",0);o(this,"from",0);o(this,"to",0);o(this,"currentTime",0);o(this,"lerp");o(this,"duration");o(this,"easing");o(this,"onUpdate")}advance(t){if(!this.isRunning)return;let e=!1;if(this.duration&&this.easing){this.currentTime+=t;let i=Y(0,this.currentTime/this.duration,1);e=i>=1;let n=e?1:this.easing(i);this.value=this.from+(this.to-this.from)*n}else this.lerp?(this.value=bt(this.value,this.to,this.lerp*60,t),Math.round(this.value)===this.to&&(this.value=this.to,e=!0)):(this.value=this.to,e=!0);e&&this.stop(),this.onUpdate?.(this.value,e)}stop(){this.isRunning=!1}fromTo(t,e,{lerp:i,duration:n,easing:s,onStart:r,onUpdate:l}){this.from=this.value=t,this.to=e,this.lerp=i,this.duration=n,this.easing=s,this.currentTime=0,this.isRunning=!0,r?.(),this.onUpdate=l}};function xt(t,e){let i;return function(...n){let s=this;clearTimeout(i),i=setTimeout(()=>{i=void 0,t.apply(s,n)},e)}}var Ct=class{constructor(t,e,{autoResize:i=!0,debounce:n=250}={}){o(this,"width",0);o(this,"height",0);o(this,"scrollHeight",0);o(this,"scrollWidth",0);o(this,"debouncedResize");o(this,"wrapperResizeObserver");o(this,"contentResizeObserver");o(this,"resize",()=>{this.onWrapperResize(),this.onContentResize()});o(this,"onWrapperResize",()=>{this.wrapper instanceof Window?(this.width=window.innerWidth,this.height=window.innerHeight):(this.width=this.wrapper.clientWidth,this.height=this.wrapper.clientHeight)});o(this,"onContentResize",()=>{this.wrapper instanceof Window?(this.scrollHeight=this.content.scrollHeight,this.scrollWidth=this.content.scrollWidth):(this.scrollHeight=this.wrapper.scrollHeight,this.scrollWidth=this.wrapper.scrollWidth)});this.wrapper=t,this.content=e,i&&(this.debouncedResize=xt(this.resize,n),this.wrapper instanceof Window?window.addEventListener("resize",this.debouncedResize,!1):(this.wrapperResizeObserver=new ResizeObserver(this.debouncedResize),this.wrapperResizeObserver.observe(this.wrapper)),this.contentResizeObserver=new ResizeObserver(this.debouncedResize),this.contentResizeObserver.observe(this.content)),this.resize()}destroy(){this.wrapperResizeObserver?.disconnect(),this.contentResizeObserver?.disconnect(),this.wrapper===window&&this.debouncedResize&&window.removeEventListener("resize",this.debouncedResize,!1)}get limit(){return{x:this.scrollWidth-this.width,y:this.scrollHeight-this.height}}},X=class{constructor(){o(this,"events",{})}emit(t,...e){let i=this.events[t]||[];for(let n=0,s=i.length;n<s;n++)i[n]?.(...e)}on(t,e){return this.events[t]?.push(e)||(this.events[t]=[e]),()=>{this.events[t]=this.events[t]?.filter(i=>e!==i)}}off(t,e){this.events[t]=this.events[t]?.filter(i=>e!==i)}destroy(){this.events={}}},F=100/6,A={passive:!1},It=class{constructor(t,e={wheelMultiplier:1,touchMultiplier:1}){o(this,"touchStart",{x:0,y:0});o(this,"lastDelta",{x:0,y:0});o(this,"window",{width:0,height:0});o(this,"emitter",new X);o(this,"onTouchStart",t=>{let{clientX:e,clientY:i}=t.targetTouches?t.targetTouches[0]:t;this.touchStart.x=e,this.touchStart.y=i,this.lastDelta={x:0,y:0},this.emitter.emit("scroll",{deltaX:0,deltaY:0,event:t})});o(this,"onTouchMove",t=>{let{clientX:e,clientY:i}=t.targetTouches?t.targetTouches[0]:t,n=-(e-this.touchStart.x)*this.options.touchMultiplier,s=-(i-this.touchStart.y)*this.options.touchMultiplier;this.touchStart.x=e,this.touchStart.y=i,this.lastDelta={x:n,y:s},this.emitter.emit("scroll",{deltaX:n,deltaY:s,event:t})});o(this,"onTouchEnd",t=>{this.emitter.emit("scroll",{deltaX:this.lastDelta.x,deltaY:this.lastDelta.y,event:t})});o(this,"onWheel",t=>{let{deltaX:e,deltaY:i,deltaMode:n}=t,s=n===1?F:n===2?this.window.width:1,r=n===1?F:n===2?this.window.height:1;e*=s,i*=r,e*=this.options.wheelMultiplier,i*=this.options.wheelMultiplier,this.emitter.emit("scroll",{deltaX:e,deltaY:i,event:t})});o(this,"onWindowResize",()=>{this.window={width:window.innerWidth,height:window.innerHeight}});this.element=t,this.options=e,window.addEventListener("resize",this.onWindowResize,!1),this.onWindowResize(),this.element.addEventListener("wheel",this.onWheel,A),this.element.addEventListener("touchstart",this.onTouchStart,A),this.element.addEventListener("touchmove",this.onTouchMove,A),this.element.addEventListener("touchend",this.onTouchEnd,A)}on(t,e){return this.emitter.on(t,e)}destroy(){this.emitter.destroy(),window.removeEventListener("resize",this.onWindowResize,!1),this.element.removeEventListener("wheel",this.onWheel,A),this.element.removeEventListener("touchstart",this.onTouchStart,A),this.element.removeEventListener("touchmove",this.onTouchMove,A),this.element.removeEventListener("touchend",this.onTouchEnd,A)}},q=t=>Math.min(1,1.001-Math.pow(2,-10*t)),V=class{constructor({wrapper:t=window,content:e=document.documentElement,eventsTarget:i=t,smoothWheel:n=!0,syncTouch:s=!1,syncTouchLerp:r=.075,touchInertiaExponent:l=1.7,duration:h,easing:p,lerp:a=.1,infinite:c=!1,orientation:f="vertical",gestureOrientation:u=f==="horizontal"?"both":"vertical",touchMultiplier:m=1,wheelMultiplier:g=1,autoResize:y=!0,prevent:S,virtualScroll:v,overscroll:T=!0,autoRaf:b=!1,anchors:D=!1,autoToggle:E=!1,allowNestedScroll:x=!1,__experimental__naiveDimensions:R=!1}={}){o(this,"_isScrolling",!1);o(this,"_isStopped",!1);o(this,"_isLocked",!1);o(this,"_preventNextNativeScrollEvent",!1);o(this,"_resetVelocityTimeout",null);o(this,"__rafID",null);o(this,"isTouching");o(this,"time",0);o(this,"userData",{});o(this,"lastVelocity",0);o(this,"velocity",0);o(this,"direction",0);o(this,"options");o(this,"targetScroll");o(this,"animatedScroll");o(this,"animate",new At);o(this,"emitter",new X);o(this,"dimensions");o(this,"virtualScroll");o(this,"onScrollEnd",t=>{t instanceof CustomEvent||(this.isScrolling==="smooth"||this.isScrolling===!1)&&t.stopPropagation()});o(this,"dispatchScrollendEvent",()=>{this.options.wrapper.dispatchEvent(new CustomEvent("scrollend",{bubbles:this.options.wrapper===window,detail:{lenisScrollEnd:!0}}))});o(this,"onTransitionEnd",t=>{if(t.propertyName.includes("overflow")){let e=this.isHorizontal?"overflow-x":"overflow-y",i=getComputedStyle(this.rootElement)[e];["hidden","clip"].includes(i)?this.internalStop():this.internalStart()}});o(this,"onClick",t=>{let i=t.composedPath().find(n=>n instanceof HTMLAnchorElement&&(n.getAttribute("href")?.startsWith("#")||n.getAttribute("href")?.startsWith("/#")||n.getAttribute("href")?.startsWith("./#")));if(i){let n=i.getAttribute("href");if(n){let s=typeof this.options.anchors=="object"&&this.options.anchors?this.options.anchors:void 0,r=`#${n.split("#")[1]}`;["#","/#","./#","#top","/#top","./#top"].includes(n)&&(r=0),this.scrollTo(r,s)}}});o(this,"onPointerDown",t=>{t.button===1&&this.reset()});o(this,"onVirtualScroll",t=>{if(typeof this.options.virtualScroll=="function"&&this.options.virtualScroll(t)===!1)return;let{deltaX:e,deltaY:i,event:n}=t;if(this.emitter.emit("virtual-scroll",{deltaX:e,deltaY:i,event:n}),n.ctrlKey||n.lenisStopPropagation)return;let s=n.type.includes("touch"),r=n.type.includes("wheel");this.isTouching=n.type==="touchstart"||n.type==="touchmove";let l=e===0&&i===0;if(this.options.syncTouch&&s&&n.type==="touchstart"&&l&&!this.isStopped&&!this.isLocked){this.reset();return}let p=this.options.gestureOrientation==="vertical"&&i===0||this.options.gestureOrientation==="horizontal"&&e===0;if(l||p)return;let a=n.composedPath();a=a.slice(0,a.indexOf(this.rootElement));let c=this.options.prevent;if(a.find(S=>S instanceof HTMLElement&&(typeof c=="function"&&c?.(S)||S.hasAttribute?.("data-lenis-prevent")||s&&S.hasAttribute?.("data-lenis-prevent-touch")||r&&S.hasAttribute?.("data-lenis-prevent-wheel")||this.options.allowNestedScroll&&this.checkNestedScroll(S,{deltaX:e,deltaY:i}))))return;if(this.isStopped||this.isLocked){n.cancelable&&n.preventDefault();return}if(!(this.options.syncTouch&&s||this.options.smoothWheel&&r)){this.isScrolling="native",this.animate.stop(),n.lenisStopPropagation=!0;return}let u=i;this.options.gestureOrientation==="both"?u=Math.abs(i)>Math.abs(e)?i:e:this.options.gestureOrientation==="horizontal"&&(u=e),(!this.options.overscroll||this.options.infinite||this.options.wrapper!==window&&this.limit>0&&(this.animatedScroll>0&&this.animatedScroll<this.limit||this.animatedScroll===0&&i>0||this.animatedScroll===this.limit&&i<0))&&(n.lenisStopPropagation=!0),n.cancelable&&n.preventDefault();let m=s&&this.options.syncTouch,y=s&&n.type==="touchend";y&&(u=Math.sign(this.velocity)*Math.pow(Math.abs(this.velocity),this.options.touchInertiaExponent)),this.scrollTo(this.targetScroll+u,{programmatic:!1,...m?{lerp:y?this.options.syncTouchLerp:1}:{lerp:this.options.lerp,duration:this.options.duration,easing:this.options.easing}})});o(this,"onNativeScroll",()=>{if(this._resetVelocityTimeout!==null&&(clearTimeout(this._resetVelocityTimeout),this._resetVelocityTimeout=null),this._preventNextNativeScrollEvent){this._preventNextNativeScrollEvent=!1;return}if(this.isScrolling===!1||this.isScrolling==="native"){let t=this.animatedScroll;this.animatedScroll=this.targetScroll=this.actualScroll,this.lastVelocity=this.velocity,this.velocity=this.animatedScroll-t,this.direction=Math.sign(this.animatedScroll-t),this.isStopped||(this.isScrolling="native"),this.emit(),this.velocity!==0&&(this._resetVelocityTimeout=setTimeout(()=>{this.lastVelocity=this.velocity,this.velocity=0,this.isScrolling=!1,this.emit()},400))}});o(this,"raf",t=>{let e=t-(this.time||t);this.time=t,this.animate.advance(e*.001),this.options.autoRaf&&(this.__rafID=requestAnimationFrame(this.raf))});window.lenisVersion=Tt,(!t||t===document.documentElement)&&(t=window),typeof h=="number"&&typeof p!="function"?p=q:typeof p=="function"&&typeof h!="number"&&(h=1),this.options={wrapper:t,content:e,eventsTarget:i,smoothWheel:n,syncTouch:s,syncTouchLerp:r,touchInertiaExponent:l,duration:h,easing:p,lerp:a,infinite:c,gestureOrientation:u,orientation:f,touchMultiplier:m,wheelMultiplier:g,autoResize:y,prevent:S,virtualScroll:v,overscroll:T,autoRaf:b,anchors:D,autoToggle:E,allowNestedScroll:x,__experimental__naiveDimensions:R},this.dimensions=new Ct(t,e,{autoResize:y}),this.updateClassName(),this.targetScroll=this.animatedScroll=this.actualScroll,this.options.wrapper.addEventListener("scroll",this.onNativeScroll,!1),this.options.wrapper.addEventListener("scrollend",this.onScrollEnd,{capture:!0}),this.options.anchors&&this.options.wrapper===window&&this.options.wrapper.addEventListener("click",this.onClick,!1),this.options.wrapper.addEventListener("pointerdown",this.onPointerDown,!1),this.virtualScroll=new It(i,{touchMultiplier:m,wheelMultiplier:g}),this.virtualScroll.on("scroll",this.onVirtualScroll),this.options.autoToggle&&this.rootElement.addEventListener("transitionend",this.onTransitionEnd,{passive:!0}),this.options.autoRaf&&(this.__rafID=requestAnimationFrame(this.raf))}destroy(){this.emitter.destroy(),this.options.wrapper.removeEventListener("scroll",this.onNativeScroll,!1),this.options.wrapper.removeEventListener("scrollend",this.onScrollEnd,{capture:!0}),this.options.wrapper.removeEventListener("pointerdown",this.onPointerDown,!1),this.options.anchors&&this.options.wrapper===window&&this.options.wrapper.removeEventListener("click",this.onClick,!1),this.virtualScroll.destroy(),this.dimensions.destroy(),this.cleanUpClassName(),this.__rafID&&cancelAnimationFrame(this.__rafID)}on(t,e){return this.emitter.on(t,e)}off(t,e){return this.emitter.off(t,e)}setScroll(t){this.isHorizontal?this.options.wrapper.scrollTo({left:t,behavior:"instant"}):this.options.wrapper.scrollTo({top:t,behavior:"instant"})}resize(){this.dimensions.resize(),this.animatedScroll=this.targetScroll=this.actualScroll,this.emit()}emit(){this.emitter.emit("scroll",this)}reset(){this.isLocked=!1,this.isScrolling=!1,this.animatedScroll=this.targetScroll=this.actualScroll,this.lastVelocity=this.velocity=0,this.animate.stop()}start(){if(this.isStopped){if(this.options.autoToggle){this.rootElement.style.removeProperty("overflow");return}this.internalStart()}}internalStart(){this.isStopped&&(this.reset(),this.isStopped=!1,this.emit())}stop(){if(!this.isStopped){if(this.options.autoToggle){this.rootElement.style.setProperty("overflow","clip");return}this.internalStop()}}internalStop(){this.isStopped||(this.reset(),this.isStopped=!0,this.emit())}scrollTo(t,{offset:e=0,immediate:i=!1,lock:n=!1,duration:s=this.options.duration,easing:r=this.options.easing,lerp:l=this.options.lerp,onStart:h,onComplete:p,force:a=!1,programmatic:c=!0,userData:f}={}){if(!((this.isStopped||this.isLocked)&&!a)){if(typeof t=="string"&&["top","left","start"].includes(t))t=0;else if(typeof t=="string"&&["bottom","right","end"].includes(t))t=this.limit;else{let u;if(typeof t=="string"?u=document.querySelector(t):t instanceof HTMLElement&&t?.nodeType&&(u=t),u){if(this.options.wrapper!==window){let g=this.rootElement.getBoundingClientRect();e-=this.isHorizontal?g.left:g.top}let m=u.getBoundingClientRect();t=(this.isHorizontal?m.left:m.top)+this.animatedScroll}}if(typeof t=="number"){if(t+=e,t=Math.round(t),this.options.infinite){if(c){this.targetScroll=this.animatedScroll=this.scroll;let u=t-this.animatedScroll;u>this.limit/2?t=t-this.limit:u<-this.limit/2&&(t=t+this.limit)}}else t=Y(0,t,this.limit);if(t===this.targetScroll){h?.(this),p?.(this);return}if(this.userData=f??{},i){this.animatedScroll=this.targetScroll=t,this.setScroll(this.scroll),this.reset(),this.preventNextNativeScrollEvent(),this.emit(),p?.(this),this.userData={},requestAnimationFrame(()=>{this.dispatchScrollendEvent()});return}c||(this.targetScroll=t),typeof s=="number"&&typeof r!="function"?r=q:typeof r=="function"&&typeof s!="number"&&(s=1),this.animate.fromTo(this.animatedScroll,t,{duration:s,easing:r,lerp:l,onStart:()=>{n&&(this.isLocked=!0),this.isScrolling="smooth",h?.(this)},onUpdate:(u,m)=>{this.isScrolling="smooth",this.lastVelocity=this.velocity,this.velocity=u-this.animatedScroll,this.direction=Math.sign(this.velocity),this.animatedScroll=u,this.setScroll(this.scroll),c&&(this.targetScroll=u),m||this.emit(),m&&(this.reset(),this.emit(),p?.(this),this.userData={},requestAnimationFrame(()=>{this.dispatchScrollendEvent()}),this.preventNextNativeScrollEvent())}})}}}preventNextNativeScrollEvent(){this._preventNextNativeScrollEvent=!0,requestAnimationFrame(()=>{this._preventNextNativeScrollEvent=!1})}checkNestedScroll(t,{deltaX:e,deltaY:i}){let n=Date.now(),s=t._lenis??(t._lenis={}),r,l,h,p,a,c,f,u,m=this.options.gestureOrientation;if(n-(s.time??0)>2e3){s.time=Date.now();let E=window.getComputedStyle(t);s.computedStyle=E;let x=E.overflowX,R=E.overflowY;if(r=["auto","overlay","scroll"].includes(x),l=["auto","overlay","scroll"].includes(R),s.hasOverflowX=r,s.hasOverflowY=l,!r&&!l||m==="vertical"&&!l||m==="horizontal"&&!r)return!1;a=t.scrollWidth,c=t.scrollHeight,f=t.clientWidth,u=t.clientHeight,h=a>f,p=c>u,s.isScrollableX=h,s.isScrollableY=p,s.scrollWidth=a,s.scrollHeight=c,s.clientWidth=f,s.clientHeight=u}else h=s.isScrollableX,p=s.isScrollableY,r=s.hasOverflowX,l=s.hasOverflowY,a=s.scrollWidth,c=s.scrollHeight,f=s.clientWidth,u=s.clientHeight;if(!r&&!l||!h&&!p||m==="vertical"&&(!l||!p)||m==="horizontal"&&(!r||!h))return!1;let g;if(m==="horizontal")g="x";else if(m==="vertical")g="y";else{let E=e!==0,x=i!==0;E&&r&&h&&(g="x"),x&&l&&p&&(g="y")}if(!g)return!1;let y,S,v,T,b;if(g==="x")y=t.scrollLeft,S=a-f,v=e,T=r,b=h;else if(g==="y")y=t.scrollTop,S=c-u,v=i,T=l,b=p;else return!1;return(v>0?y<S:y>0)&&T&&b}get rootElement(){return this.options.wrapper===window?document.documentElement:this.options.wrapper}get limit(){return this.options.__experimental__naiveDimensions?this.isHorizontal?this.rootElement.scrollWidth-this.rootElement.clientWidth:this.rootElement.scrollHeight-this.rootElement.clientHeight:this.dimensions.limit[this.isHorizontal?"x":"y"]}get isHorizontal(){return this.options.orientation==="horizontal"}get actualScroll(){let t=this.options.wrapper;return this.isHorizontal?t.scrollX??t.scrollLeft:t.scrollY??t.scrollTop}get scroll(){return this.options.infinite?Et(this.animatedScroll,this.limit):this.animatedScroll}get progress(){return this.limit===0?1:this.scroll/this.limit}get isScrolling(){return this._isScrolling}set isScrolling(t){this._isScrolling!==t&&(this._isScrolling=t,this.updateClassName())}get isStopped(){return this._isStopped}set isStopped(t){this._isStopped!==t&&(this._isStopped=t,this.updateClassName())}get isLocked(){return this._isLocked}set isLocked(t){this._isLocked!==t&&(this._isLocked=t,this.updateClassName())}get isSmooth(){return this.isScrolling==="smooth"}get className(){let t="lenis";return this.options.autoToggle&&(t+=" lenis-autoToggle"),this.isStopped&&(t+=" lenis-stopped"),this.isLocked&&(t+=" lenis-locked"),this.isScrolling&&(t+=" lenis-scrolling"),this.isScrolling==="smooth"&&(t+=" lenis-smooth"),t}updateClassName(){this.cleanUpClassName(),this.rootElement.className=`${this.rootElement.className} ${this.className}`.trim()}cleanUpClassName(){this.rootElement.className=this.rootElement.className.replace(/lenis(-\w+)?/g,"").trim()}};var Q=()=>{let{host:t}=window.location;return t.includes("webflow.io")?"staging":"production"};var C=class C{constructor(){o(this,"eventBus");o(this,"initialised",!1);o(this,"environment");this.eventBus=new G.default,this.environment=Q()}static getInstance(){return C._instance||(C._instance=new C),C._instance}init(){this.initialised||(this.smoothScroll(),this.initialised=!0,this.eventBus.emit("app:initialized"))}smoothScroll(){let e=new V;e.on("scroll",ScrollTrigger.update),gsap.ticker.add(i=>{e.raf(i*1e3)}),gsap.ticker.lagSmoothing(0)}};o(C,"_instance");var w=C;var j=()=>{let t=w.getInstance();gsap.defaults({duration:2,ease:"expo.inOut"}),ScrollTrigger.defaults({markers:t.environment==="staging"}),ScrollTrigger.config({autoRefreshEvents:"visibilitychange,DOMContentLoaded,load"})},H={load:{duration:2,stagger:.1},entrance:{duration:1,toggleActions:"play none none none"},scrub:{scrub:1,ease:"expo.out",pin:!1}},B={entrance:{start:"top 80%",end:"bottom top",toggleActions:"play none none none"},scrub:{start:"top bottom",end:"bottom top",scrub:1}};var d=(t,e=document)=>e.querySelector(t)??void 0;var L=(t,e=document)=>{let i=e.querySelectorAll(t);return i.length?[...i]:[]};var P=()=>{let t=getComputedStyle(document.documentElement).getPropertyValue("--max-width--container").trim(),e=0;if(t.includes("px"))e=parseFloat(t);else if(t.includes("rem")){let i=parseFloat(getComputedStyle(document.documentElement).fontSize);e=parseFloat(t)*i}else if(t.includes("em")){let i=parseFloat(getComputedStyle(document.documentElement).fontSize);e=parseFloat(t)*i}else e=parseFloat(t);return e>0?e/window.innerWidth:.88},_=()=>{let t=d('[data-element="inner"]');if(!t)return 1;let e=L(".u-section-spacer"),i=e[0],n=e[e.length-1],s=i?.getBoundingClientRect().height,r=n?.getBoundingClientRect().height,l=t.getBoundingClientRect().height;return t?(l-s-r)/l:1};var Z=(t,e)=>{let i=gsap.timeline({defaults:{duration:e?.duration||1,ease:"none"}}),n=d('[data-element="inner"]'),s=d("footer",t);return n&&i.fromTo(n,{y:0,scaleX:1,scaleY:1},{y:"calc(var(--radius--section) * 100)",transformOrigin:"center bottom",scaleX:()=>P(),scaleY:()=>_()}),s&&i.from(s,{opacity:.5,yPercent:10},0),i},K={start:"top center",end:"bottom bottom",scrub:1};var J=(t,e)=>{let i=gsap.timeline({paused:!0,defaults:{duration:e?.duration||2,ease:e?.ease||"expo.inOut"}}),n=d(".nav_component"),s=d('[data-element="inner"]'),r=d("h1",t);if(n&&i.from(n,{opacity:0,y:"-1rem"}),s&&i.from(s,{opacity:0,y:"10rem",transformOrigin:"center top",scaleX:()=>P(),scaleY:()=>_()},0),r){let l=new SplitText(r,{type:"lines",mask:"lines"});i.from(l.lines,{yPercent:100,stagger:.01},.2)}return e?.speed==="fast"?i.timeScale(1.5):e?.speed==="slow"&&i.timeScale(.7),i},tt={start:"bottom bottom",end:"bottom top",scrub:!1,toggleActions:"play none none none"};var et=(t,e)=>{let i=gsap.timeline({paused:!0,defaults:{duration:e?.duration||1.5,ease:e?.ease||"expo.inOut"}}),n=d(".eyebrow_marker",t),s=d(".eyebrow_text",t),r=L(".c-heading > *",t);if(n&&i.from(n,{opacity:0,scale:.9,duration:1.5}),s){let l=new SplitText(s,{type:"lines",mask:"lines"});i.from(l.lines,{opacity:0,x:"-1rem",duration:1.5,stagger:.1},.1)}return r&&r.forEach((l,h)=>{let p=new SplitText(l,{type:"lines",mask:"lines"}),a=h===0?.1:">-1.5";i.from(p.lines,{yPercent:100,stagger:.15},a)}),i},it={start:"top 80%",end:"bottom top",scrub:!1,toggleActions:"play none none none"};var nt=(t,e)=>{let i=t.parentElement;if((()=>{if(!i)return!0;let r=Array.from(i.querySelectorAll('[data-animation="panel"]'));return r.indexOf(t)===r.length-1})())return;let s=gsap.timeline({defaults:{ease:e?.ease||"expo.out"}});return s.to(t,{opacity:0,scale:.8,transformOrigin:"center bottom",duration:1}),s},st={start:"top top",end:"bottom top",scrub:1};var ot=(t,e)=>{let i=gsap.timeline({defaults:{ease:e?.ease||"expo.inOut"}}),n=d('[data-reveal="background"]',t),s=d('[data-reveal="bottom"]',t),r=d('[data-reveal="top"]',t);if(!(!n||!s||!r))return i.from(n,{width:"50%"}),i.from(s,{xPercent:50},"<"),i.from(r,{xPercent:-50},"<"),e?.speed==="fast"?i.timeScale(1.5):e?.speed==="slow"&&i.timeScale(.7),i},Lt=()=>{let t=d('[data-animation="reveal"]');if(!t)return"top center";let e=t.getBoundingClientRect(),{height:i,top:n}=e,s=window.innerHeight,h=(s/2+i)/s,p=n/s;return`top ${(p>=h?p:h)*100}%`},rt={start:Lt(),end:"bottom center",scrub:1};var O={hero:{create:J,triggerConfig:tt,defaultTrigger:"load"},modern:{create:et,triggerConfig:it,defaultTrigger:"entrance"},panel:{create:nt,triggerConfig:st,defaultTrigger:"scrub"},footer:{create:Z,triggerConfig:K,defaultTrigger:"scrub"},reveal:{create:ot,triggerConfig:rt,defaultTrigger:"scrub"}};var W=class{create(e,i,n){let s=O[e];if(!s)return console.warn(`Animation type "${e}" not found in registry`),{timeline:gsap.timeline({paused:!0})};let r=i.getAttribute("data-trigger")||s.defaultTrigger||"entrance",h={...r==="load"?H.load:r==="entrance"?H.entrance:r==="scrub"?H.scrub:{},...n},p=s.create(i,h),a;if(s.triggerConfig)a=s.triggerConfig;else{let c=i.getAttribute("data-trigger")||s.defaultTrigger||"entrance";c==="entrance"?a=B.entrance:c==="scrub"&&(a=B.scrub)}return{timeline:p,triggerConfig:a}}has(e){return e in O}getAvailableTypes(){return Object.keys(O)}};var I=class I{constructor(){o(this,"app");o(this,"factory");o(this,"instances",[]);o(this,"animationQueue",[]);o(this,"heroInstance",null);o(this,"isPlayingQueue",!1);o(this,"instanceIdCounter",0);o(this,"initialized",!1);o(this,"allowNaturalTriggers",!1);this.app=w.getInstance(),this.factory=new W}static getInstance(){return I.instance||(I.instance=new I),I.instance}initialize(){this.initialized||(console.log("Initializing animation system"),this.scanAndCreateAnimations(),console.log(`Created ${this.instances.length} animation instances`),console.log(this.instances),this.initialized=!0)}appReady(){console.log("App ready, determining animation playback order"),this.heroInstance=this.instances.find(n=>n.type==="hero")||null;let e=!1;this.heroInstance&&this.heroInstance.scrollTrigger&&(e=this.heroInstance.scrollTrigger.isActive,e||this.heroInstance.timeline.progress(1));let i=this.instances.filter(n=>n.trigger!=="entrance"||!n.scrollTrigger?!1:n.scrollTrigger.isActive);console.log(`Found ${i.length} visible entrance animations`),e&&this.heroInstance&&this.animationQueue.push(this.heroInstance),i.forEach(n=>{this.animationQueue.push(n)}),this.animationQueue.length>0&&(console.log(`Starting animation queue with ${this.animationQueue.length} animations`),this.playNextInQueue()),this.allowNaturalTriggers=!0,ScrollTrigger.refresh()}scanAndCreateAnimations(){document.querySelectorAll("[data-animation]").forEach(i=>{let n=i.getAttribute("data-animation");if(!n)return;let s=i.getAttribute("data-trigger")||"entrance",r=this.extractContext(i),{timeline:l,triggerConfig:h}=this.factory.create(n,i,r),a={id:`${n}_${this.instanceIdCounter+=1}`,element:i,type:n,timeline:l,trigger:s,state:"pending",triggerConfig:h,context:r};if((s==="entrance"||s==="scrub"||s==="load")&&h&&(s==="scrub"?a.scrollTrigger=ScrollTrigger.create({trigger:i,...h,animation:l}):a.scrollTrigger=ScrollTrigger.create({trigger:i,...h,onToggle:c=>{this.allowNaturalTriggers&&s==="entrance"&&a.state==="pending"&&c.isActive&&!this.animationQueue.includes(a)&&(console.log(`ScrollTrigger playing ${n} naturally`),this.playAnimation(a))}})),s==="event"){let c=i.getAttribute("data-event")||n;this.app.eventBus.on(c,f=>{a.state==="pending"&&this.playAnimation(a,f)})}this.instances.push(a)}),this.app.eventBus.emit("animations:initialized",{instanceCount:this.instances.length})}playNextInQueue(){if(this.animationQueue.length===0){this.isPlayingQueue=!1,console.log("Animation queue complete");return}this.isPlayingQueue=!0;let e=this.animationQueue.shift();console.log(`Playing queued animation: ${e.type} (${e.id})`),e.timeline.eventCallback("onComplete",()=>{this.handleAnimationComplete(e),this.playNextInQueue()}),this.playAnimation(e)}playAnimation(e,i){e.state==="pending"&&(console.log(`Playing animation: ${e.type} (${e.id})`),e.state="playing",this.handleAnimationStart(e),e.timeline.restart(!0),this.isPlayingQueue||e.timeline.eventCallback("onComplete",()=>{this.handleAnimationComplete(e)}))}extractContext(e){let i={},{attributes:n}=e;for(let s=0;s<n.length;s++){let r=n[s];if(r.name.startsWith("data-context-")){let l=r.name.replace("data-context-","");i[l]=r.value}}return i}handleAnimationStart(e){let i={id:e.id,type:e.type,element:e.element,state:"playing",context:e.context};this.app.eventBus.emit("animation:started",i)}handleAnimationComplete(e){e.state="completed";let i={id:e.id,type:e.type,element:e.element,state:"completed",context:e.context};this.app.eventBus.emit("animation:completed",i)}getInstancesByType(e){return this.instances.filter(i=>i.type===e)}getInstance(e){return this.instances.find(i=>i.id===e)}trigger(e,i){this.getInstancesByType(e).forEach(s=>{s.state==="pending"&&this.playAnimation(s,i)})}refresh(){ScrollTrigger.refresh()}destroy(){this.instances.forEach(e=>{e.timeline.kill(),e.scrollTrigger?.kill()}),this.instances=[],this.animationQueue=[],this.queuedAnimationIds.clear(),this.initialized=!1}};o(I,"instance");var M=I;var lt=()=>{let t=w.getInstance();j();let e=M.getInstance();e.initialize(),t.eventBus.on("app:initialized",()=>{e.appReady()})};var at=()=>{let t="data-benefits",e=d(`[${t}="component"]`);if(!e)return;let i=d(`[${t}="tag-wrap"]`),n=d(`[${t}="list"]`);if(!i||!n)return;let s=L(`[${t}="item"]`,n);if(!s)return;let r={component:e,tagWrap:i,list:n,items:s};l(r),h(r),window.addEventListener("resize",()=>{l(r),h(r)});function l({component:a,tagWrap:c,list:f,items:u}){a.removeAttribute("style"),c.removeAttribute("style"),f.removeAttribute("style"),u.forEach(m=>{m.removeAttribute("style")})}function h({tagWrap:a,items:c}){let m=c[c.length-1]?.getBoundingClientRect()?.height,g=0;c.forEach((v,T)=>{let b=p(v);v.style.paddingTop=`${g}px`,T!==c.length-1&&(g+=b)});let y=g+m;a.style.height=`${y}px`,[...c].reverse().forEach(v=>{let T=y-v.getBoundingClientRect().height;v.style.paddingBottom=`${T}px`}),c.forEach((v,T)=>{if(T===0)return;let b=getComputedStyle(v),D=c[T-1],E=getComputedStyle(D),x=parseFloat(E.paddingBottom),R=parseFloat(b.paddingTop),ht=x+R;v.style.marginTop=`${ht*-1}px`})}function p(a){let c=d(".c-paragraph",a);if(!c)return 0;let f=a.getBoundingClientRect();return c.getBoundingClientRect()?.top-f?.top}};var ct=()=>{at()};window.Webflow||(window.Webflow=[]);window.Webflow.push(()=>{lt(),ct(),w.getInstance().init()});})();
+"use strict";
+(() => {
+  var __create = Object.create;
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+  var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __getProtoOf = Object.getPrototypeOf;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __esm = (fn, res) => function __init() {
+    return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+  };
+  var __commonJS = (cb, mod) => function __require() {
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from))
+        if (!__hasOwnProp.call(to, key) && key !== except)
+          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+    }
+    return to;
+  };
+  var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+    // If the importer is in node compatibility mode or this is not an ESM
+    // file that has been converted to a CommonJS file using a Babel-
+    // compatible transform (i.e. "__esModule" has not been set), then set
+    // "default" to the CommonJS "module.exports" for node compatibility.
+    isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+    mod
+  ));
+
+  // bin/live-reload.js
+  var init_live_reload = __esm({
+    "bin/live-reload.js"() {
+      "use strict";
+      new EventSource(`${"http://localhost:3000"}/esbuild`).addEventListener("change", () => location.reload());
+    }
+  });
+
+  // node_modules/.pnpm/js-event-bus@1.1.1/node_modules/js-event-bus/src/index.js
+  var require_src = __commonJS({
+    "node_modules/.pnpm/js-event-bus@1.1.1/node_modules/js-event-bus/src/index.js"(exports, module) {
+      init_live_reload();
+      (function(caller, bus) {
+        if (typeof exports === "object" && typeof module === "object") {
+          module.exports = bus();
+          module.exports.default = module.exports;
+        } else if (typeof exports === "object") {
+          exports.EventBus = bus();
+        } else {
+          caller.EventBus = bus();
+        }
+      })(exports, function() {
+        var EventBus2 = function() {
+          this.listeners = {};
+          this.registerListener = function(event, callback, number) {
+            var type = event.constructor.name;
+            number = this.validateNumber(number || "any");
+            if (type !== "Array") {
+              event = [event];
+            }
+            event.forEach(function(e) {
+              if (e.constructor.name !== "String") {
+                throw new Error(
+                  "Only `String` and array of `String` are accepted for the event names!"
+                );
+              }
+              that.listeners[e] = that.listeners[e] || [];
+              that.listeners[e].push({
+                callback,
+                number
+              });
+            });
+          };
+          this.validateNumber = function(n) {
+            var type = n.constructor.name;
+            if (type === "Number") {
+              return n;
+            } else if (type === "String" && n.toLowerCase() === "any") {
+              return "any";
+            }
+            throw new Error(
+              "Only `Number` and `any` are accepted in the number of possible executions!"
+            );
+          };
+          this.toBeRemoved = function(info) {
+            var number = info.number;
+            info.execution = info.execution || 0;
+            info.execution++;
+            if (number === "any" || info.execution < number) {
+              return false;
+            }
+            return true;
+          };
+          var that = this;
+          return {
+            /**
+             * Attach a callback to an event
+             * @param {string} eventName - name of the event.
+             * @param {function} callback - callback executed when this event is triggered
+             */
+            on: function(eventName, callback) {
+              that.registerListener.bind(that)(eventName, callback, "any");
+            },
+            /**
+             * Attach a callback to an event. This callback will not be executed more than once if the event is trigger mutiple times
+             * @param {string} eventName - name of the event.
+             * @param {function} callback - callback executed when this event is triggered
+             */
+            once: function(eventName, callback) {
+              that.registerListener.bind(that)(eventName, callback, 1);
+            },
+            /**
+             * Attach a callback to an event. This callback will be executed will not be executed more than the number if the event is trigger mutiple times
+             * @param {number} number - max number of executions
+             * @param {string} eventName - name of the event.
+             * @param {function} callback - callback executed when this event is triggered
+             */
+            exactly: function(number, eventName, callback) {
+              that.registerListener.bind(that)(eventName, callback, number);
+            },
+            /**
+             * Kill an event with all it's callbacks
+             * @param {string} eventName - name of the event.
+             */
+            die: function(eventName) {
+              delete that.listeners[eventName];
+            },
+            /**
+             * Kill an event with all it's callbacks
+             * @param {string} eventName - name of the event.
+             */
+            off: function(eventName) {
+              this.die(eventName);
+            },
+            /**
+             * Remove the callback for the given event
+             * @param {string} eventName - name of the event.
+             * @param {callback} callback - the callback to remove (undefined to remove all of them).
+             */
+            detach: function(eventName, callback) {
+              if (callback === void 0) {
+                that.listeners[eventName] = [];
+                return true;
+              }
+              for (var k in that.listeners[eventName]) {
+                if (that.listeners[eventName].hasOwnProperty(k) && that.listeners[eventName][k].callback === callback) {
+                  that.listeners[eventName].splice(k, 1);
+                  return this.detach(eventName, callback);
+                }
+              }
+              return true;
+            },
+            /**
+             * Remove all the events
+             */
+            detachAll: function() {
+              for (var eventName in that.listeners) {
+                if (that.listeners.hasOwnProperty(eventName)) {
+                  this.detach(eventName);
+                }
+              }
+            },
+            /**
+             * Emit the event
+             * @param {string} eventName - name of the event.
+             */
+            emit: function(eventName, context) {
+              var listeners = [];
+              for (var name in that.listeners) {
+                if (that.listeners.hasOwnProperty(name)) {
+                  if (name === eventName) {
+                    Array.prototype.push.apply(listeners, that.listeners[name]);
+                  }
+                  if (name.indexOf("*") >= 0) {
+                    var newName = name.replace(/\*\*/, "([^.]+.?)+");
+                    newName = newName.replace(/\*/g, "[^.]+");
+                    var match = eventName.match(newName);
+                    if (match && eventName === match[0]) {
+                      Array.prototype.push.apply(listeners, that.listeners[name]);
+                    }
+                  }
+                }
+              }
+              var parentArgs = arguments;
+              context = context || this;
+              listeners.forEach(function(info, index) {
+                var callback = info.callback;
+                var number = info.number;
+                if (context) {
+                  callback = callback.bind(context);
+                }
+                var args = [];
+                Object.keys(parentArgs).map(function(i) {
+                  if (i > 1) {
+                    args.push(parentArgs[i]);
+                  }
+                });
+                if (that.toBeRemoved(info)) {
+                  that.listeners[eventName].splice(index, 1);
+                }
+                callback.apply(null, args);
+              });
+            }
+          };
+        };
+        return EventBus2;
+      });
+    }
+  });
+
+  // src/index.ts
+  init_live_reload();
+
+  // src/animations/index.ts
+  init_live_reload();
+
+  // src/app.ts
+  init_live_reload();
+  var import_js_event_bus = __toESM(require_src(), 1);
+
+  // node_modules/.pnpm/lenis@1.3.11/node_modules/lenis/dist/lenis.mjs
+  init_live_reload();
+  var version = "1.3.11";
+  function clamp(min, input, max) {
+    return Math.max(min, Math.min(input, max));
+  }
+  function lerp(x, y, t) {
+    return (1 - t) * x + t * y;
+  }
+  function damp(x, y, lambda, deltaTime) {
+    return lerp(x, y, 1 - Math.exp(-lambda * deltaTime));
+  }
+  function modulo(n, d) {
+    return (n % d + d) % d;
+  }
+  var Animate = class {
+    isRunning = false;
+    value = 0;
+    from = 0;
+    to = 0;
+    currentTime = 0;
+    // These are instanciated in the fromTo method
+    lerp;
+    duration;
+    easing;
+    onUpdate;
+    /**
+     * Advance the animation by the given delta time
+     *
+     * @param deltaTime - The time in seconds to advance the animation
+     */
+    advance(deltaTime) {
+      if (!this.isRunning) return;
+      let completed = false;
+      if (this.duration && this.easing) {
+        this.currentTime += deltaTime;
+        const linearProgress = clamp(0, this.currentTime / this.duration, 1);
+        completed = linearProgress >= 1;
+        const easedProgress = completed ? 1 : this.easing(linearProgress);
+        this.value = this.from + (this.to - this.from) * easedProgress;
+      } else if (this.lerp) {
+        this.value = damp(this.value, this.to, this.lerp * 60, deltaTime);
+        if (Math.round(this.value) === this.to) {
+          this.value = this.to;
+          completed = true;
+        }
+      } else {
+        this.value = this.to;
+        completed = true;
+      }
+      if (completed) {
+        this.stop();
+      }
+      this.onUpdate?.(this.value, completed);
+    }
+    /** Stop the animation */
+    stop() {
+      this.isRunning = false;
+    }
+    /**
+     * Set up the animation from a starting value to an ending value
+     * with optional parameters for lerping, duration, easing, and onUpdate callback
+     *
+     * @param from - The starting value
+     * @param to - The ending value
+     * @param options - Options for the animation
+     */
+    fromTo(from, to, { lerp: lerp2, duration, easing, onStart, onUpdate }) {
+      this.from = this.value = from;
+      this.to = to;
+      this.lerp = lerp2;
+      this.duration = duration;
+      this.easing = easing;
+      this.currentTime = 0;
+      this.isRunning = true;
+      onStart?.();
+      this.onUpdate = onUpdate;
+    }
+  };
+  function debounce(callback, delay) {
+    let timer;
+    return function(...args) {
+      let context = this;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        timer = void 0;
+        callback.apply(context, args);
+      }, delay);
+    };
+  }
+  var Dimensions = class {
+    constructor(wrapper, content, { autoResize = true, debounce: debounceValue = 250 } = {}) {
+      this.wrapper = wrapper;
+      this.content = content;
+      if (autoResize) {
+        this.debouncedResize = debounce(this.resize, debounceValue);
+        if (this.wrapper instanceof Window) {
+          window.addEventListener("resize", this.debouncedResize, false);
+        } else {
+          this.wrapperResizeObserver = new ResizeObserver(this.debouncedResize);
+          this.wrapperResizeObserver.observe(this.wrapper);
+        }
+        this.contentResizeObserver = new ResizeObserver(this.debouncedResize);
+        this.contentResizeObserver.observe(this.content);
+      }
+      this.resize();
+    }
+    width = 0;
+    height = 0;
+    scrollHeight = 0;
+    scrollWidth = 0;
+    // These are instanciated in the constructor as they need information from the options
+    debouncedResize;
+    wrapperResizeObserver;
+    contentResizeObserver;
+    destroy() {
+      this.wrapperResizeObserver?.disconnect();
+      this.contentResizeObserver?.disconnect();
+      if (this.wrapper === window && this.debouncedResize) {
+        window.removeEventListener("resize", this.debouncedResize, false);
+      }
+    }
+    resize = () => {
+      this.onWrapperResize();
+      this.onContentResize();
+    };
+    onWrapperResize = () => {
+      if (this.wrapper instanceof Window) {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+      } else {
+        this.width = this.wrapper.clientWidth;
+        this.height = this.wrapper.clientHeight;
+      }
+    };
+    onContentResize = () => {
+      if (this.wrapper instanceof Window) {
+        this.scrollHeight = this.content.scrollHeight;
+        this.scrollWidth = this.content.scrollWidth;
+      } else {
+        this.scrollHeight = this.wrapper.scrollHeight;
+        this.scrollWidth = this.wrapper.scrollWidth;
+      }
+    };
+    get limit() {
+      return {
+        x: this.scrollWidth - this.width,
+        y: this.scrollHeight - this.height
+      };
+    }
+  };
+  var Emitter = class {
+    events = {};
+    /**
+     * Emit an event with the given data
+     * @param event Event name
+     * @param args Data to pass to the event handlers
+     */
+    emit(event, ...args) {
+      let callbacks = this.events[event] || [];
+      for (let i = 0, length = callbacks.length; i < length; i++) {
+        callbacks[i]?.(...args);
+      }
+    }
+    /**
+     * Add a callback to the event
+     * @param event Event name
+     * @param cb Callback function
+     * @returns Unsubscribe function
+     */
+    on(event, cb) {
+      this.events[event]?.push(cb) || (this.events[event] = [cb]);
+      return () => {
+        this.events[event] = this.events[event]?.filter((i) => cb !== i);
+      };
+    }
+    /**
+     * Remove a callback from the event
+     * @param event Event name
+     * @param callback Callback function
+     */
+    off(event, callback) {
+      this.events[event] = this.events[event]?.filter((i) => callback !== i);
+    }
+    /**
+     * Remove all event listeners and clean up
+     */
+    destroy() {
+      this.events = {};
+    }
+  };
+  var LINE_HEIGHT = 100 / 6;
+  var listenerOptions = { passive: false };
+  var VirtualScroll = class {
+    constructor(element, options = { wheelMultiplier: 1, touchMultiplier: 1 }) {
+      this.element = element;
+      this.options = options;
+      window.addEventListener("resize", this.onWindowResize, false);
+      this.onWindowResize();
+      this.element.addEventListener("wheel", this.onWheel, listenerOptions);
+      this.element.addEventListener(
+        "touchstart",
+        this.onTouchStart,
+        listenerOptions
+      );
+      this.element.addEventListener(
+        "touchmove",
+        this.onTouchMove,
+        listenerOptions
+      );
+      this.element.addEventListener("touchend", this.onTouchEnd, listenerOptions);
+    }
+    touchStart = {
+      x: 0,
+      y: 0
+    };
+    lastDelta = {
+      x: 0,
+      y: 0
+    };
+    window = {
+      width: 0,
+      height: 0
+    };
+    emitter = new Emitter();
+    /**
+     * Add an event listener for the given event and callback
+     *
+     * @param event Event name
+     * @param callback Callback function
+     */
+    on(event, callback) {
+      return this.emitter.on(event, callback);
+    }
+    /** Remove all event listeners and clean up */
+    destroy() {
+      this.emitter.destroy();
+      window.removeEventListener("resize", this.onWindowResize, false);
+      this.element.removeEventListener("wheel", this.onWheel, listenerOptions);
+      this.element.removeEventListener(
+        "touchstart",
+        this.onTouchStart,
+        listenerOptions
+      );
+      this.element.removeEventListener(
+        "touchmove",
+        this.onTouchMove,
+        listenerOptions
+      );
+      this.element.removeEventListener(
+        "touchend",
+        this.onTouchEnd,
+        listenerOptions
+      );
+    }
+    /**
+     * Event handler for 'touchstart' event
+     *
+     * @param event Touch event
+     */
+    onTouchStart = (event) => {
+      const { clientX, clientY } = event.targetTouches ? event.targetTouches[0] : event;
+      this.touchStart.x = clientX;
+      this.touchStart.y = clientY;
+      this.lastDelta = {
+        x: 0,
+        y: 0
+      };
+      this.emitter.emit("scroll", {
+        deltaX: 0,
+        deltaY: 0,
+        event
+      });
+    };
+    /** Event handler for 'touchmove' event */
+    onTouchMove = (event) => {
+      const { clientX, clientY } = event.targetTouches ? event.targetTouches[0] : event;
+      const deltaX = -(clientX - this.touchStart.x) * this.options.touchMultiplier;
+      const deltaY = -(clientY - this.touchStart.y) * this.options.touchMultiplier;
+      this.touchStart.x = clientX;
+      this.touchStart.y = clientY;
+      this.lastDelta = {
+        x: deltaX,
+        y: deltaY
+      };
+      this.emitter.emit("scroll", {
+        deltaX,
+        deltaY,
+        event
+      });
+    };
+    onTouchEnd = (event) => {
+      this.emitter.emit("scroll", {
+        deltaX: this.lastDelta.x,
+        deltaY: this.lastDelta.y,
+        event
+      });
+    };
+    /** Event handler for 'wheel' event */
+    onWheel = (event) => {
+      let { deltaX, deltaY, deltaMode } = event;
+      const multiplierX = deltaMode === 1 ? LINE_HEIGHT : deltaMode === 2 ? this.window.width : 1;
+      const multiplierY = deltaMode === 1 ? LINE_HEIGHT : deltaMode === 2 ? this.window.height : 1;
+      deltaX *= multiplierX;
+      deltaY *= multiplierY;
+      deltaX *= this.options.wheelMultiplier;
+      deltaY *= this.options.wheelMultiplier;
+      this.emitter.emit("scroll", { deltaX, deltaY, event });
+    };
+    onWindowResize = () => {
+      this.window = {
+        width: window.innerWidth,
+        height: window.innerHeight
+      };
+    };
+  };
+  var defaultEasing = (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t));
+  var Lenis = class {
+    _isScrolling = false;
+    // true when scroll is animating
+    _isStopped = false;
+    // true if user should not be able to scroll - enable/disable programmatically
+    _isLocked = false;
+    // same as isStopped but enabled/disabled when scroll reaches target
+    _preventNextNativeScrollEvent = false;
+    _resetVelocityTimeout = null;
+    __rafID = null;
+    /**
+     * Whether or not the user is touching the screen
+     */
+    isTouching;
+    /**
+     * The time in ms since the lenis instance was created
+     */
+    time = 0;
+    /**
+     * User data that will be forwarded through the scroll event
+     *
+     * @example
+     * lenis.scrollTo(100, {
+     *   userData: {
+     *     foo: 'bar'
+     *   }
+     * })
+     */
+    userData = {};
+    /**
+     * The last velocity of the scroll
+     */
+    lastVelocity = 0;
+    /**
+     * The current velocity of the scroll
+     */
+    velocity = 0;
+    /**
+     * The direction of the scroll
+     */
+    direction = 0;
+    /**
+     * The options passed to the lenis instance
+     */
+    options;
+    /**
+     * The target scroll value
+     */
+    targetScroll;
+    /**
+     * The animated scroll value
+     */
+    animatedScroll;
+    // These are instanciated here as they don't need information from the options
+    animate = new Animate();
+    emitter = new Emitter();
+    // These are instanciated in the constructor as they need information from the options
+    dimensions;
+    // This is not private because it's used in the Snap class
+    virtualScroll;
+    constructor({
+      wrapper = window,
+      content = document.documentElement,
+      eventsTarget = wrapper,
+      smoothWheel = true,
+      syncTouch = false,
+      syncTouchLerp = 0.075,
+      touchInertiaExponent = 1.7,
+      duration,
+      // in seconds
+      easing,
+      lerp: lerp2 = 0.1,
+      infinite = false,
+      orientation = "vertical",
+      // vertical, horizontal
+      gestureOrientation = orientation === "horizontal" ? "both" : "vertical",
+      // vertical, horizontal, both
+      touchMultiplier = 1,
+      wheelMultiplier = 1,
+      autoResize = true,
+      prevent,
+      virtualScroll,
+      overscroll = true,
+      autoRaf = false,
+      anchors = false,
+      autoToggle = false,
+      // https://caniuse.com/?search=transition-behavior
+      allowNestedScroll = false,
+      __experimental__naiveDimensions = false
+    } = {}) {
+      window.lenisVersion = version;
+      if (!wrapper || wrapper === document.documentElement) {
+        wrapper = window;
+      }
+      if (typeof duration === "number" && typeof easing !== "function") {
+        easing = defaultEasing;
+      } else if (typeof easing === "function" && typeof duration !== "number") {
+        duration = 1;
+      }
+      this.options = {
+        wrapper,
+        content,
+        eventsTarget,
+        smoothWheel,
+        syncTouch,
+        syncTouchLerp,
+        touchInertiaExponent,
+        duration,
+        easing,
+        lerp: lerp2,
+        infinite,
+        gestureOrientation,
+        orientation,
+        touchMultiplier,
+        wheelMultiplier,
+        autoResize,
+        prevent,
+        virtualScroll,
+        overscroll,
+        autoRaf,
+        anchors,
+        autoToggle,
+        allowNestedScroll,
+        __experimental__naiveDimensions
+      };
+      this.dimensions = new Dimensions(wrapper, content, { autoResize });
+      this.updateClassName();
+      this.targetScroll = this.animatedScroll = this.actualScroll;
+      this.options.wrapper.addEventListener("scroll", this.onNativeScroll, false);
+      this.options.wrapper.addEventListener("scrollend", this.onScrollEnd, {
+        capture: true
+      });
+      if (this.options.anchors && this.options.wrapper === window) {
+        this.options.wrapper.addEventListener(
+          "click",
+          this.onClick,
+          false
+        );
+      }
+      this.options.wrapper.addEventListener(
+        "pointerdown",
+        this.onPointerDown,
+        false
+      );
+      this.virtualScroll = new VirtualScroll(eventsTarget, {
+        touchMultiplier,
+        wheelMultiplier
+      });
+      this.virtualScroll.on("scroll", this.onVirtualScroll);
+      if (this.options.autoToggle) {
+        this.rootElement.addEventListener("transitionend", this.onTransitionEnd, {
+          passive: true
+        });
+      }
+      if (this.options.autoRaf) {
+        this.__rafID = requestAnimationFrame(this.raf);
+      }
+    }
+    /**
+     * Destroy the lenis instance, remove all event listeners and clean up the class name
+     */
+    destroy() {
+      this.emitter.destroy();
+      this.options.wrapper.removeEventListener(
+        "scroll",
+        this.onNativeScroll,
+        false
+      );
+      this.options.wrapper.removeEventListener("scrollend", this.onScrollEnd, {
+        capture: true
+      });
+      this.options.wrapper.removeEventListener(
+        "pointerdown",
+        this.onPointerDown,
+        false
+      );
+      if (this.options.anchors && this.options.wrapper === window) {
+        this.options.wrapper.removeEventListener(
+          "click",
+          this.onClick,
+          false
+        );
+      }
+      this.virtualScroll.destroy();
+      this.dimensions.destroy();
+      this.cleanUpClassName();
+      if (this.__rafID) {
+        cancelAnimationFrame(this.__rafID);
+      }
+    }
+    on(event, callback) {
+      return this.emitter.on(event, callback);
+    }
+    off(event, callback) {
+      return this.emitter.off(event, callback);
+    }
+    onScrollEnd = (e) => {
+      if (!(e instanceof CustomEvent)) {
+        if (this.isScrolling === "smooth" || this.isScrolling === false) {
+          e.stopPropagation();
+        }
+      }
+    };
+    dispatchScrollendEvent = () => {
+      this.options.wrapper.dispatchEvent(
+        new CustomEvent("scrollend", {
+          bubbles: this.options.wrapper === window,
+          // cancelable: false,
+          detail: {
+            lenisScrollEnd: true
+          }
+        })
+      );
+    };
+    onTransitionEnd = (event) => {
+      if (event.propertyName.includes("overflow")) {
+        const property = this.isHorizontal ? "overflow-x" : "overflow-y";
+        const overflow = getComputedStyle(this.rootElement)[property];
+        if (["hidden", "clip"].includes(overflow)) {
+          this.internalStop();
+        } else {
+          this.internalStart();
+        }
+      }
+    };
+    setScroll(scroll) {
+      if (this.isHorizontal) {
+        this.options.wrapper.scrollTo({ left: scroll, behavior: "instant" });
+      } else {
+        this.options.wrapper.scrollTo({ top: scroll, behavior: "instant" });
+      }
+    }
+    onClick = (event) => {
+      const path = event.composedPath();
+      const anchor = path.find(
+        (node) => node instanceof HTMLAnchorElement && (node.getAttribute("href")?.startsWith("#") || node.getAttribute("href")?.startsWith("/#") || node.getAttribute("href")?.startsWith("./#"))
+      );
+      if (anchor) {
+        const id = anchor.getAttribute("href");
+        if (id) {
+          const options = typeof this.options.anchors === "object" && this.options.anchors ? this.options.anchors : void 0;
+          let target = `#${id.split("#")[1]}`;
+          if (["#", "/#", "./#", "#top", "/#top", "./#top"].includes(id)) {
+            target = 0;
+          }
+          this.scrollTo(target, options);
+        }
+      }
+    };
+    onPointerDown = (event) => {
+      if (event.button === 1) {
+        this.reset();
+      }
+    };
+    onVirtualScroll = (data) => {
+      if (typeof this.options.virtualScroll === "function" && this.options.virtualScroll(data) === false)
+        return;
+      const { deltaX, deltaY, event } = data;
+      this.emitter.emit("virtual-scroll", { deltaX, deltaY, event });
+      if (event.ctrlKey) return;
+      if (event.lenisStopPropagation) return;
+      const isTouch = event.type.includes("touch");
+      const isWheel = event.type.includes("wheel");
+      this.isTouching = event.type === "touchstart" || event.type === "touchmove";
+      const isClickOrTap = deltaX === 0 && deltaY === 0;
+      const isTapToStop = this.options.syncTouch && isTouch && event.type === "touchstart" && isClickOrTap && !this.isStopped && !this.isLocked;
+      if (isTapToStop) {
+        this.reset();
+        return;
+      }
+      const isUnknownGesture = this.options.gestureOrientation === "vertical" && deltaY === 0 || this.options.gestureOrientation === "horizontal" && deltaX === 0;
+      if (isClickOrTap || isUnknownGesture) {
+        return;
+      }
+      let composedPath = event.composedPath();
+      composedPath = composedPath.slice(0, composedPath.indexOf(this.rootElement));
+      const prevent = this.options.prevent;
+      if (!!composedPath.find(
+        (node) => node instanceof HTMLElement && (typeof prevent === "function" && prevent?.(node) || node.hasAttribute?.("data-lenis-prevent") || isTouch && node.hasAttribute?.("data-lenis-prevent-touch") || isWheel && node.hasAttribute?.("data-lenis-prevent-wheel") || this.options.allowNestedScroll && this.checkNestedScroll(node, { deltaX, deltaY }))
+      ))
+        return;
+      if (this.isStopped || this.isLocked) {
+        if (event.cancelable) {
+          event.preventDefault();
+        }
+        return;
+      }
+      const isSmooth = this.options.syncTouch && isTouch || this.options.smoothWheel && isWheel;
+      if (!isSmooth) {
+        this.isScrolling = "native";
+        this.animate.stop();
+        event.lenisStopPropagation = true;
+        return;
+      }
+      let delta = deltaY;
+      if (this.options.gestureOrientation === "both") {
+        delta = Math.abs(deltaY) > Math.abs(deltaX) ? deltaY : deltaX;
+      } else if (this.options.gestureOrientation === "horizontal") {
+        delta = deltaX;
+      }
+      if (!this.options.overscroll || this.options.infinite || this.options.wrapper !== window && this.limit > 0 && (this.animatedScroll > 0 && this.animatedScroll < this.limit || this.animatedScroll === 0 && deltaY > 0 || this.animatedScroll === this.limit && deltaY < 0)) {
+        event.lenisStopPropagation = true;
+      }
+      if (event.cancelable) {
+        event.preventDefault();
+      }
+      const isSyncTouch = isTouch && this.options.syncTouch;
+      const isTouchEnd = isTouch && event.type === "touchend";
+      const hasTouchInertia = isTouchEnd;
+      if (hasTouchInertia) {
+        delta = Math.sign(this.velocity) * Math.pow(Math.abs(this.velocity), this.options.touchInertiaExponent);
+      }
+      this.scrollTo(this.targetScroll + delta, {
+        programmatic: false,
+        ...isSyncTouch ? {
+          lerp: hasTouchInertia ? this.options.syncTouchLerp : 1
+          // immediate: !hasTouchInertia,
+        } : {
+          lerp: this.options.lerp,
+          duration: this.options.duration,
+          easing: this.options.easing
+        }
+      });
+    };
+    /**
+     * Force lenis to recalculate the dimensions
+     */
+    resize() {
+      this.dimensions.resize();
+      this.animatedScroll = this.targetScroll = this.actualScroll;
+      this.emit();
+    }
+    emit() {
+      this.emitter.emit("scroll", this);
+    }
+    onNativeScroll = () => {
+      if (this._resetVelocityTimeout !== null) {
+        clearTimeout(this._resetVelocityTimeout);
+        this._resetVelocityTimeout = null;
+      }
+      if (this._preventNextNativeScrollEvent) {
+        this._preventNextNativeScrollEvent = false;
+        return;
+      }
+      if (this.isScrolling === false || this.isScrolling === "native") {
+        const lastScroll = this.animatedScroll;
+        this.animatedScroll = this.targetScroll = this.actualScroll;
+        this.lastVelocity = this.velocity;
+        this.velocity = this.animatedScroll - lastScroll;
+        this.direction = Math.sign(
+          this.animatedScroll - lastScroll
+        );
+        if (!this.isStopped) {
+          this.isScrolling = "native";
+        }
+        this.emit();
+        if (this.velocity !== 0) {
+          this._resetVelocityTimeout = setTimeout(() => {
+            this.lastVelocity = this.velocity;
+            this.velocity = 0;
+            this.isScrolling = false;
+            this.emit();
+          }, 400);
+        }
+      }
+    };
+    reset() {
+      this.isLocked = false;
+      this.isScrolling = false;
+      this.animatedScroll = this.targetScroll = this.actualScroll;
+      this.lastVelocity = this.velocity = 0;
+      this.animate.stop();
+    }
+    /**
+     * Start lenis scroll after it has been stopped
+     */
+    start() {
+      if (!this.isStopped) return;
+      if (this.options.autoToggle) {
+        this.rootElement.style.removeProperty("overflow");
+        return;
+      }
+      this.internalStart();
+    }
+    internalStart() {
+      if (!this.isStopped) return;
+      this.reset();
+      this.isStopped = false;
+      this.emit();
+    }
+    /**
+     * Stop lenis scroll
+     */
+    stop() {
+      if (this.isStopped) return;
+      if (this.options.autoToggle) {
+        this.rootElement.style.setProperty("overflow", "clip");
+        return;
+      }
+      this.internalStop();
+    }
+    internalStop() {
+      if (this.isStopped) return;
+      this.reset();
+      this.isStopped = true;
+      this.emit();
+    }
+    /**
+     * RequestAnimationFrame for lenis
+     *
+     * @param time The time in ms from an external clock like `requestAnimationFrame` or Tempus
+     */
+    raf = (time) => {
+      const deltaTime = time - (this.time || time);
+      this.time = time;
+      this.animate.advance(deltaTime * 1e-3);
+      if (this.options.autoRaf) {
+        this.__rafID = requestAnimationFrame(this.raf);
+      }
+    };
+    /**
+     * Scroll to a target value
+     *
+     * @param target The target value to scroll to
+     * @param options The options for the scroll
+     *
+     * @example
+     * lenis.scrollTo(100, {
+     *   offset: 100,
+     *   duration: 1,
+     *   easing: (t) => 1 - Math.cos((t * Math.PI) / 2),
+     *   lerp: 0.1,
+     *   onStart: () => {
+     *     console.log('onStart')
+     *   },
+     *   onComplete: () => {
+     *     console.log('onComplete')
+     *   },
+     * })
+     */
+    scrollTo(target, {
+      offset = 0,
+      immediate = false,
+      lock = false,
+      duration = this.options.duration,
+      easing = this.options.easing,
+      lerp: lerp2 = this.options.lerp,
+      onStart,
+      onComplete,
+      force = false,
+      // scroll even if stopped
+      programmatic = true,
+      // called from outside of the class
+      userData
+    } = {}) {
+      if ((this.isStopped || this.isLocked) && !force) return;
+      if (typeof target === "string" && ["top", "left", "start"].includes(target)) {
+        target = 0;
+      } else if (typeof target === "string" && ["bottom", "right", "end"].includes(target)) {
+        target = this.limit;
+      } else {
+        let node;
+        if (typeof target === "string") {
+          node = document.querySelector(target);
+        } else if (target instanceof HTMLElement && target?.nodeType) {
+          node = target;
+        }
+        if (node) {
+          if (this.options.wrapper !== window) {
+            const wrapperRect = this.rootElement.getBoundingClientRect();
+            offset -= this.isHorizontal ? wrapperRect.left : wrapperRect.top;
+          }
+          const rect = node.getBoundingClientRect();
+          target = (this.isHorizontal ? rect.left : rect.top) + this.animatedScroll;
+        }
+      }
+      if (typeof target !== "number") return;
+      target += offset;
+      target = Math.round(target);
+      if (this.options.infinite) {
+        if (programmatic) {
+          this.targetScroll = this.animatedScroll = this.scroll;
+          const distance = target - this.animatedScroll;
+          if (distance > this.limit / 2) {
+            target = target - this.limit;
+          } else if (distance < -this.limit / 2) {
+            target = target + this.limit;
+          }
+        }
+      } else {
+        target = clamp(0, target, this.limit);
+      }
+      if (target === this.targetScroll) {
+        onStart?.(this);
+        onComplete?.(this);
+        return;
+      }
+      this.userData = userData ?? {};
+      if (immediate) {
+        this.animatedScroll = this.targetScroll = target;
+        this.setScroll(this.scroll);
+        this.reset();
+        this.preventNextNativeScrollEvent();
+        this.emit();
+        onComplete?.(this);
+        this.userData = {};
+        requestAnimationFrame(() => {
+          this.dispatchScrollendEvent();
+        });
+        return;
+      }
+      if (!programmatic) {
+        this.targetScroll = target;
+      }
+      if (typeof duration === "number" && typeof easing !== "function") {
+        easing = defaultEasing;
+      } else if (typeof easing === "function" && typeof duration !== "number") {
+        duration = 1;
+      }
+      this.animate.fromTo(this.animatedScroll, target, {
+        duration,
+        easing,
+        lerp: lerp2,
+        onStart: () => {
+          if (lock) this.isLocked = true;
+          this.isScrolling = "smooth";
+          onStart?.(this);
+        },
+        onUpdate: (value, completed) => {
+          this.isScrolling = "smooth";
+          this.lastVelocity = this.velocity;
+          this.velocity = value - this.animatedScroll;
+          this.direction = Math.sign(this.velocity);
+          this.animatedScroll = value;
+          this.setScroll(this.scroll);
+          if (programmatic) {
+            this.targetScroll = value;
+          }
+          if (!completed) this.emit();
+          if (completed) {
+            this.reset();
+            this.emit();
+            onComplete?.(this);
+            this.userData = {};
+            requestAnimationFrame(() => {
+              this.dispatchScrollendEvent();
+            });
+            this.preventNextNativeScrollEvent();
+          }
+        }
+      });
+    }
+    preventNextNativeScrollEvent() {
+      this._preventNextNativeScrollEvent = true;
+      requestAnimationFrame(() => {
+        this._preventNextNativeScrollEvent = false;
+      });
+    }
+    checkNestedScroll(node, { deltaX, deltaY }) {
+      const time = Date.now();
+      const cache = node._lenis ??= {};
+      let hasOverflowX, hasOverflowY, isScrollableX, isScrollableY, scrollWidth, scrollHeight, clientWidth, clientHeight;
+      const gestureOrientation = this.options.gestureOrientation;
+      if (time - (cache.time ?? 0) > 2e3) {
+        cache.time = Date.now();
+        const computedStyle = window.getComputedStyle(node);
+        cache.computedStyle = computedStyle;
+        const overflowXString = computedStyle.overflowX;
+        const overflowYString = computedStyle.overflowY;
+        hasOverflowX = ["auto", "overlay", "scroll"].includes(overflowXString);
+        hasOverflowY = ["auto", "overlay", "scroll"].includes(overflowYString);
+        cache.hasOverflowX = hasOverflowX;
+        cache.hasOverflowY = hasOverflowY;
+        if (!hasOverflowX && !hasOverflowY) return false;
+        if (gestureOrientation === "vertical" && !hasOverflowY) return false;
+        if (gestureOrientation === "horizontal" && !hasOverflowX) return false;
+        scrollWidth = node.scrollWidth;
+        scrollHeight = node.scrollHeight;
+        clientWidth = node.clientWidth;
+        clientHeight = node.clientHeight;
+        isScrollableX = scrollWidth > clientWidth;
+        isScrollableY = scrollHeight > clientHeight;
+        cache.isScrollableX = isScrollableX;
+        cache.isScrollableY = isScrollableY;
+        cache.scrollWidth = scrollWidth;
+        cache.scrollHeight = scrollHeight;
+        cache.clientWidth = clientWidth;
+        cache.clientHeight = clientHeight;
+      } else {
+        isScrollableX = cache.isScrollableX;
+        isScrollableY = cache.isScrollableY;
+        hasOverflowX = cache.hasOverflowX;
+        hasOverflowY = cache.hasOverflowY;
+        scrollWidth = cache.scrollWidth;
+        scrollHeight = cache.scrollHeight;
+        clientWidth = cache.clientWidth;
+        clientHeight = cache.clientHeight;
+      }
+      if (!hasOverflowX && !hasOverflowY || !isScrollableX && !isScrollableY) {
+        return false;
+      }
+      if (gestureOrientation === "vertical" && (!hasOverflowY || !isScrollableY))
+        return false;
+      if (gestureOrientation === "horizontal" && (!hasOverflowX || !isScrollableX))
+        return false;
+      let orientation;
+      if (gestureOrientation === "horizontal") {
+        orientation = "x";
+      } else if (gestureOrientation === "vertical") {
+        orientation = "y";
+      } else {
+        const isScrollingX = deltaX !== 0;
+        const isScrollingY = deltaY !== 0;
+        if (isScrollingX && hasOverflowX && isScrollableX) {
+          orientation = "x";
+        }
+        if (isScrollingY && hasOverflowY && isScrollableY) {
+          orientation = "y";
+        }
+      }
+      if (!orientation) return false;
+      let scroll, maxScroll, delta, hasOverflow, isScrollable;
+      if (orientation === "x") {
+        scroll = node.scrollLeft;
+        maxScroll = scrollWidth - clientWidth;
+        delta = deltaX;
+        hasOverflow = hasOverflowX;
+        isScrollable = isScrollableX;
+      } else if (orientation === "y") {
+        scroll = node.scrollTop;
+        maxScroll = scrollHeight - clientHeight;
+        delta = deltaY;
+        hasOverflow = hasOverflowY;
+        isScrollable = isScrollableY;
+      } else {
+        return false;
+      }
+      const willScroll = delta > 0 ? scroll < maxScroll : scroll > 0;
+      return willScroll && hasOverflow && isScrollable;
+    }
+    /**
+     * The root element on which lenis is instanced
+     */
+    get rootElement() {
+      return this.options.wrapper === window ? document.documentElement : this.options.wrapper;
+    }
+    /**
+     * The limit which is the maximum scroll value
+     */
+    get limit() {
+      if (this.options.__experimental__naiveDimensions) {
+        if (this.isHorizontal) {
+          return this.rootElement.scrollWidth - this.rootElement.clientWidth;
+        } else {
+          return this.rootElement.scrollHeight - this.rootElement.clientHeight;
+        }
+      } else {
+        return this.dimensions.limit[this.isHorizontal ? "x" : "y"];
+      }
+    }
+    /**
+     * Whether or not the scroll is horizontal
+     */
+    get isHorizontal() {
+      return this.options.orientation === "horizontal";
+    }
+    /**
+     * The actual scroll value
+     */
+    get actualScroll() {
+      const wrapper = this.options.wrapper;
+      return this.isHorizontal ? wrapper.scrollX ?? wrapper.scrollLeft : wrapper.scrollY ?? wrapper.scrollTop;
+    }
+    /**
+     * The current scroll value
+     */
+    get scroll() {
+      return this.options.infinite ? modulo(this.animatedScroll, this.limit) : this.animatedScroll;
+    }
+    /**
+     * The progress of the scroll relative to the limit
+     */
+    get progress() {
+      return this.limit === 0 ? 1 : this.scroll / this.limit;
+    }
+    /**
+     * Current scroll state
+     */
+    get isScrolling() {
+      return this._isScrolling;
+    }
+    set isScrolling(value) {
+      if (this._isScrolling !== value) {
+        this._isScrolling = value;
+        this.updateClassName();
+      }
+    }
+    /**
+     * Check if lenis is stopped
+     */
+    get isStopped() {
+      return this._isStopped;
+    }
+    set isStopped(value) {
+      if (this._isStopped !== value) {
+        this._isStopped = value;
+        this.updateClassName();
+      }
+    }
+    /**
+     * Check if lenis is locked
+     */
+    get isLocked() {
+      return this._isLocked;
+    }
+    set isLocked(value) {
+      if (this._isLocked !== value) {
+        this._isLocked = value;
+        this.updateClassName();
+      }
+    }
+    /**
+     * Check if lenis is smooth scrolling
+     */
+    get isSmooth() {
+      return this.isScrolling === "smooth";
+    }
+    /**
+     * The class name applied to the wrapper element
+     */
+    get className() {
+      let className = "lenis";
+      if (this.options.autoToggle) className += " lenis-autoToggle";
+      if (this.isStopped) className += " lenis-stopped";
+      if (this.isLocked) className += " lenis-locked";
+      if (this.isScrolling) className += " lenis-scrolling";
+      if (this.isScrolling === "smooth") className += " lenis-smooth";
+      return className;
+    }
+    updateClassName() {
+      this.cleanUpClassName();
+      this.rootElement.className = `${this.rootElement.className} ${this.className}`.trim();
+    }
+    cleanUpClassName() {
+      this.rootElement.className = this.rootElement.className.replace(/lenis(-\w+)?/g, "").trim();
+    }
+  };
+
+  // src/utils/environment.ts
+  init_live_reload();
+  var environment = () => {
+    const { host } = window.location;
+    return host.includes("webflow.io") ? "staging" : "production";
+  };
+
+  // src/types/index.ts
+  init_live_reload();
+
+  // src/types/animations.ts
+  init_live_reload();
+
+  // src/types/config.ts
+  init_live_reload();
+
+  // src/types/events.ts
+  init_live_reload();
+
+  // src/app.ts
+  var App = class _App {
+    static _instance;
+    eventBus;
+    initialised = false;
+    environment;
+    constructor() {
+      this.eventBus = new import_js_event_bus.default();
+      this.environment = environment();
+    }
+    static getInstance() {
+      if (!_App._instance) _App._instance = new _App();
+      return _App._instance;
+    }
+    init() {
+      if (this.initialised) {
+        return;
+      }
+      this.smoothScroll();
+      this.initialised = true;
+      this.eventBus.emit("app:initialized" /* APP_INITIALIZED */);
+    }
+    smoothScroll() {
+      const lenis = new Lenis();
+      lenis.on("scroll", ScrollTrigger.update);
+      gsap.ticker.add((time) => {
+        lenis.raf(time * 1e3);
+      });
+      gsap.ticker.lagSmoothing(0);
+    }
+  };
+
+  // src/animations/config.ts
+  init_live_reload();
+  var initGSAPDefaults = () => {
+    const app = App.getInstance();
+    gsap.defaults({
+      duration: 2,
+      ease: "expo.inOut"
+    });
+    ScrollTrigger.defaults({
+      markers: app.environment === "staging"
+      // Show markers in staging
+    });
+    ScrollTrigger.config({
+      autoRefreshEvents: "visibilitychange,DOMContentLoaded,load"
+    });
+  };
+  var ANIMATION_DEFAULTS = {
+    load: {
+      duration: 2,
+      stagger: 0.1
+    },
+    entrance: {
+      duration: 1,
+      toggleActions: "play none none none"
+    },
+    scrub: {
+      scrub: 1,
+      ease: "expo.out",
+      pin: false
+    }
+  };
+  var TRIGGER_DEFAULTS = {
+    entrance: {
+      start: "top 80%",
+      end: "bottom top",
+      toggleActions: "play none none none"
+    },
+    scrub: {
+      start: "top bottom",
+      end: "bottom top",
+      scrub: 1
+    }
+  };
+
+  // src/animations/manager.ts
+  init_live_reload();
+
+  // src/animations/factory.ts
+  init_live_reload();
+
+  // src/animations/registry.ts
+  init_live_reload();
+
+  // src/animations/timelines/footer.ts
+  init_live_reload();
+
+  // src/utils/queryElement.ts
+  init_live_reload();
+  var queryElement = (query, parent = document) => {
+    const element = parent.querySelector(query);
+    return element ?? void 0;
+  };
+
+  // src/utils/queryElements.ts
+  init_live_reload();
+  var queryElements = (query, parent = document) => {
+    const elements = parent.querySelectorAll(query);
+    return elements.length ? [...elements] : [];
+  };
+
+  // src/animations/timelines/footer.ts
+  var footerTimeline = (element, context) => {
+    const tl = gsap.timeline({ defaults: { duration: context?.duration || 1, ease: "none" } });
+    const inner = queryElement('[data-element="inner"]');
+    const footer = queryElement("footer", element);
+    if (inner) {
+      tl.fromTo(
+        inner,
+        { y: 0, scaleX: 1, scaleY: 1 },
+        {
+          y: () => {
+            const spacers = queryElements(".u-section-spacer");
+            const lastSpacer = spacers[spacers.length - 1];
+            return (lastSpacer ? lastSpacer.getBoundingClientRect().height : 160) * -1;
+          },
+          transformOrigin: "center bottom"
+        }
+      );
+    }
+    if (footer) {
+      tl.from(footer, { opacity: 0.5, yPercent: 10 }, 0);
+    }
+    return tl;
+  };
+  var footerTriggerConfig = {
+    start: "top center",
+    end: "bottom bottom",
+    scrub: 1
+  };
+
+  // src/animations/timelines/hero.ts
+  init_live_reload();
+  var heroTimeline = (element, context) => {
+    const tl = gsap.timeline({
+      paused: true,
+      defaults: { duration: context?.duration || 2, ease: context?.ease || "expo.inOut" }
+    });
+    const nav = queryElement(`.nav_component`);
+    const inner = queryElement('[data-element="inner"]');
+    const title = queryElement("h1", element);
+    if (nav) {
+      tl.from(nav, { opacity: 0, y: "-1rem" });
+    }
+    if (inner) {
+      tl.from(
+        inner,
+        {
+          opacity: 0,
+          y: () => {
+            const spacer = queryElement(".u-section-spacer");
+            return spacer ? spacer.getBoundingClientRect().height : 160;
+          }
+        },
+        0
+      );
+    }
+    if (title) {
+      const splitTitle = new SplitText(title, { type: "lines", mask: "lines" });
+      tl.from(splitTitle.lines, { yPercent: 100, stagger: 0.01 }, 0.2);
+    }
+    if (context?.speed === "fast") {
+      tl.timeScale(1.5);
+    } else if (context?.speed === "slow") {
+      tl.timeScale(0.7);
+    }
+    return tl;
+  };
+  var heroTriggerConfig = {
+    start: "bottom bottom",
+    end: "bottom top",
+    scrub: false,
+    toggleActions: "play none none none"
+  };
+
+  // src/animations/timelines/modern.ts
+  init_live_reload();
+  var modernTimeline = (element, context) => {
+    const tl = gsap.timeline({
+      paused: true,
+      defaults: { duration: context?.duration || 1.5, ease: context?.ease || "expo.inOut" }
+    });
+    const eyebrowMarker = queryElement(".eyebrow_marker", element);
+    const eyebrowText = queryElement(".eyebrow_text", element);
+    const contentBlocks = queryElements(".c-heading > *", element);
+    if (eyebrowMarker) {
+      tl.from(eyebrowMarker, { opacity: 0, scale: 0.9, duration: 1.5 });
+    }
+    if (eyebrowText) {
+      const splitTitle = new SplitText(eyebrowText, { type: "lines", mask: "lines" });
+      tl.from(splitTitle.lines, { opacity: 0, x: "-1rem", duration: 1.5, stagger: 0.1 }, 0.1);
+    }
+    if (contentBlocks) {
+      contentBlocks.forEach((block, index) => {
+        const splitTitle = new SplitText(block, { type: "lines", mask: "lines" });
+        const position = index === 0 ? 0.1 : ">-1.5";
+        tl.from(splitTitle.lines, { yPercent: 100, stagger: 0.15 }, position);
+      });
+    }
+    return tl;
+  };
+  var modernTriggerConfig = {
+    start: "top 80%",
+    end: "bottom top",
+    scrub: false,
+    toggleActions: "play none none none"
+  };
+
+  // src/animations/timelines/panels.ts
+  init_live_reload();
+  var panelsTimeline = (element, context) => {
+    const parent = element.parentElement;
+    const isLastPanel = (() => {
+      if (!parent) return true;
+      const allPanels = Array.from(parent.querySelectorAll('[data-animation="panel"]'));
+      const currentIndex = allPanels.indexOf(element);
+      return currentIndex === allPanels.length - 1;
+    })();
+    if (isLastPanel) return;
+    const tl = gsap.timeline({ defaults: { ease: context?.ease || "expo.out" } });
+    tl.to(element, { opacity: 0, scale: 0.8, transformOrigin: "center bottom", duration: 1 });
+    return tl;
+  };
+  var panelsTriggerConfig = {
+    start: "top top",
+    end: "bottom top",
+    scrub: 1
+  };
+
+  // src/animations/timelines/reveal.ts
+  init_live_reload();
+  var revealTimeline = (element, context) => {
+    const tl = gsap.timeline({ defaults: { ease: context?.ease || "expo.inOut" } });
+    const background = queryElement('[data-reveal="background"]', element);
+    const bottom = queryElement('[data-reveal="bottom"]', element);
+    const top = queryElement('[data-reveal="top"]', element);
+    if (!background || !bottom || !top) return;
+    tl.from(background, { width: "50%" });
+    tl.from(bottom, { xPercent: 50 }, "<");
+    tl.from(top, { xPercent: -50 }, "<");
+    if (context?.speed === "fast") {
+      tl.timeScale(1.5);
+    } else if (context?.speed === "slow") {
+      tl.timeScale(0.7);
+    }
+    return tl;
+  };
+  var getStart = () => {
+    const firstReveal = queryElement('[data-animation="reveal"]');
+    if (!firstReveal) return "top center";
+    const firstRect = firstReveal.getBoundingClientRect();
+    const { height, top } = firstRect;
+    const windowHeight = window.innerHeight;
+    const center = windowHeight / 2;
+    const belowCenterDistance = center + height;
+    const belowCenterPercentage = belowCenterDistance / windowHeight;
+    const startingPositionPercentage = top / windowHeight;
+    const percentage = startingPositionPercentage >= belowCenterPercentage ? startingPositionPercentage : belowCenterPercentage;
+    return `top ${percentage * 100}%`;
+  };
+  var revealTriggerConfig = {
+    start: getStart(),
+    end: "bottom center",
+    scrub: 1
+  };
+
+  // src/animations/registry.ts
+  var timelineRegistry = {
+    // Hero animation - typically loads on page load
+    hero: {
+      create: heroTimeline,
+      triggerConfig: heroTriggerConfig,
+      defaultTrigger: "load"
+    },
+    // Modern section animation - entrance on scroll
+    modern: {
+      create: modernTimeline,
+      triggerConfig: modernTriggerConfig,
+      defaultTrigger: "entrance"
+    },
+    // Panel animation - scrubs with scroll
+    panel: {
+      create: panelsTimeline,
+      triggerConfig: panelsTriggerConfig,
+      defaultTrigger: "scrub"
+    },
+    footer: {
+      create: footerTimeline,
+      triggerConfig: footerTriggerConfig,
+      defaultTrigger: "scrub"
+    },
+    reveal: {
+      create: revealTimeline,
+      triggerConfig: revealTriggerConfig,
+      defaultTrigger: "scrub"
+    }
+    // Add more animations here as needed
+    // Example structure:
+    // fadeIn: {
+    //   create: fadeInTimeline,
+    //   triggerConfig: fadeInTriggerConfig,
+    //   defaultTrigger: 'entrance',
+    // },
+  };
+
+  // src/animations/factory.ts
+  var AnimationFactory = class {
+    /**
+     * Create a timeline with its configuration
+     */
+    create(type, element, context) {
+      const definition = timelineRegistry[type];
+      if (!definition) {
+        console.warn(`Animation type "${type}" not found in registry`);
+        const timeline2 = gsap.timeline({ paused: true });
+        return { timeline: timeline2 };
+      }
+      const trigger = element.getAttribute("data-trigger") || definition.defaultTrigger || "entrance";
+      const animationDefaults = trigger === "load" ? ANIMATION_DEFAULTS.load : trigger === "entrance" ? ANIMATION_DEFAULTS.entrance : trigger === "scrub" ? ANIMATION_DEFAULTS.scrub : {};
+      const mergedContext = {
+        ...animationDefaults,
+        ...context
+      };
+      const timeline = definition.create(element, mergedContext);
+      let triggerConfig;
+      if (definition.triggerConfig) {
+        triggerConfig = definition.triggerConfig;
+      } else {
+        const trigger2 = element.getAttribute("data-trigger") || definition.defaultTrigger || "entrance";
+        if (trigger2 === "entrance") {
+          triggerConfig = TRIGGER_DEFAULTS.entrance;
+        } else if (trigger2 === "scrub") {
+          triggerConfig = TRIGGER_DEFAULTS.scrub;
+        }
+      }
+      return {
+        timeline,
+        triggerConfig
+      };
+    }
+    /**
+     * Check if an animation type exists
+     */
+    has(type) {
+      return type in timelineRegistry;
+    }
+    /**
+     * Get all available animation types
+     */
+    getAvailableTypes() {
+      return Object.keys(timelineRegistry);
+    }
+  };
+
+  // src/animations/manager.ts
+  var AnimationManager = class _AnimationManager {
+    static instance;
+    app;
+    factory;
+    instances = [];
+    animationQueue = [];
+    heroInstance = null;
+    isPlayingQueue = false;
+    instanceIdCounter = 0;
+    initialized = false;
+    allowNaturalTriggers = false;
+    // Flag to control when natural triggers can fire
+    constructor() {
+      this.app = App.getInstance();
+      this.factory = new AnimationFactory();
+    }
+    static getInstance() {
+      if (!_AnimationManager.instance) {
+        _AnimationManager.instance = new _AnimationManager();
+      }
+      return _AnimationManager.instance;
+    }
+    /**
+     * Initialize the animation system
+     */
+    initialize() {
+      if (this.initialized) return;
+      console.log("Initializing animation system");
+      this.scanAndCreateAnimations();
+      console.log(`Created ${this.instances.length} animation instances`);
+      console.log(this.instances);
+      this.initialized = true;
+    }
+    /**
+     * App is ready - determine what should play
+     */
+    appReady() {
+      console.log("App ready, determining animation playback order");
+      this.heroInstance = this.instances.find((i) => i.type === "hero") || null;
+      let heroVisible = false;
+      if (this.heroInstance && this.heroInstance.scrollTrigger) {
+        heroVisible = this.heroInstance.scrollTrigger.isActive;
+        if (!heroVisible) {
+          this.heroInstance.timeline.progress(1);
+        }
+      }
+      const visibleEntranceAnimations = this.instances.filter((instance) => {
+        if (instance.trigger !== "entrance") return false;
+        if (!instance.scrollTrigger) return false;
+        return instance.scrollTrigger.isActive;
+      });
+      console.log(`Found ${visibleEntranceAnimations.length} visible entrance animations`);
+      if (heroVisible && this.heroInstance) {
+        this.animationQueue.push(this.heroInstance);
+      }
+      visibleEntranceAnimations.forEach((animation) => {
+        this.animationQueue.push(animation);
+      });
+      if (this.animationQueue.length > 0) {
+        console.log(`Starting animation queue with ${this.animationQueue.length} animations`);
+        this.playNextInQueue();
+      }
+      this.allowNaturalTriggers = true;
+      ScrollTrigger.refresh();
+    }
+    /**
+     * Scan DOM for animation elements and create instances
+     */
+    scanAndCreateAnimations() {
+      const elements = document.querySelectorAll("[data-animation]");
+      elements.forEach((element) => {
+        const type = element.getAttribute("data-animation");
+        if (!type) return;
+        const trigger = element.getAttribute("data-trigger") || "entrance";
+        const context = this.extractContext(element);
+        const { timeline, triggerConfig } = this.factory.create(type, element, context);
+        const id = `${type}_${this.instanceIdCounter += 1}`;
+        const instance = {
+          id,
+          element,
+          type,
+          timeline,
+          trigger,
+          state: "pending",
+          triggerConfig,
+          context
+        };
+        if ((trigger === "entrance" || trigger === "scrub" || trigger === "load") && triggerConfig) {
+          if (trigger === "scrub") {
+            instance.scrollTrigger = ScrollTrigger.create({
+              trigger: element,
+              ...triggerConfig,
+              animation: timeline
+            });
+          } else {
+            instance.scrollTrigger = ScrollTrigger.create({
+              trigger: element,
+              ...triggerConfig,
+              onToggle: (self) => {
+                if (!this.allowNaturalTriggers) return;
+                if (trigger === "entrance" && instance.state === "pending" && self.isActive && !this.animationQueue.includes(instance)) {
+                  console.log(`ScrollTrigger playing ${type} naturally`);
+                  this.playAnimation(instance);
+                }
+              }
+            });
+          }
+        }
+        if (trigger === "event") {
+          const eventName = element.getAttribute("data-event") || type;
+          this.app.eventBus.on(eventName, (data) => {
+            if (instance.state === "pending") {
+              this.playAnimation(instance, data);
+            }
+          });
+        }
+        this.instances.push(instance);
+      });
+      this.app.eventBus.emit("animations:initialized" /* ANIMATIONS_INITIALIZED */, {
+        instanceCount: this.instances.length
+      });
+    }
+    /**
+     * Play the next animation in the queue
+     */
+    playNextInQueue() {
+      if (this.animationQueue.length === 0) {
+        this.isPlayingQueue = false;
+        console.log("Animation queue complete");
+        return;
+      }
+      this.isPlayingQueue = true;
+      const nextAnimation = this.animationQueue.shift();
+      console.log(`Playing queued animation: ${nextAnimation.type} (${nextAnimation.id})`);
+      nextAnimation.timeline.eventCallback("onComplete", () => {
+        this.handleAnimationComplete(nextAnimation);
+        this.playNextInQueue();
+      });
+      this.playAnimation(nextAnimation);
+    }
+    /**
+     * Play a specific animation
+     */
+    playAnimation(instance, _eventData) {
+      if (instance.state !== "pending") return;
+      console.log(`Playing animation: ${instance.type} (${instance.id})`);
+      instance.state = "playing";
+      this.handleAnimationStart(instance);
+      instance.timeline.restart(true);
+      if (!this.isPlayingQueue) {
+        instance.timeline.eventCallback("onComplete", () => {
+          this.handleAnimationComplete(instance);
+        });
+      }
+    }
+    /**
+     * Extract context data from element attributes
+     */
+    extractContext(element) {
+      const context = {};
+      const { attributes } = element;
+      for (let i = 0; i < attributes.length; i++) {
+        const attr = attributes[i];
+        if (attr.name.startsWith("data-context-")) {
+          const key = attr.name.replace("data-context-", "");
+          context[key] = attr.value;
+        }
+      }
+      return context;
+    }
+    /**
+     * Handle animation start
+     */
+    handleAnimationStart(instance) {
+      const eventData = {
+        id: instance.id,
+        type: instance.type,
+        element: instance.element,
+        state: "playing",
+        context: instance.context
+      };
+      this.app.eventBus.emit("animation:started" /* ANIMATION_STARTED */, eventData);
+    }
+    /**
+     * Handle animation completion
+     */
+    handleAnimationComplete(instance) {
+      instance.state = "completed";
+      const eventData = {
+        id: instance.id,
+        type: instance.type,
+        element: instance.element,
+        state: "completed",
+        context: instance.context
+      };
+      this.app.eventBus.emit("animation:completed" /* ANIMATION_COMPLETED */, eventData);
+    }
+    /**
+     * Get all instances of a specific animation type
+     */
+    getInstancesByType(type) {
+      return this.instances.filter((i) => i.type === type);
+    }
+    /**
+     * Get a specific instance by ID
+     */
+    getInstance(id) {
+      return this.instances.find((i) => i.id === id);
+    }
+    /**
+     * Manually trigger an animation
+     */
+    trigger(type, context) {
+      const instances = this.getInstancesByType(type);
+      instances.forEach((instance) => {
+        if (instance.state === "pending") {
+          this.playAnimation(instance, context);
+        }
+      });
+    }
+    /**
+     * Refresh all ScrollTriggers
+     */
+    refresh() {
+      ScrollTrigger.refresh();
+    }
+    /**
+     * Clean up all animations
+     */
+    destroy() {
+      this.instances.forEach((instance) => {
+        instance.timeline.kill();
+        instance.scrollTrigger?.kill();
+      });
+      this.instances = [];
+      this.animationQueue = [];
+      this.queuedAnimationIds.clear();
+      this.initialized = false;
+    }
+  };
+
+  // src/animations/index.ts
+  var initAnimations = () => {
+    const app = App.getInstance();
+    initGSAPDefaults();
+    const manager = AnimationManager.getInstance();
+    manager.initialize();
+    app.eventBus.on("app:initialized" /* APP_INITIALIZED */, () => {
+      manager.appReady();
+    });
+  };
+
+  // src/components/index.ts
+  init_live_reload();
+
+  // src/components/benefits.ts
+  init_live_reload();
+  var benefits = () => {
+    const attr = "data-benefits";
+    const component = queryElement(`[${attr}="component"]`);
+    if (!component) return;
+    const tagWrap = queryElement(`[${attr}="tag-wrap"]`);
+    const list = queryElement(`[${attr}="list"]`);
+    if (!tagWrap || !list) return;
+    const items = queryElements(`[${attr}="item"]`, list);
+    if (!items) return;
+    const props = { component, tagWrap, list, items };
+    resetBenefits(props);
+    formatBenefits(props);
+    window.addEventListener("resize", () => {
+      resetBenefits(props);
+      formatBenefits(props);
+    });
+    function resetBenefits({ component: component2, tagWrap: tagWrap2, list: list2, items: items2 }) {
+      component2.removeAttribute("style");
+      tagWrap2.removeAttribute("style");
+      list2.removeAttribute("style");
+      items2.forEach((item) => {
+        item.removeAttribute("style");
+      });
+    }
+    function formatBenefits({ tagWrap: tagWrap2, items: items2 }) {
+      const lastItem = items2[items2.length - 1];
+      const rect = lastItem?.getBoundingClientRect();
+      const heightOfLastItem = rect?.height;
+      let paddingTop = 0;
+      items2.forEach((item, index) => {
+        const endHeightOfItem = getDistanceFromParagraphToTop(item);
+        item.style.paddingTop = `${paddingTop}px`;
+        if (index !== items2.length - 1) {
+          paddingTop += endHeightOfItem;
+        }
+      });
+      const totalHeight = paddingTop + heightOfLastItem;
+      tagWrap2.style.height = `${totalHeight}px`;
+      const reversedItems = [...items2].reverse();
+      reversedItems.forEach((item) => {
+        const paddingBottom = totalHeight - item.getBoundingClientRect().height;
+        item.style.paddingBottom = `${paddingBottom}px`;
+      });
+      items2.forEach((item, index) => {
+        if (index === 0) return;
+        const computedStyleOfCurrentItem = getComputedStyle(item);
+        const previousItem = items2[index - 1];
+        const computedStyleOfPreviousItem = getComputedStyle(previousItem);
+        const paddingBottom = parseFloat(computedStyleOfPreviousItem.paddingBottom);
+        const paddingTop2 = parseFloat(computedStyleOfCurrentItem.paddingTop);
+        const marginTop = paddingBottom + paddingTop2;
+        item.style.marginTop = `${marginTop * -1}px`;
+      });
+    }
+    function getDistanceFromParagraphToTop(item) {
+      const paragraph = queryElement(".c-paragraph", item);
+      if (!paragraph) return 0;
+      const itemRect = item.getBoundingClientRect();
+      const paragraphRect = paragraph.getBoundingClientRect();
+      const distance = paragraphRect?.top - itemRect?.top;
+      return distance;
+    }
+  };
+
+  // src/components/index.ts
+  var components = () => {
+    benefits();
+  };
+
+  // src/index.ts
+  window.Webflow ||= [];
+  window.Webflow.push(() => {
+    initAnimations();
+    components();
+    const app = App.getInstance();
+    app.init();
+  });
+})();
+//# sourceMappingURL=index.js.map

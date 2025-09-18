@@ -1,6 +1,6 @@
-import { scaleX, scaleY } from '$config/constants';
 import type { ScrollTriggerConfig, TimelineCreator } from '$types';
 import { queryElement } from '$utils/queryElement';
+import { queryElements } from '$utils/queryElements';
 
 export const footerTimeline: TimelineCreator = (
   element: HTMLElement,
@@ -17,10 +17,12 @@ export const footerTimeline: TimelineCreator = (
       inner,
       { y: 0, scaleX: 1, scaleY: 1 },
       {
-        y: 'calc(var(--radius--section) * 100)',
+        y: () => {
+          const spacers = queryElements('.u-section-spacer');
+          const lastSpacer = spacers[spacers.length - 1];
+          return (lastSpacer ? lastSpacer.getBoundingClientRect().height : 160) * -1;
+        },
         transformOrigin: 'center bottom',
-        scaleX: () => scaleX(),
-        scaleY: () => scaleY(),
       }
     );
   }
