@@ -1,5 +1,6 @@
 import type { TimelineDefinition } from '$types';
 
+import { cardFadeTimeline } from './timelines/cardFade';
 import { cardFlipTimeline, cardFlipTriggerConfig } from './timelines/cardFlip';
 import { contentHeaderTimeline, contentHeaderTriggerConfig } from './timelines/contentHeader';
 import { footerTimeline, footerTriggerConfig } from './timelines/footer';
@@ -48,6 +49,12 @@ export const timelineRegistry: Record<string, TimelineDefinition> = {
 
   cardFlip: {
     create: cardFlipTimeline,
+    triggerConfig: cardFlipTriggerConfig,
+    defaultTrigger: 'entrance',
+  },
+
+  cardFade: {
+    create: cardFadeTimeline,
     triggerConfig: cardFlipTriggerConfig,
     defaultTrigger: 'entrance',
   },

@@ -46,10 +46,13 @@ const getStart = (): string => {
   const belowCenterPercentage = belowCenterDistance / windowHeight;
 
   const startingPositionPercentage = top / windowHeight;
+
   const percentage =
-    startingPositionPercentage >= belowCenterPercentage
-      ? startingPositionPercentage
-      : belowCenterPercentage;
+    startingPositionPercentage >= 1
+      ? belowCenterPercentage
+      : startingPositionPercentage >= belowCenterPercentage
+        ? startingPositionPercentage
+        : belowCenterPercentage;
 
   return `top ${percentage * 100}%`;
 };
