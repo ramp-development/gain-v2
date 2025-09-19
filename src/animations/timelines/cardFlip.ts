@@ -31,7 +31,7 @@ export const cardFlipTimeline: TimelineCreator = (
     gsap.set(card, {
       zIndex: 4 - index,
       opacity: 1 - index * 0.2,
-      y: isAboveThreshold ? `${(index + 1) * 1}rem` : `${index * -100}%`,
+      y: isAboveThreshold ? `${(index + 3) * 1}rem` : `${index * -100}%`,
     });
   });
 
@@ -44,7 +44,7 @@ export const cardFlipTimeline: TimelineCreator = (
   });
 
   // Build animation sequence
-  tl.to(cards, { xPercent: 0, opacity: 1, y: 0, stagger: 0.1 });
+  tl.to(cards, { xPercent: 0, opacity: 1, y: 0, stagger: 0.2 });
 
   return tl;
 };
