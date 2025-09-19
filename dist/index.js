@@ -1640,11 +1640,11 @@
       paused: true,
       defaults: { duration: context?.duration || 2, ease: context?.ease || "expo.inOut" }
     });
-    const nav = queryElement(`.nav_component`);
+    const nav2 = queryElement(`.nav_component`);
     const inner = queryElement('[data-element="inner"]');
     const title = queryElement("h1", element);
-    if (nav) {
-      tl.from(nav, { opacity: 0, y: "-1rem" });
+    if (nav2) {
+      tl.from(nav2, { opacity: 0, y: "-1rem" });
     }
     if (inner) {
       tl.fromTo(
@@ -1772,6 +1772,11 @@
 
   // src/animations/registry.ts
   var timelineRegistry = {
+    // nav: {
+    //   create: navTimeline,
+    //   triggerConfig: navTriggerConfig,
+    //   defaultTrigger: 'scrub',
+    // },
     // Hero animation - typically loads on page load
     hero: {
       create: heroTimeline,
@@ -2214,8 +2219,42 @@
     }
   };
 
+  // src/components/nav.ts
+  init_live_reload();
+  var nav = () => {
+    const nav2 = queryElement(`[${attrs.elements}="nav"]`);
+    const inner = queryElement(`[${attrs.elements}="inner"]`);
+    if (!nav2 || !inner) return;
+    const variant = "w-variant-144a276f-7272-627f-9552-6194bfeced8d";
+    const velocityThreshold = 1e3;
+    const timeline = gsap.timeline({ paused: true });
+    timeline.to(nav2, { y: "-100%", duration: 1, ease: "expo.inOut" });
+    ScrollTrigger.create({
+      trigger: inner,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: false,
+      onEnter: () => {
+        nav2.classList.add(variant);
+      },
+      onLeaveBack: () => {
+        nav2.classList.remove(variant);
+      },
+      onUpdate: (self) => {
+        const { direction } = self;
+        const velocity = self.getVelocity();
+        if (direction === 1 && velocity >= velocityThreshold) {
+          timeline.play();
+        } else if (direction === -1) {
+          timeline.reverse();
+        }
+      }
+    });
+  };
+
   // src/components/index.ts
   var components = () => {
+    nav();
     benefits();
   };
 

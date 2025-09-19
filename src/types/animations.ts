@@ -22,6 +22,7 @@ export interface ScrollTriggerConfig {
   markers?: boolean;
   invalidateOnRefresh?: boolean;
   refreshPriority?: number;
+  onUpdate?: (self: ScrollTrigger) => void;
 }
 
 /**

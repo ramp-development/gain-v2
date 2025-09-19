@@ -15,6 +15,12 @@ import { revealTimeline, revealTriggerConfig } from './timelines/reveal';
  * Maps animation names to their timeline creators and configurations
  */
 export const timelineRegistry: Record<string, TimelineDefinition> = {
+  // nav: {
+  //   create: navTimeline,
+  //   triggerConfig: navTriggerConfig,
+  //   defaultTrigger: 'scrub',
+  // },
+
   // Hero animation - typically loads on page load
   hero: {
     create: heroTimeline,

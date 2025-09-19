@@ -65,9 +65,6 @@ export const aiTeamTimeline: TimelineCreator = (
         (scrollTrigger.end - scrollTrigger.start) * (tl.labels[`link${index}`] / tl.duration());
 
       window.scrollTo({ top: position, behavior: 'smooth' });
-
-      // gsap.to(window, { scrollTo: position, duration: 1 });
-      // tl.seek(`link${index}`);
     });
   });
 

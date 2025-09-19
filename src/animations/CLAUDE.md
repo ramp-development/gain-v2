@@ -1,6 +1,7 @@
 # GSAP Animation System
 
 ## Overview
+
 This module provides a comprehensive GSAP animation system that integrates with the App EventBus for coordinated animations. The system handles multiple instances of animations, dynamic sequencing, and various trigger types while maintaining ScrollTrigger autonomy.
 
 ## Architecture
@@ -8,17 +9,20 @@ This module provides a comprehensive GSAP animation system that integrates with 
 ### Core Components
 
 1. **AnimationManager (Singleton)**
+
    - Central controller tracking all animation instances
    - Handles post-hero trigger checking and catch-up
    - Manages sequential playback for same-type animations
    - Integrates with App.eventBus for coordination
 
 2. **Timeline Registry**
+
    - Stores timeline creators and their trigger configurations
    - Each timeline defines its own ScrollTrigger settings
    - Supports both entrance and scrub animations
 
 3. **Trigger System**
+
    - **entrance** - Plays animation when element enters viewport
    - **scrub** - Animation progress tied to scroll position
    - **load** - Plays on page load if visible
@@ -34,6 +38,7 @@ This module provides a comprehensive GSAP animation system that integrates with 
 ## Webflow Integration
 
 ### Data Attributes
+
 Elements in Webflow use these streamlined data attributes:
 
 ```html
@@ -61,18 +66,22 @@ Elements in Webflow use these streamlined data attributes:
 ### Trigger Types
 
 1. **`entrance`** - Plays once when element scrolls into view
+
    - Uses ScrollTrigger with `toggleActions: 'play none none none'`
    - Each timeline defines its start/end points
 
 2. **`scrub`** - Animation progress tied to scroll position
+
    - Uses ScrollTrigger with `scrub: true` or numeric value
    - Perfect for parallax and scroll-driven effects
 
 3. **`load`** - Plays on page load if element is visible
+
    - Checks viewport visibility before playing
    - Typically used for hero animations
 
 4. **`event`** - Triggered via EventBus
+
    - Defaults to animation name as event name
    - Can override with `data-event` attribute
 
@@ -88,12 +97,15 @@ Elements in Webflow use these streamlined data attributes:
 ## Implementation Guide
 
 ### 1. Animation Manager Setup
+
 The AnimationManager is initialized automatically on page load and:
+
 - Scans for all elements with `data-animation`
 - Registers appropriate triggers
 - Manages timeline lifecycle
 
 ### 2. Creating New Animations
+
 Add new animations to the timeline factory:
 
 ```typescript
@@ -101,17 +113,16 @@ Add new animations to the timeline factory:
 export const myAnimation = (element: HTMLElement, options = {}) => {
   const tl = gsap.timeline({ paused: true });
 
-  tl.fromTo(element,
-    { opacity: 0, y: 50 },
-    { opacity: 1, y: 0, duration: 1, ...options }
-  );
+  tl.fromTo(element, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1, ...options });
 
   return tl;
 };
 ```
 
 ### 3. Visibility Detection
+
 The system automatically checks visibility for load-triggered animations:
+
 - Uses Intersection Observer for performance
 - Considers viewport position on page load
 - Handles dynamic content loading
@@ -129,8 +140,8 @@ export const modernTimeline = (element: HTMLElement) => {
 };
 
 export const modernConfig = {
-  start: 'top 80%',       // When top hits 80% down viewport
-  end: 'bottom top',      // Standard end point
+  start: 'top 80%', // When top hits 80% down viewport
+  end: 'bottom top', // Standard end point
   toggleActions: 'play none none none',
 };
 
@@ -138,16 +149,14 @@ export const modernConfig = {
 export const panelsTimeline = (element: HTMLElement) => {
   const tl = gsap.timeline({ paused: true });
   // Scrubbed animation
-  tl.to('.panel-1', { x: -100 })
-    .to('.panel-2', { x: 100 }, '<')
-    .to('.panel-3', { scale: 1.2 });
+  tl.to('.panel-1', { x: -100 }).to('.panel-2', { x: 100 }, '<').to('.panel-3', { scale: 1.2 });
   return tl;
 };
 
 export const panelsConfig = {
   start: 'top bottom',
   end: 'bottom top',
-  scrub: 1,  // Smooth scrubbing
+  scrub: 1, // Smooth scrubbing
 };
 ```
 
@@ -202,11 +211,13 @@ animations/
 ## Best Practices
 
 1. **Performance**
+
    - Use `will-change` sparingly
    - Batch DOM reads/writes
    - Leverage GSAP's built-in optimization
 
 2. **Reusability**
+
    - Create parameterized timelines
    - Use consistent naming conventions
    - Document animation options
@@ -219,6 +230,7 @@ animations/
 ## Common Patterns
 
 ### Hero Animation (Visible on Load)
+
 ```html
 <section data-animation="hero" data-trigger="load">
   <!-- Hero content -->
@@ -226,6 +238,7 @@ animations/
 ```
 
 ### Staggered List Animation
+
 ```html
 <ul data-animation="staggerList" data-trigger="scroll">
   <li>Item 1</li>
@@ -235,17 +248,17 @@ animations/
 ```
 
 ### Parallax Section
+
 ```html
-<div data-animation="parallax" data-trigger="scroll"
-     data-trigger-options='{"scrub": true}'>
+<div data-animation="parallax" data-trigger="scroll" data-trigger-options='{"scrub": true}'>
   <!-- Parallax content -->
 </div>
 ```
 
 ### Sequential Reveal
+
 ```html
-<div data-animation="sequentialReveal" data-trigger="custom"
-     data-trigger-event="start-sequence">
+<div data-animation="sequentialReveal" data-trigger="custom" data-trigger-event="start-sequence">
   <!-- Sequential content -->
 </div>
 ```
@@ -253,6 +266,7 @@ animations/
 ## Testing
 
 Run the following commands:
+
 - `pnpm run dev` - Development build with hot reload
 - `pnpm run build` - Production build
 - `pnpm run check` - TypeScript type checking
@@ -261,18 +275,21 @@ Run the following commands:
 ## Troubleshooting
 
 ### Animation Not Playing
+
 1. Check element has correct data attributes
 2. Verify animation is registered in factory
 3. Check browser console for errors
 4. Ensure GSAP and plugins are loaded
 
 ### Performance Issues
+
 1. Reduce number of ScrollTriggers
 2. Use `batch` for multiple similar animations
 3. Optimize animation complexity
 4. Check for memory leaks in timeline cleanup
 
 ### Visibility Detection Issues
+
 1. Verify threshold settings
 2. Check element positioning
 3. Test with different viewport sizes
@@ -281,17 +298,21 @@ Run the following commands:
 ## Implementation Progress
 
 ### ✅ Completed
+
 1. **GSAP Configuration** (`config.ts`)
+
    - Global defaults set
    - Environment-based markers
    - Common trigger configurations
 
 2. **TypeScript Types** (`types/animations.ts`)
+
    - Full type definitions for the system
    - Animation instance tracking
    - Event data structures
 
 3. **AnimationManager** (`manager.ts`)
+
    - Singleton pattern implemented
    - DOM scanning and instance creation
    - Post-hero sequencing logic
@@ -299,6 +320,7 @@ Run the following commands:
    - EventBus integration
 
 4. **Utilities**
+
    - `utils/scroll.ts` - GSAP ScrollTrigger helpers
    - `utils/dom.ts` - DOM traversal and element queries
 
@@ -309,11 +331,13 @@ Run the following commands:
 ### ✅ All Core Components Complete!
 
 6. **Timeline Registry** (`registry.ts`)
+
    - Central registry for all animations
    - Maps names to timeline definitions
    - Exports helper functions
 
 7. **Example Animations**
+
    - `timelines/hero.ts` - Hero section with staggered reveals
    - `timelines/modern.ts` - Entrance animation for sections
    - `timelines/panels.ts` - Scrubbed panel animations
@@ -326,6 +350,7 @@ Run the following commands:
 ## Usage in Webflow
 
 ### HTML Structure
+
 ```html
 <!-- Hero section -->
 <section data-animation="hero" data-trigger="load">
@@ -356,6 +381,7 @@ Run the following commands:
 ### Adding New Animations
 
 1. Create timeline file in `timelines/`:
+
 ```typescript
 // timelines/myAnimation.ts
 export const myAnimationTimeline: TimelineCreator = (element, context) => {
@@ -371,6 +397,7 @@ export const myAnimationTriggerConfig: ScrollTriggerConfig = {
 ```
 
 2. Add to registry:
+
 ```typescript
 // registry.ts
 import { myAnimationTimeline, myAnimationTriggerConfig } from './timelines/myAnimation';
@@ -386,6 +413,7 @@ export const timelineRegistry = {
 ```
 
 3. Use in Webflow:
+
 ```html
 <div data-animation="myAnimation" data-trigger="entrance"></div>
 ```
@@ -393,6 +421,7 @@ export const timelineRegistry = {
 ## System Flow
 
 ### Initialization Flow
+
 ```
 1. Webflow.push() executes
 2. App.init() called
@@ -407,6 +436,7 @@ export const timelineRegistry = {
 ```
 
 ### Animation Execution Flow
+
 ```
 Hero visible? → Play hero
 ↓
@@ -425,6 +455,7 @@ Different types can play simultaneously
 ## Implementation Example
 
 ### Complete AnimationManager Usage
+
 ```typescript
 class AnimationManager {
   private instances: AnimationInstance[] = [];
@@ -446,14 +477,16 @@ class AnimationManager {
       if (!heroElement) return;
 
       // Find animations after hero
-      const afterHero = this.instances.filter(instance => {
-        return this.isAfterInDOM(heroElement, instance.element) &&
-               instance.state === 'pending' &&
-               (instance.trigger === 'entrance' || instance.trigger === 'scrub');
+      const afterHero = this.instances.filter((instance) => {
+        return (
+          this.isAfterInDOM(heroElement, instance.element) &&
+          instance.state === 'pending' &&
+          (instance.trigger === 'entrance' || instance.trigger === 'scrub')
+        );
       });
 
       // Check each for trigger conditions
-      afterHero.forEach(instance => {
+      afterHero.forEach((instance) => {
         if (this.hasScrollTriggerPassed(instance)) {
           this.playSequentially(instance);
         }
@@ -465,6 +498,7 @@ class AnimationManager {
 ```
 
 ### GSAP Configuration
+
 ```typescript
 // animations/config.ts
 export const initGSAPDefaults = () => {
@@ -474,12 +508,13 @@ export const initGSAPDefaults = () => {
   });
 
   ScrollTrigger.defaults({
-    markers: false,  // Enable in dev
+    markers: false, // Enable in dev
   });
 };
 ```
 
 ### Usage
+
 ```typescript
 // src/index.ts (already configured)
 import { initAnimations } from './animations';
