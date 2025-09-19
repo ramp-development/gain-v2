@@ -50,7 +50,7 @@ export const cardFlipTimeline: TimelineCreator = (
 };
 
 export const cardFlipTriggerConfig: ScrollTriggerConfig = {
-  start: 'top center',
+  start: 'top 80%',
   end: 'bottom center',
   scrub: false,
   toggleActions: 'play none none none',

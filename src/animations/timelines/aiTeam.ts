@@ -54,7 +54,23 @@ export const aiTeamTimeline: TimelineCreator = (
     tl.to(thumbnails[index], { '--clip': '0%' }, '<0.1');
     tl.to(names, { yPercent: index * -100, stagger: 0.05 }, '<0.1');
     tl.to(roles, { yPercent: index * -100, stagger: 0.05 }, '<0.1');
+    tl.addLabel(`link${index}`);
+
+    link.addEventListener('click', () => {
+      const { scrollTrigger } = tl;
+      if (!scrollTrigger) return;
+
+      const position =
+        scrollTrigger.start +
+        (scrollTrigger.end - scrollTrigger.start) * (tl.labels[`link${index}`] / tl.duration());
+
+      window.scrollTo({ top: position, behavior: 'smooth' });
+
+      // gsap.to(window, { scrollTo: position, duration: 1 });
+      // tl.seek(`link${index}`);
+    });
   });
+
   return tl;
 };
 

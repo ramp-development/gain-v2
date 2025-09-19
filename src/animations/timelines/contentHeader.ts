@@ -14,10 +14,8 @@ export const contentHeaderTimeline: TimelineCreator = (
 
   // Find elements to animate
   const heading = queryElement(`[${attrs.elements}="${values.heading}"] > *`, element);
-  const paragraph = queryElement(`[${attrs.elements}="${values.paragraph}"] > *`, element);
+  const paragraphs = queryElements(`[${attrs.elements}="${values.paragraph}"] > *`, element);
   const buttons = queryElements(`[${attrs.elements}="${values.button}"]`, element);
-
-  console.log({ element, heading, paragraph, buttons });
 
   // Main content reveal
   if (heading) {
@@ -25,9 +23,15 @@ export const contentHeaderTimeline: TimelineCreator = (
     tl.from(splitHeading.lines, { yPercent: 100, stagger: 0.1 });
   }
 
-  if (paragraph) {
-    const splitParagraph = new SplitText(paragraph, { type: 'lines', mask: 'lines' });
-    tl.from(splitParagraph.lines, { yPercent: 100, stagger: 0.1 }, '<0.2');
+  if (paragraphs) {
+    paragraphs.forEach((paragraph, index) => {
+      const splitParagraph = new SplitText(paragraph, { type: 'lines', mask: 'lines' });
+      tl.from(
+        splitParagraph.lines,
+        { yPercent: 100, stagger: 0.1 },
+        index === 0 ? '<0.2' : '<0.05'
+      );
+    });
   }
 
   if (buttons) {

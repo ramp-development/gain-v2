@@ -1460,6 +1460,13 @@
       tl.to(thumbnails[index], { "--clip": "0%" }, "<0.1");
       tl.to(names, { yPercent: index * -100, stagger: 0.05 }, "<0.1");
       tl.to(roles, { yPercent: index * -100, stagger: 0.05 }, "<0.1");
+      tl.addLabel(`link${index}`);
+      link.addEventListener("click", () => {
+        const { scrollTrigger } = tl;
+        if (!scrollTrigger) return;
+        const position = scrollTrigger.start + (scrollTrigger.end - scrollTrigger.start) * (tl.labels[`link${index}`] / tl.duration());
+        window.scrollTo({ top: position, behavior: "smooth" });
+      });
     });
     return tl;
   };
@@ -1541,7 +1548,7 @@
     return tl;
   };
   var cardFlipTriggerConfig = {
-    start: "top center",
+    start: "top 80%",
     end: "bottom center",
     scrub: false,
     toggleActions: "play none none none"
@@ -1555,16 +1562,21 @@
       defaults: { duration: context?.duration || 1.5, ease: context?.ease || "expo.inOut" }
     });
     const heading = queryElement(`[${attrs.elements}="${values.heading}"] > *`, element);
-    const paragraph = queryElement(`[${attrs.elements}="${values.paragraph}"] > *`, element);
+    const paragraphs = queryElements(`[${attrs.elements}="${values.paragraph}"] > *`, element);
     const buttons = queryElements(`[${attrs.elements}="${values.button}"]`, element);
-    console.log({ element, heading, paragraph, buttons });
     if (heading) {
       const splitHeading = new SplitText(heading, { type: "lines", mask: "lines" });
       tl.from(splitHeading.lines, { yPercent: 100, stagger: 0.1 });
     }
-    if (paragraph) {
-      const splitParagraph = new SplitText(paragraph, { type: "lines", mask: "lines" });
-      tl.from(splitParagraph.lines, { yPercent: 100, stagger: 0.1 }, "<0.2");
+    if (paragraphs) {
+      paragraphs.forEach((paragraph, index) => {
+        const splitParagraph = new SplitText(paragraph, { type: "lines", mask: "lines" });
+        tl.from(
+          splitParagraph.lines,
+          { yPercent: 100, stagger: 0.1 },
+          index === 0 ? "<0.2" : "<0.05"
+        );
+      });
     }
     if (buttons) {
       tl.from(buttons, { opacity: 0, x: "1rem", stagger: 0.1 }, "<0.2");
@@ -2143,7 +2155,7 @@
       resetBenefits(props);
       formatBenefits(props);
     });
-    function resetBenefits({ component: component2, tagWrap: tagWrap2, list: list2, items: items2, cta: cta2 }) {
+    function resetBenefits({ component: component2, tagWrap: tagWrap2, list: list2, items: items2 }) {
       component2.removeAttribute("style");
       tagWrap2.removeAttribute("style");
       list2.removeAttribute("style");
@@ -2151,13 +2163,14 @@
         item.removeAttribute("style");
       });
     }
-    function formatBenefits({ component: component2, tagWrap: tagWrap2, list: list2, items: items2, cta: cta2 }) {
+    function formatBenefits({ component: component2, tagWrap: tagWrap2, items: items2, cta: cta2 }) {
       const isAboveThreshold = containerThreshold(component2, 48 /* medium */, "above");
       const grid = tagWrap2.closest(".u-grid-above");
+      if (!grid) return;
       const gridComputedStyle = getComputedStyle(grid);
       const gridGap = parseFloat(gridComputedStyle.getPropertyValue("row-gap"));
       let paddingTop = isAboveThreshold ? 0 : tagWrap2.getBoundingClientRect().height + gridGap;
-      items2.forEach((item, index) => {
+      items2.forEach((item) => {
         const endHeightOfItem = getDistanceFromParagraphToTop(item);
         item.style.paddingTop = `${paddingTop}px`;
         paddingTop += endHeightOfItem;

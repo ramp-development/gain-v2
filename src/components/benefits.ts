@@ -36,7 +36,7 @@ export const benefits = () => {
     formatBenefits(props);
   });
 
-  function resetBenefits({ component, tagWrap, list, items, cta }: FormatBenefitsProps) {
+  function resetBenefits({ component, tagWrap, list, items }: FormatBenefitsProps) {
     component.removeAttribute('style');
     tagWrap.removeAttribute('style');
     list.removeAttribute('style');
@@ -45,15 +45,16 @@ export const benefits = () => {
     });
   }
 
-  function formatBenefits({ component, tagWrap, list, items, cta }: FormatBenefitsProps) {
+  function formatBenefits({ component, tagWrap, items, cta }: FormatBenefitsProps) {
     const isAboveThreshold = containerThreshold(component, Thresholds.medium, 'above');
     const grid = tagWrap.closest('.u-grid-above');
+    if (!grid) return;
     const gridComputedStyle = getComputedStyle(grid);
     const gridGap = parseFloat(gridComputedStyle.getPropertyValue('row-gap'));
 
     let paddingTop = isAboveThreshold ? 0 : tagWrap.getBoundingClientRect().height + gridGap;
 
-    items.forEach((item, index) => {
+    items.forEach((item) => {
       const endHeightOfItem = getDistanceFromParagraphToTop(item);
       item.style.paddingTop = `${paddingTop}px`;
 
