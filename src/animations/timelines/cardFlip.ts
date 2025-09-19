@@ -31,8 +31,7 @@ export const cardFlipTimeline: TimelineCreator = (
     gsap.set(card, {
       zIndex: 4 - index,
       opacity: 1 - index * 0.2,
-      // y: `${isAboveThreshold ? index * 1 : 0}rem`,
-      y: isAboveThreshold ? `${index * 1}rem` : `${index * -100}%`,
+      y: isAboveThreshold ? `${(index + 1) * 1}rem` : `${index * -100}%`,
     });
   });
 
