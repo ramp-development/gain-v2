@@ -1,5 +1,6 @@
 import type { TimelineDefinition } from '$types';
 
+import { aiTeamTimeline, aiTeamTriggerConfig } from './timelines/aiTeam';
 import { cardFadeTimeline } from './timelines/cardFade';
 import { cardFlipTimeline, cardFlipTriggerConfig } from './timelines/cardFlip';
 import { contentHeaderTimeline, contentHeaderTriggerConfig } from './timelines/contentHeader';
@@ -63,6 +64,12 @@ export const timelineRegistry: Record<string, TimelineDefinition> = {
     create: contentHeaderTimeline,
     triggerConfig: contentHeaderTriggerConfig,
     defaultTrigger: 'entrance',
+  },
+
+  aiTeam: {
+    create: aiTeamTimeline,
+    triggerConfig: aiTeamTriggerConfig,
+    defaultTrigger: 'scrub',
   },
 };
 

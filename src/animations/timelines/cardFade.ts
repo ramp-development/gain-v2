@@ -14,6 +14,7 @@ export const cardFadeTimeline: TimelineCreator = (
   const cards = queryElements('[data-element="card"]', element);
   if (!cards.length) return;
 
+  // Build animation sequence
   tl.from(cards, { y: '1.5rem', opacity: 0, stagger: 0.1 });
 
   return tl;

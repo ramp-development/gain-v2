@@ -44,6 +44,7 @@ export const cardFlipTimeline: TimelineCreator = (
     gsap.set(card, { xPercent: isAboveThreshold ? -100 : 0 });
   });
 
+  // Build animation sequence
   tl.to(cards, { xPercent: 0, opacity: 1, y: 0, stagger: 0.1 });
 
   return tl;

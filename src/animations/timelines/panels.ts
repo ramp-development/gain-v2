@@ -23,6 +23,7 @@ export const panelsTimeline: TimelineCreator = (
 
   if (isLastPanel) return;
 
+  // Build animation sequence
   const tl = gsap.timeline({ defaults: { ease: context?.ease || 'expo.out' } });
   tl.to(element, { opacity: 0, scale: 0.8, transformOrigin: 'center bottom', duration: 1 });
 
