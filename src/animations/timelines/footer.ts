@@ -6,7 +6,9 @@ export const footerTimeline: TimelineCreator = (
   element: HTMLElement,
   context?: Record<string, string>
 ) => {
-  const tl = gsap.timeline({ defaults: { duration: context?.duration || 1, ease: 'none' } });
+  const tl = gsap.timeline({
+    defaults: { duration: context?.duration || 1, ease: 'none', clearProps: true },
+  });
 
   // Find child elements to animate
   const inner = queryElement('[data-element="inner"]');
