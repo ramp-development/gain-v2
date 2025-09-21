@@ -12,15 +12,25 @@ export const revealTimeline: TimelineCreator = (
   const tl = gsap.timeline({ defaults: { ease: context?.ease || 'expo.inOut' } });
 
   // Find child elements to animate
-  const background = queryElement('[data-reveal="background"]', element);
-  const bottom = queryElement('[data-reveal="bottom"]', element);
-  const top = queryElement('[data-reveal="top"]', element);
-  if (!background || !bottom || !top) return;
+  const attr = 'data-reveal';
+  const container = element.closest<HTMLElement>(`[${attr}="container"]`);
+  const background = queryElement<HTMLElement>(`[${attr}="background"]`, element);
+  const bottom = queryElement<HTMLElement>(`[${attr}="bottom"]`, element);
+  const top = queryElement<HTMLElement>(`[${attr}="top"]`, element);
+  if (!container || !background || !bottom || !top) return;
 
   // Build animation sequence
-  tl.from(background, { width: '50%' });
-  tl.from(bottom, { xPercent: 50 }, '<');
-  tl.from(top, { xPercent: -50 }, '<');
+  container.observeContainer('(width < 48rem)', (match) => {
+    if (match) {
+      gsap.set(top, { minHeight: bottom.getBoundingClientRect().height });
+      tl.fromTo(background, { height: top.getBoundingClientRect().height }, { height: '100%' });
+      tl.from(bottom, { yPercent: -100 }, '<');
+    } else {
+      tl.from(background, { width: '50%' });
+      tl.from(bottom, { xPercent: 50 }, '<');
+      tl.from(top, { xPercent: -50 }, '<');
+    }
+  });
 
   // Add any context-specific modifications
   if (context?.speed === 'fast') {
@@ -33,11 +43,11 @@ export const revealTimeline: TimelineCreator = (
 };
 
 const getStart = (): string => {
-  const firstReveal = queryElement('[data-animation="reveal"]');
+  const firstReveal = queryElement<HTMLElement>('[data-animation="reveal"]');
   if (!firstReveal) return 'top center';
 
   const firstRect = firstReveal.getBoundingClientRect();
-  const { height, top } = firstRect;
+  const { top, height } = firstRect;
 
   const windowHeight = window.innerHeight;
   const center = windowHeight / 2;

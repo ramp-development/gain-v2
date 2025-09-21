@@ -36,23 +36,25 @@ export const benefits = () => {
     formatBenefits(props);
   });
 
-  function resetBenefits({ component, tagWrap, list, items }: FormatBenefitsProps) {
+  function resetBenefits({ component, tagWrap, list, items, cta }: FormatBenefitsProps) {
     component.removeAttribute('style');
     tagWrap.removeAttribute('style');
     list.removeAttribute('style');
     items.forEach((item) => {
       item.removeAttribute('style');
     });
+    cta.removeAttribute('style');
   }
 
   function formatBenefits({ component, tagWrap, items, cta }: FormatBenefitsProps) {
-    const isAboveThreshold = containerThreshold(component, Thresholds.medium, 'above');
+    const isAboveThreshold = () => containerThreshold(component, Thresholds.medium, 'above');
     const grid = tagWrap.closest('.u-grid-above');
     if (!grid) return;
+
     const gridComputedStyle = getComputedStyle(grid);
     const gridGap = parseFloat(gridComputedStyle.getPropertyValue('row-gap'));
 
-    let paddingTop = isAboveThreshold ? 0 : tagWrap.getBoundingClientRect().height + gridGap;
+    let paddingTop = isAboveThreshold() ? 0 : tagWrap.getBoundingClientRect().height + gridGap;
 
     items.forEach((item) => {
       const endHeightOfItem = getDistanceFromParagraphToTop(item);
@@ -64,7 +66,7 @@ export const benefits = () => {
     cta.style.paddingTop = `${paddingTop}px`;
 
     const totalHeight = paddingTop + cta.getBoundingClientRect().height; // come back to this???
-    if (isAboveThreshold) tagWrap.style.height = `${totalHeight}px`;
+    if (isAboveThreshold()) tagWrap.style.height = `${totalHeight}px`;
 
     const ctaPaddingBottom1 = totalHeight - cta.getBoundingClientRect().height;
     cta.style.paddingBottom = `${ctaPaddingBottom1}px`;

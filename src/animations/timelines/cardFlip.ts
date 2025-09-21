@@ -24,23 +24,23 @@ export const cardFlipTimeline: TimelineCreator = (
   const leftCards = cards.slice(0, numberOfCardsNeeded / 2);
   const rightCards = cards.slice(numberOfCards - numberOfCardsNeeded / 2);
 
-  const isAboveThreshold = containerThreshold(element, Thresholds.medium, 'above');
+  const isAboveThreshold = () => containerThreshold(element, Thresholds.medium, 'above');
 
   // Main content reveal
   cards.forEach((card, index) => {
     gsap.set(card, {
       zIndex: 4 - index,
       opacity: 1 - index * 0.2,
-      y: isAboveThreshold ? `${(index + 3) * 1}rem` : `${index * -100}%`,
+      y: isAboveThreshold() ? `${(index + 3) * 1}rem` : `${index * -100}%`,
     });
   });
 
   leftCards.forEach((card) => {
-    gsap.set(card, { xPercent: isAboveThreshold ? 100 : 0 });
+    gsap.set(card, { xPercent: isAboveThreshold() ? 100 : 0 });
   });
 
   rightCards.forEach((card) => {
-    gsap.set(card, { xPercent: isAboveThreshold ? -100 : 0 });
+    gsap.set(card, { xPercent: isAboveThreshold() ? -100 : 0 });
   });
 
   // Build animation sequence
