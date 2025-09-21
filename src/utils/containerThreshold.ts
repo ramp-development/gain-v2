@@ -2,7 +2,7 @@ import { Thresholds } from 'src/types/thresholds';
 
 export const containerThreshold = (
   container: HTMLElement,
-  threshold: Thresholds,
+  threshold: Thresholds | number,
   direction: 'above' | 'below' = 'below'
 ) => {
   // find out how many rems the container is using the root font size not 16

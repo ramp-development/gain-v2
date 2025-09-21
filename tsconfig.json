@@ -10,6 +10,6 @@
       "$types": ["src/types"],
       "$utils/*": ["src/utils/*"]
     },
-    "types": ["@finsweet/ts-utils", "gsap"]
+    "types": ["@finsweet/ts-utils", "gsap", "@splidejs/splide"]
   }
 }
