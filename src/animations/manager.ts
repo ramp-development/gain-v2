@@ -221,7 +221,7 @@ export class AnimationManager {
   /**
    * Play a specific animation
    */
-  private playAnimation(instance: AnimationInstance, _eventData?: Record<string, any>): void {
+  private playAnimation(instance: AnimationInstance, eventData?: Record<string, any>): void {
     if (instance.state !== 'pending') return;
 
     console.log(`Playing animation: ${instance.type} (${instance.id})`);
@@ -274,7 +274,7 @@ export class AnimationManager {
     };
 
     // Emit generic animation started event
-    this.app.eventBus.emit(Events.ANIMATION_STARTED, eventData);
+    this.app.eventBus.emit(Events.ANIMATION_STARTED, null, eventData);
   }
 
   /**
