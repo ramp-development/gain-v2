@@ -212,6 +212,7 @@ export class AnimationManager {
     });
     nextAnimation.timeline.eventCallback('onComplete', () => {
       console.log('Animation completed', nextAnimation);
+      ScrollTrigger.refresh();
       this.handleAnimationComplete(nextAnimation);
     });
 
