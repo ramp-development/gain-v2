@@ -9,8 +9,9 @@ export const aiTeamSlider = () => {
   const button = queryElement<HTMLButtonElement>(`[${attr}="button"]`, component);
   if (!slider || !button) return;
 
+  const buttonLink = queryElement<HTMLAnchorElement>('[href]', button);
   const buttonText = queryElement<HTMLDivElement>('.button_main_text', button);
-  if (!buttonText) return;
+  if (!buttonLink || !buttonText) return;
 
   const originalText = buttonText.textContent;
 
@@ -41,8 +42,10 @@ export const aiTeamSlider = () => {
     if (!activeSlide) return;
 
     const name = activeSlide.dataset.aiEmployee;
-    if (!name) return;
+    const link = queryElement<HTMLAnchorElement>('[href]', activeSlide);
+    if (!name || !link) return;
 
     buttonText!.textContent = `${originalText} of ${name}`;
+    buttonLink!.href = link.href;
   }
 };
