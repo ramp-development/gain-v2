@@ -13,7 +13,11 @@ export const heroTimeline: TimelineCreator = (
 ) => {
   const tl = gsap.timeline({
     paused: true,
-    defaults: { duration: context?.duration || 2, ease: context?.ease || 'expo.inOut' },
+    defaults: {
+      duration: context?.duration || 2,
+      ease: context?.ease || 'expo.inOut',
+      clearProps: true,
+    },
   });
 
   // Find child elements to animate
@@ -31,7 +35,6 @@ export const heroTimeline: TimelineCreator = (
       inner,
       {
         opacity: 0,
-        // y: 0,
         y: () => moveY(true).height,
       },
       {
