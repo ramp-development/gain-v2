@@ -1,4 +1,5 @@
 import type { ScrollTriggerConfig, TimelineCreator } from '$types';
+import { queryElements } from '$utils/queryElements';
 
 /**
  * Panels animation - scrubbed animation tied to scroll
@@ -9,12 +10,12 @@ export const panelsTimeline: TimelineCreator = (
   context?: Record<string, string>
 ) => {
   // Check if this is the last panel element within its parent
-  const parent = element.parentElement;
+  const parent = element.closest('.panels_list');
   const isLastPanel = (() => {
     if (!parent) return true;
 
     // Get all panel siblings after this element
-    const allPanels = Array.from(parent.querySelectorAll('[data-animation="panel"]'));
+    const allPanels = queryElements('[data-animation="panel"]', parent);
     const currentIndex = allPanels.indexOf(element);
 
     // Check if there are any panel elements after this one
