@@ -8,6 +8,7 @@ import { contentHeaderTimeline, contentHeaderTriggerConfig } from './timelines/c
 import { footerTimeline, footerTriggerConfig } from './timelines/footer';
 import { heroTimeline, heroTriggerConfig } from './timelines/hero';
 import { homeHeroTimeline, homeHeroTriggerConfig } from './timelines/homeHero';
+import { industriesTimeline, industriesTriggerConfig } from './timelines/industries';
 import { modernTimeline, modernTriggerConfig } from './timelines/modern';
 import { panelsTimeline, panelsTriggerConfig } from './timelines/panels';
 import { revealTimeline, revealTriggerConfig } from './timelines/reveal';
@@ -26,6 +27,12 @@ export const timelineRegistry: Record<string, TimelineDefinition> = {
   homeHero: {
     create: homeHeroTimeline,
     triggerConfig: homeHeroTriggerConfig,
+    defaultTrigger: 'scrub',
+  },
+
+  industries: {
+    create: industriesTimeline,
+    triggerConfig: industriesTriggerConfig,
     defaultTrigger: 'scrub',
   },
 
