@@ -18,6 +18,7 @@ export const aiTeamTimeline: TimelineCreator = (
   const thumbnails = queryElements(`[${attrs.elements}="thumbnail"]`, wrap);
   const names = queryElements(`[${attrs.elements}="name"]`, wrap);
   const roles = queryElements(`[${attrs.elements}="role"]`, wrap);
+  const descriptions = queryElements(`[${attrs.elements}="description"]`, wrap);
 
   // Position elements as needed
   const wrapHeight = wrap.getBoundingClientRect().height;
@@ -38,10 +39,14 @@ export const aiTeamTimeline: TimelineCreator = (
     }
 
     if (index !== 0)
-      tl.to(link, {
-        backgroundColor: 'var(--swatch--orange-2)',
-        color: 'var(--swatch--dark-900)',
-      });
+      tl.to(
+        link,
+        {
+          backgroundColor: 'var(--swatch--orange-2)',
+          color: 'var(--swatch--dark-900)',
+        },
+        '<'
+      );
     tl.to(
       links[index - 1],
       {
@@ -50,10 +55,26 @@ export const aiTeamTimeline: TimelineCreator = (
       },
       '<'
     );
+
     tl.to(backgrounds[index], { '--clip': '0%' }, '<0.1');
     tl.to(thumbnails[index], { '--clip': '0%' }, '<0.1');
-    tl.to(names, { yPercent: index * -100, stagger: 0.05 }, '<0.1');
-    tl.to(roles, { yPercent: index * -100, stagger: 0.05 }, '<0.1');
+
+    const nameSplit = new SplitText(names[index], { type: 'words', mask: 'words' });
+    const roleSplit = new SplitText(roles[index], { type: 'words', mask: 'words' });
+    const descriptionSplit = new SplitText(descriptions[index], { type: 'lines', mask: 'lines' });
+
+    if (index !== 0) {
+      tl.from(nameSplit.words, { yPercent: 100, stagger: 0.05 }, '<0.1');
+      tl.from(roleSplit.words, { yPercent: 100, stagger: 0.05 }, '<0.1');
+      tl.from(descriptionSplit.lines, { yPercent: 100, stagger: 0.05 }, '<0.1');
+    }
+
+    if (index !== links.length - 1) {
+      tl.to(nameSplit.words, { yPercent: -100, stagger: 0.05 });
+      tl.to(roleSplit.words, { yPercent: -100, stagger: 0.05 }, '<');
+      tl.to(descriptionSplit.lines, { yPercent: -100, stagger: 0.05 }, '<');
+    }
+
     tl.addLabel(`link${index}`);
 
     link.addEventListener('click', () => {
