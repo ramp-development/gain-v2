@@ -7,6 +7,7 @@ import { cardFlipTimeline, cardFlipTriggerConfig } from './timelines/cardFlip';
 import { contentHeaderTimeline, contentHeaderTriggerConfig } from './timelines/contentHeader';
 import { footerTimeline, footerTriggerConfig } from './timelines/footer';
 import { heroTimeline, heroTriggerConfig } from './timelines/hero';
+import { homeHeroTimeline, homeHeroTriggerConfig } from './timelines/homeHero';
 import { modernTimeline, modernTriggerConfig } from './timelines/modern';
 import { panelsTimeline, panelsTriggerConfig } from './timelines/panels';
 import { revealTimeline, revealTriggerConfig } from './timelines/reveal';
@@ -21,6 +22,12 @@ export const timelineRegistry: Record<string, TimelineDefinition> = {
   //   triggerConfig: navTriggerConfig,
   //   defaultTrigger: 'scrub',
   // },
+
+  homeHero: {
+    create: homeHeroTimeline,
+    triggerConfig: homeHeroTriggerConfig,
+    defaultTrigger: 'scrub',
+  },
 
   // Hero animation - typically loads on page load
   hero: {

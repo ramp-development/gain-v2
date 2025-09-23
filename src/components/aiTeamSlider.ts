@@ -20,6 +20,8 @@ export const aiTeamSlider = () => {
     type: 'slide',
     perPage: 1,
     gap: 'var(--site--gutter)',
+    autoplay: true,
+    interval: 4000,
     pagination: false,
     arrows: false,
   };
