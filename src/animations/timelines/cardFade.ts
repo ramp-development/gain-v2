@@ -1,4 +1,5 @@
 import type { ScrollTriggerConfig, TimelineCreator } from '$types';
+import { queryElement } from '$utils/queryElement';
 import { queryElements } from '$utils/queryElements';
 
 export const cardFadeTimeline: TimelineCreator = (
@@ -15,7 +16,11 @@ export const cardFadeTimeline: TimelineCreator = (
   if (!cards.length) return;
 
   // Build animation sequence
-  tl.from(cards, { y: '1.5rem', opacity: 0, stagger: 0.1 });
+  cards.forEach((card, index) => {
+    const background = queryElement<HTMLElement>('[data-card="background"]', card);
+    tl.from(card, { y: '1.5rem', opacity: 0 }, `${index * 0.1}`);
+    if (background) tl.from(background, { height: '0%' }, '<');
+  });
 
   return tl;
 };

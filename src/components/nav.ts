@@ -4,7 +4,9 @@ import { queryElement } from '$utils/queryElement';
 export const nav = () => {
   const nav = queryElement(`[${attrs.elements}="nav"]`);
   const inner = queryElement(`[${attrs.elements}="inner"]`);
-  if (!nav || !inner) return;
+  const main = queryElement('.page_main');
+  const scrollElement = inner || main;
+  if (!nav || !scrollElement) return;
 
   const variant = 'w-variant-144a276f-7272-627f-9552-6194bfeced8d';
 
@@ -15,15 +17,15 @@ export const nav = () => {
   timeline.to(nav, { y: '-100%', duration: 1, ease: 'expo.inOut' });
 
   ScrollTrigger.create({
-    trigger: inner,
+    trigger: scrollElement,
     start: 'top top',
     end: 'bottom bottom',
     scrub: false,
     onEnter: () => {
-      nav.classList.add(variant);
+      if (inner) nav.classList.add(variant);
     },
     onLeaveBack: () => {
-      nav.classList.remove(variant);
+      if (inner) nav.classList.remove(variant);
     },
     onUpdate: (self) => {
       const { direction } = self;
