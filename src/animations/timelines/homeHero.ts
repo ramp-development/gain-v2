@@ -35,9 +35,11 @@ export const homeHeroTimeline: TimelineCreator = (
   const promptSplit = new SplitText(prompt, { type: 'lines', mask: 'lines' });
 
   // Build animation sequence
+  tl.set(content, { clipPath: 'inset(50%)' });
   tl.set(background, { opacity: 0, width: '0%', height: '0%' });
 
   tl.to(background, { opacity: 1, duration: 0.25 });
+  tl.to(content, { clipPath: 'inset(0%)' }, '<');
   tl.to(background, { width: '100%', height: '100%' }, '<');
 
   tl.from(titleSplit.lines, { yPercent: 100, stagger: 0.1 }, '<0.1');
