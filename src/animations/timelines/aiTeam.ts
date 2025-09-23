@@ -29,6 +29,7 @@ export const aiTeamTimeline: TimelineCreator = (
 
   links.forEach((link, index) => {
     if (index === 0) {
+      tl.addLabel(`link${index}`);
       gsap.set(link, {
         backgroundColor: 'var(--swatch--orange-2)',
         color: 'var(--swatch--dark-900)',
@@ -38,23 +39,12 @@ export const aiTeamTimeline: TimelineCreator = (
       gsap.set(thumbnails[index], { '--clip': '100%' });
     }
 
-    if (index !== 0)
-      tl.to(
-        link,
-        {
-          backgroundColor: 'var(--swatch--orange-2)',
-          color: 'var(--swatch--dark-900)',
-        },
-        '<'
-      );
     tl.to(
-      links[index - 1],
-      {
-        backgroundColor: 'transparent',
-        color: 'var(--swatch--white)',
-      },
+      link,
+      { backgroundColor: 'var(--swatch--orange-2)', color: 'var(--swatch--dark-900)' },
       '<'
     );
+    tl.to(links[index - 1], { backgroundColor: 'transparent', color: 'var(--swatch--white)' }, '<');
 
     tl.to(backgrounds[index], { '--clip': '0%' }, '<0.1');
     tl.to(thumbnails[index], { '--clip': '0%' }, '<0.1');
@@ -69,13 +59,13 @@ export const aiTeamTimeline: TimelineCreator = (
       tl.from(descriptionSplit.lines, { yPercent: 100, stagger: 0.05 }, '<0.1');
     }
 
+    if (index !== 0) tl.addLabel(`link${index}`);
+
     if (index !== links.length - 1) {
       tl.to(nameSplit.words, { yPercent: -100, stagger: 0.05 });
       tl.to(roleSplit.words, { yPercent: -100, stagger: 0.05 }, '<');
       tl.to(descriptionSplit.lines, { yPercent: -100, stagger: 0.05 }, '<');
     }
-
-    tl.addLabel(`link${index}`);
 
     link.addEventListener('click', () => {
       const { scrollTrigger } = tl;
