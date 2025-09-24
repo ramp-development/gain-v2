@@ -19,6 +19,7 @@ export const aiTeamTimeline: TimelineCreator = (
   const names = queryElements(`[${attrs.elements}="name"]`, wrap);
   const roles = queryElements(`[${attrs.elements}="role"]`, wrap);
   const descriptions = queryElements(`[${attrs.elements}="description"]`, wrap);
+  const mobileDescriptions = queryElements(`[${attrs.elements}="description-mobile"]`, wrap);
 
   // Position elements as needed
   const wrapHeight = wrap.getBoundingClientRect().height;
@@ -52,11 +53,16 @@ export const aiTeamTimeline: TimelineCreator = (
     const nameSplit = new SplitText(names[index], { type: 'words', mask: 'words' });
     const roleSplit = new SplitText(roles[index], { type: 'words', mask: 'words' });
     const descriptionSplit = new SplitText(descriptions[index], { type: 'lines', mask: 'lines' });
+    const mobileDescriptionSplit = new SplitText(mobileDescriptions[index], {
+      type: 'lines',
+      mask: 'lines',
+    });
 
     if (index !== 0) {
       tl.from(nameSplit.words, { yPercent: 100, stagger: 0.05 }, '<0.1');
       tl.from(roleSplit.words, { yPercent: 100, stagger: 0.05 }, '<0.1');
       tl.from(descriptionSplit.lines, { yPercent: 100, stagger: 0.05 }, '<0.1');
+      tl.from(mobileDescriptionSplit.lines, { yPercent: 100, stagger: 0.05 }, '<');
     }
 
     if (index !== 0) tl.addLabel(`link${index}`);
@@ -65,6 +71,7 @@ export const aiTeamTimeline: TimelineCreator = (
       tl.to(nameSplit.words, { yPercent: -100, stagger: 0.05 });
       tl.to(roleSplit.words, { yPercent: -100, stagger: 0.05 }, '<');
       tl.to(descriptionSplit.lines, { yPercent: -100, stagger: 0.05 }, '<');
+      tl.to(mobileDescriptionSplit.lines, { yPercent: -100, stagger: 0.05 }, '<');
     }
 
     link.addEventListener('click', () => {
