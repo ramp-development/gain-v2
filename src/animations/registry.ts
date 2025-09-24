@@ -9,6 +9,7 @@ import { footerTimeline, footerTriggerConfig } from './timelines/footer';
 import { heroTimeline, heroTriggerConfig } from './timelines/hero';
 import { homeHeroTimeline, homeHeroTriggerConfig } from './timelines/homeHero';
 import { industriesTimeline, industriesTriggerConfig } from './timelines/industries';
+import { logosTimeline, logosTriggerConfig } from './timelines/logos';
 import { modernTimeline, modernTriggerConfig } from './timelines/modern';
 import { panelsTimeline, panelsTriggerConfig } from './timelines/panels';
 import { revealTimeline, revealTriggerConfig } from './timelines/reveal';
@@ -30,17 +31,23 @@ export const timelineRegistry: Record<string, TimelineDefinition> = {
     defaultTrigger: 'scrub',
   },
 
-  industries: {
-    create: industriesTimeline,
-    triggerConfig: industriesTriggerConfig,
-    defaultTrigger: 'scrub',
-  },
-
   // Hero animation - typically loads on page load
   hero: {
     create: heroTimeline,
     triggerConfig: heroTriggerConfig,
     defaultTrigger: 'load',
+  },
+
+  logos: {
+    create: logosTimeline,
+    triggerConfig: logosTriggerConfig,
+    defaultTrigger: 'entrance',
+  },
+
+  industries: {
+    create: industriesTimeline,
+    triggerConfig: industriesTriggerConfig,
+    defaultTrigger: 'scrub',
   },
 
   // Modern section animation - entrance on scroll

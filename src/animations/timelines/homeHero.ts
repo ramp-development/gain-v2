@@ -29,7 +29,7 @@ export const homeHeroTimeline: TimelineCreator = (
   }
 
   const firstAsset = assets[0];
-  const allOtherAssets = assets.slice(1);
+  const allOtherAssets = assets.slice(1).filter((asset) => !!getPositionVar(asset, '--ha-width'));
 
   const titleSplit = new SplitText(title, { type: 'lines', mask: 'lines' });
   const promptSplit = new SplitText(prompt, { type: 'lines', mask: 'lines' });
@@ -46,12 +46,14 @@ export const homeHeroTimeline: TimelineCreator = (
   tl.from(promptSplit.lines, { yPercent: 100, stagger: 0.1 }, '<0.5');
 
   tl.to(promptSplit.lines, { yPercent: -100, stagger: 0.1 });
-  tl.from(firstAsset, { opacity: 0, scale: 0.5 }, '<');
+  tl.from(firstAsset, { opacity: 0, scale: 0.5, transformOrigin: 'center center' }, '<');
   tl.to(title, { opacity: 0 }, '<');
 
-  rings.forEach((ring, index) => {
-    tl.from(ring, { opacity: 0, width: ring.offsetWidth / 2 }, `<${0.25 + index * 0.1}`);
-  });
+  tl.from(
+    rings,
+    { opacity: 0, width: (index, trigger) => trigger.offsetWidth / 2, stagger: 0.1 },
+    '<0.25'
+  );
 
   allOtherAssets.forEach((asset, index) => {
     const top = getPositionVar(asset, '--hl-top');
@@ -63,19 +65,19 @@ export const homeHeroTimeline: TimelineCreator = (
       opacity: 0,
     };
 
-    if (top) fromOptions['--hl-top'] = top * 2;
-    if (bottom) fromOptions['--hl-bottom'] = bottom * 2;
-    if (left) fromOptions['--hl-left'] = left * 2;
-    if (right) fromOptions['--hl-right'] = right * 2;
+    if (top) fromOptions['--ha-top'] = top * 2;
+    if (bottom) fromOptions['--ha-bottom'] = bottom * 2;
+    if (left) fromOptions['--ha-left'] = left * 2;
+    if (right) fromOptions['--ha-right'] = right * 2;
 
     const toOptions: Record<string, number> = {
       opacity: 1,
     };
 
-    if (top) toOptions['--hl-top'] = top;
-    if (bottom) toOptions['--hl-bottom'] = bottom;
-    if (left) toOptions['--hl-left'] = left;
-    if (right) toOptions['--hl-right'] = right;
+    if (top) toOptions['--ha-top'] = top;
+    if (bottom) toOptions['--ha-bottom'] = bottom;
+    if (left) toOptions['--ha-left'] = left;
+    if (right) toOptions['--ha-right'] = right;
 
     tl.fromTo(asset, fromOptions, toOptions, `<${0.25 + index * 0.01}`);
   });

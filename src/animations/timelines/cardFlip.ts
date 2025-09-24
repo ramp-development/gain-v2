@@ -24,27 +24,30 @@ export const cardFlipTimeline: TimelineCreator = (
   const leftCards = cards.slice(0, numberOfCardsNeeded / 2);
   const rightCards = cards.slice(numberOfCards - numberOfCardsNeeded / 2);
 
-  const isAboveThreshold = () => containerThreshold(element, Thresholds.medium, 'above');
+  const isAboveThreshold = () => containerThreshold(element, Thresholds.large, 'above');
 
-  // Main content reveal
-  cards.forEach((card, index) => {
-    gsap.set(card, {
-      zIndex: 4 - index,
-      opacity: 1 - index * 0.2,
-      y: isAboveThreshold() ? `${(index + 3) * 1}rem` : `${index * -100}%`,
-    });
+  // // Build animation sequence
+  gsap.set(cards, {
+    height: () => {
+      const maxCardHeight = Math.max(...cards.map((card) => card.getBoundingClientRect().height));
+      return `${maxCardHeight}px`;
+    },
+    zIndex: (index) => 4 - index,
+    opacity: (index) => 1 - index * 0.2,
+    y: (index) => (isAboveThreshold() ? `${index + 3}rem` : `${index * -100}%`),
   });
 
-  leftCards.forEach((card) => {
-    gsap.set(card, { xPercent: isAboveThreshold() ? 100 : 0 });
-  });
-
-  rightCards.forEach((card) => {
-    gsap.set(card, { xPercent: isAboveThreshold() ? -100 : 0 });
+  element.observeContainer(`(width < ${Thresholds.large}rem)`, (match) => {
+    if (match) {
+      gsap.set(cards, { x: (index) => `${index}rem` });
+    } else {
+      gsap.set(leftCards, { xPercent: 100 });
+      gsap.set(rightCards, { xPercent: -100 });
+    }
   });
 
   // Build animation sequence
-  tl.to(cards, { xPercent: 0, opacity: 1, y: 0, stagger: 0.2 });
+  tl.to(cards, { x: 0, xPercent: 0, opacity: 1, y: 0, stagger: 0.2 });
 
   return tl;
 };
