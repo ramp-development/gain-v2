@@ -39,7 +39,7 @@ export const ANIMATION_DEFAULTS = {
   },
   scrub: {
     scrub: 1,
-    ease: 'expo.out',
+    ease: 'expo.inOut',
     pin: false,
   },
 } as const;
