@@ -23,7 +23,7 @@ export const contentHeaderTimeline: TimelineCreator = (
     tl.from(splitHeading.lines, { yPercent: 100, stagger: 0.1 });
   }
 
-  if (paragraphs) {
+  if (paragraphs.length > 0) {
     paragraphs.forEach((paragraph, index) => {
       const splitParagraph = new SplitText(paragraph, { type: 'lines', mask: 'lines' });
       tl.from(
@@ -34,7 +34,7 @@ export const contentHeaderTimeline: TimelineCreator = (
     });
   }
 
-  if (buttons) {
+  if (buttons.length > 0) {
     tl.from(buttons, { opacity: 0, x: '1rem', stagger: 0.1 }, '<0.2');
   }
 
