@@ -1,4 +1,7 @@
+import { Thresholds } from 'src/types/thresholds';
+
 import type { ScrollTriggerConfig, TimelineCreator } from '$types';
+import { debug } from '$utils/debug';
 import { queryElement } from '$utils/queryElement';
 import { queryElements } from '$utils/queryElements';
 
@@ -10,49 +13,85 @@ export const industriesTimeline: TimelineCreator = (
   element: HTMLElement,
   context?: Record<string, string>
 ) => {
-  console.log('industriesTimeline', { element, context });
-
+  debug('log', 'industriesTimeline', { element, context });
   // Find child elements to animate
   const attr = 'data-industry';
   const track = queryElement<HTMLElement>(`[${attr}="track"]`, element);
   const sticky = queryElement<HTMLElement>(`[${attr}="sticky"]`, element);
+  const assetsCollection = queryElement<HTMLElement>(`[${attr}="assets-collection"]`, element);
   const assetsList = queryElement<HTMLElement>(`[${attr}="assets-list"]`, element);
   const assets = queryElements<HTMLElement>(`[${attr}="asset"]`, element);
   const namesWrap = queryElement<HTMLElement>(`[${attr}="names-wrap"]`, element);
   const names = queryElements<HTMLElement>(`[${attr}="name"]`, element);
 
-  if (!track || !sticky || !assetsList || assets.length === 0 || !namesWrap || names.length === 0) {
-    console.warn('industriesTimeline', { track, sticky, assetsList, assets, namesWrap, names });
+  if (
+    !track ||
+    !sticky ||
+    !assetsCollection ||
+    !assetsList ||
+    assets.length === 0 ||
+    !namesWrap ||
+    names.length === 0
+  ) {
+    debug('warn', 'industriesTimeline', {
+      track,
+      sticky,
+      assetsCollection,
+      assetsList,
+      namesWrap,
+      names,
+    });
     return;
   }
 
-  // get the height of the assets list including padding and margin
-  const stickyComputedStyle = getComputedStyle(sticky);
-  const stickyPaddingTop = parseFloat(stickyComputedStyle.paddingTop);
-  const stickyPaddingBottom = parseFloat(stickyComputedStyle.paddingBottom);
-  const assetsListHeight = assetsList.getBoundingClientRect().height;
-
-  const trackHeight = stickyPaddingTop + stickyPaddingBottom + assetsListHeight;
-  track.style.height = `${trackHeight}px`;
-
-  const numberOfAssets = assets.length;
-  // const numberOfVisibleNames = getComputedStyle(namesWrap).getPropertyValue('--length');
-
-  gsap.set(names, { yPercent: 100 * 2 });
-
   const assetsTl = gsap.timeline({ defaults: { ease: 'none' } });
-  assetsTl.to(assets, { yPercent: -100 * (numberOfAssets - 1) }).duration(1);
-
   const namesTl = gsap.timeline({ defaults: { ease: context?.ease || 'expo.inOut' } });
-  names.forEach((name, index) => {
-    const percentage = (index / names.length) * 100;
-    const position = 200 + -100 * index;
+  const masterTl = gsap.timeline();
 
-    namesTl.to(names, { yPercent: position }, `${percentage}%`);
+  namesTl.set(names, { yPercent: 100 * 2 });
+  names.forEach((name, index) => {
+    if (index === 0) return;
+    const position = 200 + -100 * index;
+    namesTl.to(names, { yPercent: position });
   });
+
+  // Build animation sequence
+  // element.observeContainer(`(width < ${Thresholds.medium})rem`, (match) => {
+  element.observeContainer(`(width < ${Thresholds.medium}em)`, (match) => {
+    if (match) {
+      // get the height of the assets list including padding and margin
+      // const stickyHeight = sticky.getBoundingClientRect().height;
+      const assetWidth = assets[0].getBoundingClientRect().width;
+      const moveListBy = assetWidth * (assets.length - 1);
+
+      // Build the animation sequence
+      const trackHeight = moveListBy;
+      masterTl.set(track, { height: `${trackHeight}px` });
+
+      assetsTl.to(assets, { x: -moveListBy });
+    } else {
+      // get the height of the assets list including padding and margin
+      const stickyComputedStyle = getComputedStyle(sticky);
+      const stickyPaddingTop = parseFloat(stickyComputedStyle.paddingTop);
+      const stickyPaddingBottom = parseFloat(stickyComputedStyle.paddingBottom);
+      const assetsCollectionHeight = assetsCollection.getBoundingClientRect().height;
+      const assetsListHeight = assetsList.getBoundingClientRect().height;
+      const moveListBy = assetsListHeight - assetsCollectionHeight;
+
+      // Build the animation sequence
+      const trackHeight = stickyPaddingTop + stickyPaddingBottom + moveListBy;
+      masterTl.set(track, { height: `${trackHeight}px` });
+
+      assets.forEach((asset, index) => {
+        const position = (moveListBy / assets.length) * (index + 1) * -1;
+        assetsTl.to(assets, { y: position });
+      });
+    }
+  });
+
+  assetsTl.duration(1);
   namesTl.duration(1);
 
-  const masterTl = gsap.timeline();
   masterTl.add(assetsTl);
   masterTl.add(namesTl, '<');
 
