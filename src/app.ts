@@ -1,7 +1,8 @@
 import EventBus from 'js-event-bus';
 import Lenis from 'lenis';
 
-import { environment } from '$utils/environment';
+import { getEnvironment } from '$utils/getEnvironment';
+import { getParams } from '$utils/getParams';
 
 import { type Environment, Events } from './types';
 
@@ -10,11 +11,13 @@ export class App {
   public eventBus: EventBus;
   public initialised: boolean = false;
   public environment: Environment;
+  public params: Record<string, string>;
   public lenis: Lenis;
 
   private constructor() {
     this.eventBus = new EventBus();
-    this.environment = environment();
+    this.environment = getEnvironment();
+    this.params = getParams();
     this.lenis = new Lenis();
   }
 
