@@ -2,6 +2,7 @@ import { Thresholds } from 'src/types/thresholds';
 
 import type { ScrollTriggerConfig, TimelineCreator } from '$types';
 import { containerThreshold } from '$utils/containerThreshold';
+import { debug } from '$utils/debug';
 import { queryElements } from '$utils/queryElements';
 
 export const cardFlipTimeline: TimelineCreator = (
@@ -39,8 +40,10 @@ export const cardFlipTimeline: TimelineCreator = (
 
   element.observeContainer(`(width < ${Thresholds.large}rem)`, (match) => {
     if (match) {
+      debug('log', 'cardFlipTimeline: (width < Thresholds.large)');
       gsap.set(cards, { x: (index) => `${index}rem` });
     } else {
+      debug('log', 'cardFlipTimeline: (width >= Thresholds.large)');
       gsap.set(leftCards, { xPercent: 100 });
       gsap.set(rightCards, { xPercent: -100 });
     }
