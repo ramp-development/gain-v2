@@ -17,12 +17,11 @@ export const aiTeamSlider = () => {
 
   // Function to create options based on current threshold
   const options = {
-    type: 'slide',
+    type: 'loop',
     perPage: 1,
     gap: 'var(--site--gutter)',
     autoplay: true,
     interval: 4000,
-    pagination: false,
     arrows: false,
   };
 
