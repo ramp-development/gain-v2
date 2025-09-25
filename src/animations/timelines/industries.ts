@@ -71,15 +71,13 @@ export const industriesTimeline: TimelineCreator = (
       assetsTl.to(assets, { x: -moveListBy });
     } else {
       // get the height of the assets list including padding and margin
-      const stickyComputedStyle = getComputedStyle(sticky);
-      const stickyPaddingTop = parseFloat(stickyComputedStyle.paddingTop);
-      const stickyPaddingBottom = parseFloat(stickyComputedStyle.paddingBottom);
+      const stickyHeight = sticky.getBoundingClientRect().height;
       const assetsCollectionHeight = assetsCollection.getBoundingClientRect().height;
       const assetsListHeight = assetsList.getBoundingClientRect().height;
       const moveListBy = assetsListHeight - assetsCollectionHeight;
 
       // Build the animation sequence
-      const trackHeight = stickyPaddingTop + stickyPaddingBottom + moveListBy;
+      const trackHeight = stickyHeight - assetsCollectionHeight + assetsListHeight;
       masterTl.set(track, { height: `${trackHeight}px` });
 
       assets.forEach((asset, index) => {
