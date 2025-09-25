@@ -1,4 +1,5 @@
 import type { ScrollTriggerConfig, TimelineCreator } from '$types';
+import { debug } from '$utils/debug';
 import { queryElement } from '$utils/queryElement';
 import { queryElements } from '$utils/queryElements';
 
@@ -10,7 +11,7 @@ export const homeHeroTimeline: TimelineCreator = (
   element: HTMLElement,
   context?: Record<string, string>
 ) => {
-  console.log('homeHeroTimeline', { element, context });
+  debug('log', 'homeHeroTimeline', { element, context });
   const tl = gsap.timeline({ defaults: { ease: context?.ease || 'expo.inOut' } });
 
   // Find child elements to animate
@@ -63,6 +64,7 @@ export const homeHeroTimeline: TimelineCreator = (
 
     const fromOptions: Record<string, number> = {
       opacity: 0,
+      duration: 0.25,
     };
 
     if (top) fromOptions['--ha-top'] = top * 2;
@@ -79,7 +81,7 @@ export const homeHeroTimeline: TimelineCreator = (
     if (left) toOptions['--ha-left'] = left;
     if (right) toOptions['--ha-right'] = right;
 
-    tl.fromTo(asset, fromOptions, toOptions, `<${0.25 + index * 0.01}`);
+    tl.fromTo(asset, fromOptions, toOptions, index === 0 ? '>-1' : `<${index * 0.005}`);
   });
 
   return tl;
