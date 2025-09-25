@@ -15,13 +15,13 @@ export const initGSAPDefaults = (): void => {
 
   // ScrollTrigger global defaults
   ScrollTrigger.defaults({
-    markers: app.environment === 'staging', // Show markers in staging
+    markers: app.params.debug !== undefined && app.environment === 'staging', // Show markers if debug
   });
 
-  // Refresh ScrollTrigger on window events
-  ScrollTrigger.config({
-    autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load',
-  });
+  // // Refresh ScrollTrigger on window events
+  // ScrollTrigger.config({
+  //   autoRefreshEvents: 'visibilitychange,DOMContentLoaded,load,resize',
+  // });
 };
 
 /**
