@@ -21,6 +21,7 @@ export class AnimationFactory {
     const definition = timelineRegistry[type];
 
     if (!definition) {
+      // eslint-disable-next-line no-console
       console.warn(`Animation type "${type}" not found in registry`);
       // Return a dummy timeline that does nothing
       const timeline = gsap.timeline({ paused: true });
