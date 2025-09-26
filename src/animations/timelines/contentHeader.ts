@@ -20,11 +20,11 @@ export const contentHeaderTimeline: TimelineCreator = (
   // Main content reveal
   if (heading) {
     const splitHeading = new SplitText(heading, { type: 'lines', mask: 'lines' });
-    tl.from(splitHeading.lines, {
-      yPercent: 100,
-      stagger: 0.1,
-      onComplete: () => splitHeading.revert(),
+    splitHeading.lines.forEach((line) => {
+      (line as HTMLElement).style.paddingBlock = '0.04em';
     });
+
+    tl.from(splitHeading.lines, { yPercent: 100, stagger: 0.1 });
   }
 
   if (paragraphs.length > 0) {
