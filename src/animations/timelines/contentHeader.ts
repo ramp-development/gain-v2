@@ -20,10 +20,6 @@ export const contentHeaderTimeline: TimelineCreator = (
   // Main content reveal
   if (heading) {
     const splitHeading = new SplitText(heading, { type: 'lines', mask: 'lines' });
-    splitHeading.lines.forEach((line) => {
-      (line as HTMLElement).style.paddingBlock = '0.04em';
-    });
-
     tl.from(splitHeading.lines, { yPercent: 100, stagger: 0.1 });
   }
 
