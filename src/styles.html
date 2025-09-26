@@ -1,0 +1,14 @@
+<style>
+  /* Hero Timeline - Prevent FOUC by setting elements to their "from" positions */
+  body:not([data-loaded='true']) {
+    :has([data-animation='hero']) {
+
+      /* Navigation component - starts invisible and moved up */
+      & .nav_component,
+      & [data-element='inner'],
+      & h1 {
+        opacity: 0;
+      }
+    }
+  }
+</style>
