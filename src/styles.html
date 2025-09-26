@@ -1,14 +1,31 @@
 <style>
-  /* Hero Timeline - Prevent FOUC by setting elements to their "from" positions */
+  /* Target elements within the body when not loaded yet */
   body:not([data-loaded='true']) {
     :has([data-animation='hero']) {
 
-      /* Navigation component - starts invisible and moved up */
+      /* Hero animation */
       & .nav_component,
       & [data-element='inner'],
       & h1 {
         opacity: 0;
       }
     }
+
+    /* Home Hero animation */
+    :has([data-animation='homeHero']) {
+      & [data-home-hero='content'] {
+        opacity: 0;
+      }
+    }
+
+    /* AI Team Hero animation */
+    :has([data-animation='aiTeamHero']) {
+
+      & [data-ai-team-hero='content'],
+      & .ditl_item {
+        opacity: 0;
+      }
+    }
+
   }
 </style>
