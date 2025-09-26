@@ -29,6 +29,8 @@ export const homeHeroTimeline: TimelineCreator = (
     return;
   }
 
+  setBaseVars();
+
   const firstAsset = assets[0];
   const allOtherAssets = assets.slice(1).filter((asset) => !!getPositionVar(asset, '--ha-width'));
 
@@ -52,15 +54,27 @@ export const homeHeroTimeline: TimelineCreator = (
 
   tl.from(
     rings,
-    { opacity: 0, width: (index, trigger) => trigger.offsetWidth / 2, stagger: 0.1 },
+    {
+      opacity: 0,
+      '--hr-width': (index: number, trigger: HTMLElement) => {
+        const width = getPositionVar(trigger, '--hr-width');
+        return width ? width / 2 : trigger.offsetWidth / 2;
+      },
+      stagger: 0.1,
+    },
     '<0.25'
   );
 
+  const topVar = '--ha-top';
+  const bottomVar = '--ha-bottom';
+  const leftVar = '--ha-left';
+  const rightVar = '--ha-right';
+
   allOtherAssets.forEach((asset, index) => {
-    const top = getPositionVar(asset, '--hl-top');
-    const bottom = getPositionVar(asset, '--hl-bottom');
-    const left = getPositionVar(asset, '--hl-left');
-    const right = getPositionVar(asset, '--hl-right');
+    const top = getPositionVar(asset, topVar);
+    const bottom = getPositionVar(asset, bottomVar);
+    const left = getPositionVar(asset, leftVar);
+    const right = getPositionVar(asset, rightVar);
 
     const fromOptions: Record<string, number | string> = {
       opacity: 0,
@@ -68,22 +82,53 @@ export const homeHeroTimeline: TimelineCreator = (
       backdropFilter: 'blur(1rem)',
     };
 
-    if (top) fromOptions['--ha-top'] = top * 2;
-    if (bottom) fromOptions['--ha-bottom'] = bottom * 2;
-    if (left) fromOptions['--ha-left'] = left * 2;
-    if (right) fromOptions['--ha-right'] = right * 2;
+    if (top) fromOptions[topVar] = top * 2;
+    if (bottom) fromOptions[bottomVar] = bottom * 2;
+    if (left) fromOptions[leftVar] = left * 2;
+    if (right) fromOptions[rightVar] = right * 2;
 
     const toOptions: Record<string, number | string> = {
       opacity: 1,
       backdropFilter: 'blur(1rem)',
     };
 
-    if (top) toOptions['--ha-top'] = top;
-    if (bottom) toOptions['--ha-bottom'] = bottom;
-    if (left) toOptions['--ha-left'] = left;
-    if (right) toOptions['--ha-right'] = right;
+    if (top) toOptions[topVar] = top;
+    if (bottom) toOptions[bottomVar] = bottom;
+    if (left) toOptions[leftVar] = left;
+    if (right) toOptions[rightVar] = right;
 
     tl.fromTo(asset, fromOptions, toOptions, index === 0 ? '>-1' : `<${index * 0.005}`);
+  });
+
+  function setBaseVars() {
+    if (!content) return;
+    const widthVar = '--hv-width';
+    const heightVar = '--hv-height';
+
+    // Reset the width and height variables
+    content.style.removeProperty(widthVar);
+    content.style.removeProperty(heightVar);
+
+    // Dynamically pull the width and height variables
+    const widthDefault = getPositionVar(content, widthVar);
+    const heightDefault = getPositionVar(content, heightVar);
+    if (!widthDefault || !heightDefault) return;
+
+    // Get the default and current aspect ratios
+    const defaultAspectRatio = widthDefault / heightDefault;
+    const contentRect = content.getBoundingClientRect();
+    const currentAspectRatio = contentRect.width / contentRect.height;
+
+    // Calculate the scale and width/height
+    const scale = currentAspectRatio / defaultAspectRatio;
+    const width = widthDefault * scale;
+    const height = heightDefault * scale;
+    gsap.set(content, { [widthVar]: width, [heightVar]: height });
+  }
+
+  window.addEventListener('resize', () => {
+    setBaseVars();
+    ScrollTrigger.refresh();
   });
 
   return tl;
