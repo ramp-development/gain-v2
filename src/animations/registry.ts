@@ -1,6 +1,7 @@
 import type { TimelineDefinition } from '$types';
 
 import { aiTeamTimeline, aiTeamTriggerConfig } from './timelines/aiTeam';
+import { aiTeamHeroTimeline } from './timelines/aiTeamHero';
 import { blogCardTimeline, blogCardTriggerConfig } from './timelines/blogCard';
 import { cardFadeTimeline } from './timelines/cardFade';
 import { cardFlipTimeline, cardFlipTriggerConfig } from './timelines/cardFlip';
@@ -35,6 +36,12 @@ export const timelineRegistry: Record<string, TimelineDefinition> = {
   hero: {
     create: heroTimeline,
     triggerConfig: heroTriggerConfig,
+    defaultTrigger: 'load',
+  },
+
+  aiTeamHero: {
+    create: aiTeamHeroTimeline,
+    triggerConfig: undefined,
     defaultTrigger: 'load',
   },
 
