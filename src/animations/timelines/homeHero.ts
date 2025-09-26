@@ -62,9 +62,10 @@ export const homeHeroTimeline: TimelineCreator = (
     const left = getPositionVar(asset, '--hl-left');
     const right = getPositionVar(asset, '--hl-right');
 
-    const fromOptions: Record<string, number> = {
+    const fromOptions: Record<string, number | string> = {
       opacity: 0,
       duration: 0.25,
+      backdropFilter: 'blur(1rem)',
     };
 
     if (top) fromOptions['--ha-top'] = top * 2;
@@ -72,8 +73,9 @@ export const homeHeroTimeline: TimelineCreator = (
     if (left) fromOptions['--ha-left'] = left * 2;
     if (right) fromOptions['--ha-right'] = right * 2;
 
-    const toOptions: Record<string, number> = {
+    const toOptions: Record<string, number | string> = {
       opacity: 1,
+      backdropFilter: 'blur(1rem)',
     };
 
     if (top) toOptions['--ha-top'] = top;
