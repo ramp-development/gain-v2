@@ -6,6 +6,8 @@ export const cardFadeTimeline: TimelineCreator = (
   element: HTMLElement,
   context?: Record<string, string>
 ) => {
+  console.log('cardFadeTimeline', { element, context });
+
   const tl = gsap.timeline({
     paused: true,
     defaults: { duration: context?.duration || 1.5, ease: context?.ease || 'expo.inOut' },
@@ -18,7 +20,7 @@ export const cardFadeTimeline: TimelineCreator = (
   // Build animation sequence
   cards.forEach((card, index) => {
     const background = queryElement<HTMLElement>('[data-card="background"]', card);
-    tl.from(card, { y: '1.5rem', opacity: 0 }, `${index * 0.1}`);
+    tl.from(card, { y: '2rem', opacity: 0 }, `${index * 0.2}`);
     if (background) tl.from(background, { height: '0%' }, '<');
   });
 

@@ -20,7 +20,11 @@ export const contentHeaderTimeline: TimelineCreator = (
   // Main content reveal
   if (heading) {
     const splitHeading = new SplitText(heading, { type: 'lines', mask: 'lines' });
-    tl.from(splitHeading.lines, { yPercent: 100, stagger: 0.1 });
+    tl.from(splitHeading.lines, {
+      yPercent: 100,
+      stagger: 0.1,
+      onComplete: () => splitHeading.revert(),
+    });
   }
 
   if (paragraphs.length > 0) {
@@ -28,7 +32,7 @@ export const contentHeaderTimeline: TimelineCreator = (
       const splitParagraph = new SplitText(paragraph, { type: 'lines', mask: 'lines' });
       tl.from(
         splitParagraph.lines,
-        { yPercent: 100, stagger: 0.1 },
+        { yPercent: 100, stagger: 0.1, onComplete: () => splitParagraph.revert() },
         index === 0 ? '<0.2' : '<0.05'
       );
     });
