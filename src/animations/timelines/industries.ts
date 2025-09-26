@@ -45,7 +45,7 @@ export const industriesTimeline: TimelineCreator = (
   }
 
   const assetsTl = gsap.timeline({ defaults: { ease: 'none' } });
-  const namesTl = gsap.timeline({ defaults: { ease: context?.ease || 'expo.inOut' } });
+  const namesTl = gsap.timeline({ defaults: { ease: 'power2.inOut' } });
   const masterTl = gsap.timeline();
 
   namesTl.set(names, { yPercent: 100 * 2 });
