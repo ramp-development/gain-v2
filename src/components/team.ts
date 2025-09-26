@@ -169,7 +169,8 @@ export const team = (): void => {
       });
     });
 
-    popupClose.addEventListener('click', () => {
+    popupClose.addEventListener('click', (event) => {
+      event.preventDefault();
       if (isAnimating) return;
       isAnimating = true;
 
