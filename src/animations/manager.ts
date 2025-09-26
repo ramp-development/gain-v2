@@ -3,6 +3,7 @@
 import { App } from '$app';
 import { Events } from '$events';
 import type { AnimationEventData, AnimationInstance, TriggerType } from '$types';
+import { debug } from '$utils/debug';
 
 import { AnimationFactory } from './factory';
 
@@ -36,13 +37,15 @@ export class AnimationManager {
   public initialize(): void {
     if (this.initialized) return;
 
-    console.log('Initializing animation system');
+    debug('log', 'Initializing animation system');
 
     // Step 1: Scan DOM and create all animations (none play automatically)
     this.scanAndCreateAnimations();
 
-    console.log(`Created ${this.instances.length} animation instances`);
-    console.log(this.instances);
+    document.body.setAttribute('data-loaded', 'true');
+
+    debug('log', `Created ${this.instances.length} animation instances`);
+    debug('log', this.instances);
     this.initialized = true;
   }
 
@@ -50,7 +53,7 @@ export class AnimationManager {
    * App is ready - determine what should play
    */
   public appReady(): void {
-    console.log('App ready, determining animation playback order');
+    debug('log', 'App ready, determining animation playback order');
 
     // Step 2: Find hero and check if visible
     this.heroInstance = this.instances.find((i) => i.type === 'hero') || null;
@@ -75,7 +78,7 @@ export class AnimationManager {
       return instance.scrollTrigger.isActive;
     });
 
-    console.log(`Found ${visibleEntranceAnimations.length} visible entrance animations`);
+    debug('log', `Found ${visibleEntranceAnimations.length} visible entrance animations`);
 
     // Step 5: Build playback queue
     if (heroVisible && this.heroInstance) {
@@ -89,7 +92,7 @@ export class AnimationManager {
 
     // Start playing the queue
     if (this.animationQueue.length > 0) {
-      console.log(`Starting animation queue with ${this.animationQueue.length} animations`);
+      debug('log', `Starting animation queue with ${this.animationQueue.length} animations`);
       this.playNextInQueue();
     }
 
@@ -162,7 +165,7 @@ export class AnimationManager {
                 self.isActive &&
                 !this.animationQueue.includes(instance)
               ) {
-                console.log(`ScrollTrigger playing ${type} naturally`);
+                debug('log', `ScrollTrigger playing ${type} naturally`);
                 this.playAnimation(instance);
               }
             },
@@ -195,14 +198,14 @@ export class AnimationManager {
   private playNextInQueue(): void {
     if (this.animationQueue.length === 0) {
       this.isPlayingQueue = false;
-      console.log('Animation queue complete');
+      debug('log', 'Animation queue complete');
       return;
     }
 
     this.isPlayingQueue = true;
     const nextAnimation = this.animationQueue.shift()!;
 
-    console.log(`Playing queued animation: ${nextAnimation.type} (${nextAnimation.id})`);
+    debug('log', `Playing queued animation: ${nextAnimation.type} (${nextAnimation.id})`);
 
     // Set up completion handler to play next
     nextAnimation.timeline.eventCallback('onStart', () => {
@@ -211,7 +214,7 @@ export class AnimationManager {
       }, 500);
     });
     nextAnimation.timeline.eventCallback('onComplete', () => {
-      console.log('Animation completed', nextAnimation);
+      debug('log', 'Animation completed', nextAnimation);
       ScrollTrigger.refresh();
       this.handleAnimationComplete(nextAnimation);
     });
@@ -225,7 +228,7 @@ export class AnimationManager {
   private playAnimation(instance: AnimationInstance, eventData?: Record<string, any>): void {
     if (instance.state !== 'pending') return;
 
-    console.log(`Playing animation: ${instance.type} (${instance.id})`);
+    debug('log', `Playing animation: ${instance.type} (${instance.id})`);
 
     // Update state
     instance.state = 'playing';
