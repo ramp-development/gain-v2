@@ -17,8 +17,23 @@ export const cardFadeTimeline: TimelineCreator = (
   const cards = queryElements('[data-element="card"]', element);
   if (!cards.length) return;
 
+  // set the min-height of the cards to the tallest card
+  const setHeights = () => {
+    cards.forEach((card) => card.style.removeProperty('min-height'));
+    const maxHeight = Math.max(...cards.map((card) => card.getBoundingClientRect().height));
+    cards.forEach((card) => {
+      card.style.minHeight = `${maxHeight}px`;
+    });
+  };
+
+  setHeights();
+  window.addEventListener('resize', setHeights);
+
   // Build animation sequence
   cards.forEach((card, index) => {
+    tl.set(card, {
+      minHeight: () => Math.max(...cards.map((card) => card.getBoundingClientRect().height)),
+    });
     const background = queryElement<HTMLElement>('[data-card="background"]', card);
     tl.from(card, { y: '2rem', opacity: 0 }, `${index * 0.2}`);
     if (background) tl.from(background, { height: '0%' }, '<');
