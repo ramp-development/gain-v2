@@ -50,11 +50,7 @@ export const heroTimeline: TimelineCreator = (
     const splitTitle = new SplitText(title, { type: 'lines', mask: 'lines' });
 
     // Animate the masks to reveal the text
-    tl.from(
-      splitTitle.lines,
-      { yPercent: 100, stagger: 0.01, onComplete: () => splitTitle.revert() },
-      0.2
-    );
+    tl.from(splitTitle.lines, { yPercent: 100, stagger: 0.01 }, 0.2);
   }
 
   // Add any context-specific modifications

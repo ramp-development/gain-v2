@@ -34,7 +34,6 @@ export const modernTimeline: TimelineCreator = (
         x: '-1rem',
         duration: 1.5,
         stagger: 0.1,
-        onComplete: () => splitTitle.revert(),
       },
       0.1
     );
@@ -45,11 +44,7 @@ export const modernTimeline: TimelineCreator = (
       const splitTitle = new SplitText(block, { type: 'lines', mask: 'lines' });
       const position = index === 0 ? 0.1 : '>-1.5';
 
-      tl.from(
-        splitTitle.lines,
-        { yPercent: 100, stagger: 0.15, onComplete: () => splitTitle.revert() },
-        position
-      );
+      tl.from(splitTitle.lines, { yPercent: 100, stagger: 0.15 }, position);
     });
   }
 
