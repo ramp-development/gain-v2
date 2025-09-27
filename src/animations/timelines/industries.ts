@@ -63,9 +63,11 @@ export const industriesTimeline: TimelineCreator = (
       // const stickyHeight = sticky.getBoundingClientRect().height;
       const assetWidth = assets[0].getBoundingClientRect().width;
       const moveListBy = assetWidth * (assets.length - 1);
+      const elementHeight = element.getBoundingClientRect().height;
+      const listHeight = assetsList.getBoundingClientRect().height;
 
       // Build the animation sequence
-      const trackHeight = moveListBy;
+      const trackHeight = elementHeight - listHeight + moveListBy;
       masterTl.set(track, { height: `${trackHeight}px` });
 
       assetsTl.to(assets, { x: -moveListBy });
