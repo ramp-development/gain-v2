@@ -16,11 +16,13 @@ export const contentHeaderTimeline: TimelineCreator = (
   const heading = queryElement(`[${attrs.elements}="${values.heading}"] > *`, element);
   const paragraphs = queryElements(`[${attrs.elements}="${values.paragraph}"] > *`, element);
   const buttons = queryElements(`[${attrs.elements}="${values.button}"]`, element);
+  let isFirstInSequence = true;
 
   // Main content reveal
   if (heading) {
     const splitHeading = new SplitText(heading, { type: 'lines', mask: 'lines' });
     tl.from(splitHeading.lines, { yPercent: 100, stagger: 0.1 });
+    isFirstInSequence = false;
   }
 
   if (paragraphs.length > 0) {
@@ -28,14 +30,15 @@ export const contentHeaderTimeline: TimelineCreator = (
       const splitParagraph = new SplitText(paragraph, { type: 'lines', mask: 'lines' });
       tl.from(
         splitParagraph.lines,
-        { yPercent: 100, stagger: 0.1, onComplete: () => splitParagraph.revert() },
-        index === 0 ? '<0.2' : '<0.05'
+        { yPercent: 100, stagger: 0.1 },
+        index === 0 && isFirstInSequence ? 0 : index === 0 ? '<0.2' : '<0.05'
       );
     });
+    isFirstInSequence = false;
   }
 
   if (buttons.length > 0) {
-    tl.from(buttons, { opacity: 0, x: '1rem', stagger: 0.1 }, '<0.2');
+    tl.from(buttons, { opacity: 0, x: '1rem', stagger: 0.1 }, isFirstInSequence ? 0 : '<0.2');
   }
 
   return tl;
