@@ -11,6 +11,14 @@ export type TriggerType = 'load' | 'entrance' | 'scrub' | 'event' | 'sequence';
 export type AnimationState = 'pending' | 'playing' | 'completed';
 
 /**
+ * Animation factory result
+ */
+export type AnimationFactoryResult = {
+  timeline: gsap.core.Timeline | undefined;
+  triggerConfig?: ScrollTriggerConfig;
+};
+
+/**
  * ScrollTrigger configuration for timeline
  */
 export interface ScrollTriggerConfig {

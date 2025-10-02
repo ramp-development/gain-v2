@@ -1,18 +1,13 @@
-import { initAnimations } from './animations';
+// import { initAnimations } from './animations';
 import { App } from './app';
 import { components } from './components';
+import { animations } from './newAnimations';
 
 window.Webflow ||= [];
 window.Webflow.push(() => {
-  // Initialize animation system (sets up listeners for APP_INITIALIZED)
-  initAnimations();
-
-  // Initialize components
   components();
+  animations();
 
-  // Initialize the app singleton
   const app = App.getInstance();
-
-  // Initialize app (this will trigger APP_INITIALIZED when ready)
   app.init();
 });

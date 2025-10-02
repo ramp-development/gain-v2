@@ -3,9 +3,9 @@ import { queryElement } from '$utils/queryElement';
 
 export const nav = () => {
   const nav = queryElement(`[${attrs.elements}="nav"]`);
-  const inner = queryElement(`[${attrs.elements}="inner"]`);
+  const outer = queryElement(`[${attrs.elements}="outer"]`);
   const main = queryElement('.page_main');
-  const scrollElement = inner || main;
+  const scrollElement = outer || main;
   if (!nav || !scrollElement) return;
 
   const variant = 'w-variant-144a276f-7272-627f-9552-6194bfeced8d';
@@ -22,10 +22,10 @@ export const nav = () => {
     end: 'bottom bottom',
     scrub: false,
     onEnter: () => {
-      if (inner) nav.classList.add(variant);
+      if (outer) nav.classList.add(variant);
     },
     onLeaveBack: () => {
-      if (inner) nav.classList.remove(variant);
+      if (outer) nav.classList.remove(variant);
     },
     onUpdate: (self) => {
       const { direction } = self;

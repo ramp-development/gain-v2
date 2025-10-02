@@ -37,13 +37,12 @@ export const benefits = () => {
   });
 
   function resetBenefits({ component, tagWrap, list, items, cta }: FormatBenefitsProps) {
-    component.removeAttribute('style');
-    tagWrap.removeAttribute('style');
-    list.removeAttribute('style');
-    items.forEach((item) => {
-      item.removeAttribute('style');
-    });
-    cta.removeAttribute('style');
+    gsap.set(component, { style: '' });
+    gsap.set(tagWrap, { style: '' });
+    gsap.set(list, { style: '' });
+    gsap.set(items, { style: '' });
+    gsap.set(cta, { style: '' });
+    ScrollTrigger.refresh();
   }
 
   function formatBenefits({ component, tagWrap, items, cta }: FormatBenefitsProps) {
@@ -58,24 +57,24 @@ export const benefits = () => {
 
     items.forEach((item) => {
       const endHeightOfItem = getDistanceFromParagraphToTop(item);
-      item.style.paddingTop = `${paddingTop}px`;
+      gsap.set(item, { paddingTop: `${paddingTop}px` });
 
       paddingTop += endHeightOfItem;
     });
 
-    cta.style.paddingTop = `${paddingTop}px`;
+    gsap.set(cta, { paddingTop: `${paddingTop}px` });
 
     const totalHeight = paddingTop + cta.getBoundingClientRect().height; // come back to this???
-    if (isAboveThreshold()) tagWrap.style.height = `${totalHeight}px`;
+    if (isAboveThreshold()) gsap.set(tagWrap, { height: `${totalHeight}px` });
 
     const ctaPaddingBottom1 = totalHeight - cta.getBoundingClientRect().height;
-    cta.style.paddingBottom = `${ctaPaddingBottom1}px`;
-    component.style.marginBottom = `${ctaPaddingBottom1 * -1}px`;
+    gsap.set(cta, { paddingBottom: `${ctaPaddingBottom1}px` });
+    gsap.set(component, { marginBottom: `${ctaPaddingBottom1 * -1}px` });
 
     const reversedItems = [...items].reverse();
     reversedItems.forEach((item) => {
       const paddingBottom = totalHeight - item.getBoundingClientRect().height;
-      item.style.paddingBottom = `${paddingBottom}px`;
+      gsap.set(item, { paddingBottom: `${paddingBottom}px` });
     });
 
     items.forEach((item, index) => {
@@ -89,7 +88,7 @@ export const benefits = () => {
       const paddingTop = parseFloat(computedStyleOfCurrentItem.paddingTop);
       const marginTop = paddingBottom + paddingTop;
 
-      item.style.marginTop = `${marginTop * -1}px`;
+      gsap.set(item, { marginTop: `${marginTop * -1}px` });
     });
 
     const ctaComputedStyleOfCurrentItem = getComputedStyle(cta);
@@ -100,7 +99,8 @@ export const benefits = () => {
     const ctaPaddingTop = parseFloat(ctaComputedStyleOfCurrentItem.paddingTop);
     const ctaMarginTop = ctaPaddingBottom2 + ctaPaddingTop;
 
-    cta.style.marginTop = `${ctaMarginTop * -1}px`;
+    gsap.set(cta, { marginTop: `${ctaMarginTop * -1}px` });
+    ScrollTrigger.refresh();
   }
 
   function getDistanceFromParagraphToTop(item: HTMLElement): number {
