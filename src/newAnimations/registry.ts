@@ -25,7 +25,7 @@ export const registry: AnimationRegistry = {
   contentHeader: createAnimationFactory(ContentHeaderTimeline),
   footer: createAnimationFactory(FooterTimeline),
   hero: createAnimationFactory(HeroTimeline),
-  // homeHero: createAnimationFactory(HomeHeroTimeline),
+  homeHero: createAnimationFactory(HomeHeroTimeline),
   industries: createAnimationFactory(IndustriesTimeline),
   logos: createAnimationFactory(LogosTimeline),
   modern: createAnimationFactory(ModernTimeline),
