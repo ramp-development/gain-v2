@@ -93,6 +93,20 @@ export class AITeamTimeline extends BaseAnimation {
           { yPercent: -100, stagger: 0.05, duration: 1 },
           '<'
         );
+
+        // Scale up wrap during first link's timeline
+        if (index === 0) {
+          this.timeline.to(
+            this.wrap,
+            { scale: () => window.innerWidth / this.wrap.offsetWidth },
+            '<'
+          );
+        }
+      }
+
+      // Scale down wrap during final link's timeline
+      if (index === links.length - 1 && index !== 0) {
+        this.timeline.to(this.wrap, { scale: 1 }, '<');
       }
 
       link.addEventListener('click', () => {
