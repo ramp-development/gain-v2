@@ -70,7 +70,7 @@ export class FooterTimeline extends BaseAnimation {
         this.timeline._panelInitialised = true;
       },
       onLeaveBack: () => {
-        this.timeline.clearProps();
+        this.timeline.clearProps = true;
       },
       trigger: this.element,
       start: 'top bottom',
