@@ -6,7 +6,7 @@ import { AnimationManager } from './manager';
 
 export const animations = () => {
   const app = App.getInstance();
-  defaults();
+  defaults(app.debug);
 
   const manager = new AnimationManager();
 

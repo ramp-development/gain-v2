@@ -13,7 +13,7 @@ export class AnimationManager {
   private onScrollAnimations: QueuedAnimation[] = [];
   private relinkScrollAnimations: Set<Element> = new Set();
 
-  private constructor() {
+  constructor() {
     this.app = App.getInstance();
   }
 

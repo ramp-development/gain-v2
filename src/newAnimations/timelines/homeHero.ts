@@ -3,39 +3,42 @@ import { getVariable } from '$utils/getVariable';
 import { BaseAnimation } from './base/baseAnimation';
 
 export class HomeHeroTimeline extends BaseAnimation {
+  protected content!: HTMLElement;
+
   protected createTimeline(): void {
     // Find child elements to animate
     const attr = 'data-home-hero';
     const logo = this.queryElement(`[${attr}="logo"]`);
-    const content = this.queryElement(`[${attr}="content"]`);
+    this.content = this.queryElement(`[${attr}="content"]`) as HTMLElement;
     const background = this.queryElement(`[${attr}="background"]`);
     const title = this.queryElement(`[${attr}="title"]`);
     const prompt = this.queryElement(`[${attr}="prompt"]`);
     const rings = this.queryElements(`[${attr}="ring"]`);
     const assets = this.queryElements(`[${attr}="asset"]`);
 
-    if (!logo || !content || !background || !title || !prompt || !rings || !assets) return;
+    if (!logo || !this.content || !background || !title || !prompt || !rings || !assets) return;
 
-    setBaseVars();
+    this.setBaseVars();
 
     const firstAsset = assets[0];
     const allOtherAssets = assets.slice(1).filter((asset) => !!getVariable('--ha-width', asset));
+    allOtherAssets.forEach((asset) => this.setAssetRadius(asset));
 
     const titleSplit = new SplitText(title, { type: 'lines', mask: 'lines' });
     const promptSplit = new SplitText(prompt, { type: 'lines', mask: 'lines' });
 
     // Build animation sequence
-    this.timeline.set(content, { clipPath: 'inset(50%)' });
+    this.timeline.set(this.content, { clipPath: 'inset(50%)' });
     this.timeline.set(background, { opacity: 0, width: '0%', height: '0%' });
 
     this.timeline.to(background, { opacity: 1, duration: 0.25 });
-    this.timeline.to(content, { clipPath: 'inset(0%)' }, '<');
-    this.timeline.to(background, { width: '100%', height: '100%' }, '<');
+    this.timeline.to(this.content, { clipPath: 'inset(0%)', duration: 1.5 }, '<');
+    this.timeline.to(background, { width: '100%', height: '100%', duration: 1.5 }, '<');
 
     this.timeline.from(titleSplit.lines, { yPercent: 100, stagger: 0.1 }, '<0.1');
     this.timeline.from(promptSplit.lines, { yPercent: 100, stagger: 0.1 }, '<0.5');
 
-    this.timeline.to(promptSplit.lines, { yPercent: -100, stagger: 0.1 });
+    this.timeline.to(promptSplit.lines, { yPercent: -100, stagger: 0.1 }, '>-0.5');
     this.timeline.from(
       firstAsset,
       { opacity: 0, scale: 0.5, transformOrigin: 'center center' },
@@ -70,7 +73,7 @@ export class HomeHeroTimeline extends BaseAnimation {
       const fromOptions: Record<string, number | string> = {
         opacity: 0,
         duration: 0.25,
-        backdropFilter: 'blur(1rem)',
+        // backdropFilter: 'blur(1rem)',
       };
 
       if (top) fromOptions[topVar] = top * 2;
@@ -80,7 +83,7 @@ export class HomeHeroTimeline extends BaseAnimation {
 
       const toOptions: Record<string, number | string> = {
         opacity: 1,
-        backdropFilter: 'blur(1rem)',
+        // backdropFilter: 'blur(1rem)',
       };
 
       if (top) toOptions[topVar] = top;
@@ -92,38 +95,13 @@ export class HomeHeroTimeline extends BaseAnimation {
         asset,
         fromOptions,
         toOptions,
-        index === 0 ? '>-1' : `<${index * 0.005}`
+        index === 0 ? '<1' : `<${index * 0.0075}`
       );
     });
 
-    function setBaseVars() {
-      if (!content) return;
-      const widthVar = '--hv-width';
-      const heightVar = '--hv-height';
-
-      // Reset the width and height variables
-      content.style.removeProperty(widthVar);
-      content.style.removeProperty(heightVar);
-
-      // Dynamically pull the width and height variables
-      const widthDefault = getVariable(widthVar, content);
-      const heightDefault = getVariable(heightVar, content);
-      if (!widthDefault || !heightDefault) return;
-
-      // Get the default and current aspect ratios
-      const defaultAspectRatio = widthDefault / heightDefault;
-      const contentRect = content.getBoundingClientRect();
-      const currentAspectRatio = contentRect.width / contentRect.height;
-
-      // Calculate the scale and width/height
-      const scale = currentAspectRatio / defaultAspectRatio;
-      const width = widthDefault * scale;
-      const height = heightDefault * scale;
-      gsap.set(content, { [widthVar]: width, [heightVar]: height });
-    }
-
     window.addEventListener('resize', () => {
-      setBaseVars();
+      this.setBaseVars();
+      allOtherAssets.forEach((asset) => this.setAssetRadius(asset));
       ScrollTrigger.refresh();
     });
   }
@@ -135,5 +113,46 @@ export class HomeHeroTimeline extends BaseAnimation {
       end: 'bottom bottom',
       scrub: 1,
     };
+  }
+
+  protected setBaseVars() {
+    if (!this.content) return;
+    const widthVar = '--hv-width';
+    const heightVar = '--hv-height';
+
+    // Reset the width and height variables
+    this.content.style.removeProperty(widthVar);
+    this.content.style.removeProperty(heightVar);
+
+    // Dynamically pull the width and height variables
+    const widthDefault = getVariable(widthVar, this.content);
+    const heightDefault = getVariable(heightVar, this.content);
+    if (!widthDefault || !heightDefault) return;
+
+    // Get the default and current aspect ratios
+    const defaultAspectRatio = widthDefault / heightDefault;
+    const contentRect = this.content.getBoundingClientRect();
+    const currentAspectRatio = contentRect.width / contentRect.height;
+
+    // Calculate the scale and width/height
+    const scale = currentAspectRatio / defaultAspectRatio;
+    const width = widthDefault * scale;
+    const height = heightDefault * scale;
+    gsap.set(this.content, { [widthVar]: width, [heightVar]: height });
+  }
+
+  protected setAssetRadius(asset: HTMLElement): void {
+    // get the variables we have
+    const hlRadius = getVariable('--hl-radius', asset);
+    const hlWidth = getVariable('--hl-width', asset);
+
+    if (!hlRadius || !hlWidth) return;
+
+    // calculate the hl-height based on the hl-width and the aspect ratio
+    const hlHeight = hlWidth * (asset.offsetHeight / asset.offsetWidth);
+
+    // calculate and apply the radius
+    const radius = (hlRadius * (asset.offsetWidth / hlWidth + asset.offsetHeight / hlHeight)) / 2;
+    asset.style.borderRadius = `${radius}px`;
   }
 }

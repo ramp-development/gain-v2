@@ -1908,14 +1908,13 @@
 
   // src/newAnimations/defaults.ts
   init_live_reload();
-  var defaults = () => {
-    const app = App.getInstance();
+  var defaults = (debug2 = false) => {
     gsap.defaults({
       duration: 2,
       ease: "expo.inOut"
     });
     ScrollTrigger.defaults({
-      markers: app.debug
+      markers: debug2
       // Show markers if debug
     });
   };
@@ -1987,24 +1986,30 @@
 
   // src/newAnimations/timelines/aiTeam.ts
   var AITeamTimeline = class extends BaseAnimation {
+    track;
+    wrap;
+    constructor(element) {
+      super(element);
+      this.track = this.queryElement(`[${attrs.elements}="track"]`);
+      this.wrap = queryElement(`[${attrs.elements}="wrap"]`, this.track);
+    }
     createTimeline() {
-      const track = this.queryElement(`[${attrs.elements}="track"]`);
-      if (!track) return;
-      const wrap = queryElement(`[${attrs.elements}="wrap"]`, track);
-      if (!wrap) return;
-      const links = queryElements(`[${attrs.elements}="link"]`, wrap);
-      const backgrounds = queryElements(`[${attrs.elements}="background"]`, wrap);
-      const thumbnails = queryElements(`[${attrs.elements}="thumbnail"]`, wrap);
-      const names = queryElements(`[${attrs.elements}="name"]`, wrap);
-      const roles = queryElements(`[${attrs.elements}="role"]`, wrap);
-      const descriptions = queryElements(`[${attrs.elements}="description"]`, wrap);
+      const links = queryElements(`[${attrs.elements}="link"]`, this.wrap);
+      const backgrounds = queryElements(`[${attrs.elements}="background"]`, this.wrap);
+      const thumbnails = queryElements(
+        `[${attrs.elements}="thumbnail"]`,
+        this.wrap
+      );
+      const names = queryElements(`[${attrs.elements}="name"]`, this.wrap);
+      const roles = queryElements(`[${attrs.elements}="role"]`, this.wrap);
+      const descriptions = queryElements(`[${attrs.elements}="description"]`, this.wrap);
       const mobileDescriptions = queryElements(
         `[${attrs.elements}="description-mobile"]`,
-        wrap
+        this.wrap
       );
-      const wrapHeight = wrap.getBoundingClientRect().height;
-      this.timeline.set(track, { height: `${wrapHeight * 4}px` });
-      this.timeline.set(wrap, { top: `${(window.innerHeight - wrapHeight) / 2}px` });
+      const wrapHeight = this.wrap.getBoundingClientRect().height;
+      this.timeline.set(this.track, { height: `${wrapHeight * 4}px` });
+      this.timeline.set(this.wrap, { top: `${(window.innerHeight - wrapHeight) / 2}px` });
       ScrollTrigger.refresh();
       links.forEach((link, index) => {
         if (index !== 0) {
@@ -2025,8 +2030,13 @@
         }
         const nameSplit = new SplitText(names[index], { type: "words", mask: "words" });
         const roleSplit = new SplitText(roles[index], { type: "words", mask: "words" });
-        const descriptionSplit = new SplitText(descriptions[index], { type: "lines", mask: "lines" });
-        const mobileDescriptionSplit = new SplitText(mobileDescriptions[index], {
+        const descriptionTextToSplit = queryElements(`p`, descriptions[index]);
+        const mobileDescriptionTextToSplit = queryElements(`p`, mobileDescriptions[index]);
+        const descriptionSplit = new SplitText(descriptionTextToSplit, {
+          type: "lines",
+          mask: "lines"
+        });
+        const mobileDescriptionSplit = new SplitText(mobileDescriptionTextToSplit, {
           type: "lines",
           mask: "lines"
         });
@@ -2060,20 +2070,14 @@
       });
     }
     getScrollTriggerConfig() {
-      const config = {
+      const wrapHeight = this.wrap.getBoundingClientRect().height;
+      const topAndBottom = (window.innerHeight - wrapHeight) / 2;
+      return {
         trigger: this.element,
-        start: "top top",
-        end: "bottom bottom",
+        start: `top ${topAndBottom}`,
+        end: `bottom ${window.innerHeight - topAndBottom}`,
         scrub: 1
       };
-      const wrap = this.queryElement(`[${attrs.elements}="wrap"]`);
-      if (wrap) {
-        const wrapHeight = wrap.getBoundingClientRect().height;
-        const topAndBottom = (window.innerHeight - wrapHeight) / 2;
-        config.start = `top ${topAndBottom}`;
-        config.end = `bottom ${window.innerHeight - topAndBottom}`;
-      }
-      return config;
     }
   };
 
@@ -2151,7 +2155,7 @@
       this.rightCards = this.cards.slice(numberOfCards - numberOfCardsNeeded / 2);
       this.cards.forEach((card, index) => {
         this.timeline.set(card, {
-          height: () => `${Math.max(...this.cards.map((card2) => card2.getBoundingClientRect().height))}px`,
+          height: () => `${Math.max(...this.cards.map((card2) => card2.offsetHeight))}px`,
           zIndex: numberOfCards - index,
           opacity: 1 - index * 0.2
         });
@@ -2170,7 +2174,7 @@
     thresholdSmall() {
       this.cards.forEach((card, index) => {
         this.timeline.set(card, {
-          x: `${index}rem`,
+          x: `${index * 0.5}rem`,
           y: `${index * -100}%`
         });
       });
@@ -2364,6 +2368,7 @@
       const content = this.queryElement(`[${attr}="content"]`);
       const panel = this.queryElement(`[${attr}="panel"]`);
       const contain = this.queryElement(`[${attr}="contain"]`);
+      console.log("footer", { inner, content, panel, contain });
       if (!inner || !content || !panel || !contain) return;
       const firstSpacer = this.queryElement(".u-section-spacer");
       this.timeline.from(content, {
@@ -2473,29 +2478,31 @@
 
   // src/newAnimations/timelines/homeHero.ts
   var HomeHeroTimeline = class extends BaseAnimation {
+    content;
     createTimeline() {
       const attr = "data-home-hero";
       const logo = this.queryElement(`[${attr}="logo"]`);
-      const content = this.queryElement(`[${attr}="content"]`);
+      this.content = this.queryElement(`[${attr}="content"]`);
       const background = this.queryElement(`[${attr}="background"]`);
       const title = this.queryElement(`[${attr}="title"]`);
       const prompt = this.queryElement(`[${attr}="prompt"]`);
       const rings = this.queryElements(`[${attr}="ring"]`);
       const assets = this.queryElements(`[${attr}="asset"]`);
-      if (!logo || !content || !background || !title || !prompt || !rings || !assets) return;
-      setBaseVars();
+      if (!logo || !this.content || !background || !title || !prompt || !rings || !assets) return;
+      this.setBaseVars();
       const firstAsset = assets[0];
       const allOtherAssets = assets.slice(1).filter((asset) => !!getVariable("--ha-width", asset));
+      allOtherAssets.forEach((asset) => this.setAssetRadius(asset));
       const titleSplit = new SplitText(title, { type: "lines", mask: "lines" });
       const promptSplit = new SplitText(prompt, { type: "lines", mask: "lines" });
-      this.timeline.set(content, { clipPath: "inset(50%)" });
+      this.timeline.set(this.content, { clipPath: "inset(50%)" });
       this.timeline.set(background, { opacity: 0, width: "0%", height: "0%" });
       this.timeline.to(background, { opacity: 1, duration: 0.25 });
-      this.timeline.to(content, { clipPath: "inset(0%)" }, "<");
-      this.timeline.to(background, { width: "100%", height: "100%" }, "<");
+      this.timeline.to(this.content, { clipPath: "inset(0%)", duration: 1.5 }, "<");
+      this.timeline.to(background, { width: "100%", height: "100%", duration: 1.5 }, "<");
       this.timeline.from(titleSplit.lines, { yPercent: 100, stagger: 0.1 }, "<0.1");
       this.timeline.from(promptSplit.lines, { yPercent: 100, stagger: 0.1 }, "<0.5");
-      this.timeline.to(promptSplit.lines, { yPercent: -100, stagger: 0.1 });
+      this.timeline.to(promptSplit.lines, { yPercent: -100, stagger: 0.1 }, ">-0.5");
       this.timeline.from(
         firstAsset,
         { opacity: 0, scale: 0.5, transformOrigin: "center center" },
@@ -2525,16 +2532,16 @@
         const right = getVariable(rightVar, asset);
         const fromOptions = {
           opacity: 0,
-          duration: 0.25,
-          backdropFilter: "blur(1rem)"
+          duration: 0.25
+          // backdropFilter: 'blur(1rem)',
         };
         if (top) fromOptions[topVar] = top * 2;
         if (bottom) fromOptions[bottomVar] = bottom * 2;
         if (left) fromOptions[leftVar] = left * 2;
         if (right) fromOptions[rightVar] = right * 2;
         const toOptions = {
-          opacity: 1,
-          backdropFilter: "blur(1rem)"
+          opacity: 1
+          // backdropFilter: 'blur(1rem)',
         };
         if (top) toOptions[topVar] = top;
         if (bottom) toOptions[bottomVar] = bottom;
@@ -2544,28 +2551,12 @@
           asset,
           fromOptions,
           toOptions,
-          index === 0 ? ">-1" : `<${index * 5e-3}`
+          index === 0 ? "<1" : `<${index * 75e-4}`
         );
       });
-      function setBaseVars() {
-        if (!content) return;
-        const widthVar = "--hv-width";
-        const heightVar = "--hv-height";
-        content.style.removeProperty(widthVar);
-        content.style.removeProperty(heightVar);
-        const widthDefault = getVariable(widthVar, content);
-        const heightDefault = getVariable(heightVar, content);
-        if (!widthDefault || !heightDefault) return;
-        const defaultAspectRatio = widthDefault / heightDefault;
-        const contentRect = content.getBoundingClientRect();
-        const currentAspectRatio = contentRect.width / contentRect.height;
-        const scale = currentAspectRatio / defaultAspectRatio;
-        const width = widthDefault * scale;
-        const height = heightDefault * scale;
-        gsap.set(content, { [widthVar]: width, [heightVar]: height });
-      }
       window.addEventListener("resize", () => {
-        setBaseVars();
+        this.setBaseVars();
+        allOtherAssets.forEach((asset) => this.setAssetRadius(asset));
         ScrollTrigger.refresh();
       });
     }
@@ -2576,6 +2567,31 @@
         end: "bottom bottom",
         scrub: 1
       };
+    }
+    setBaseVars() {
+      if (!this.content) return;
+      const widthVar = "--hv-width";
+      const heightVar = "--hv-height";
+      this.content.style.removeProperty(widthVar);
+      this.content.style.removeProperty(heightVar);
+      const widthDefault = getVariable(widthVar, this.content);
+      const heightDefault = getVariable(heightVar, this.content);
+      if (!widthDefault || !heightDefault) return;
+      const defaultAspectRatio = widthDefault / heightDefault;
+      const contentRect = this.content.getBoundingClientRect();
+      const currentAspectRatio = contentRect.width / contentRect.height;
+      const scale = currentAspectRatio / defaultAspectRatio;
+      const width = widthDefault * scale;
+      const height = heightDefault * scale;
+      gsap.set(this.content, { [widthVar]: width, [heightVar]: height });
+    }
+    setAssetRadius(asset) {
+      const hlRadius = getVariable("--hl-radius", asset);
+      const hlWidth = getVariable("--hl-width", asset);
+      if (!hlRadius || !hlWidth) return;
+      const hlHeight = hlWidth * (asset.offsetHeight / asset.offsetWidth);
+      const radius = hlRadius * (asset.offsetWidth / hlWidth + asset.offsetHeight / hlHeight) / 2;
+      asset.style.borderRadius = `${radius}px`;
     }
   };
 
@@ -2718,20 +2734,19 @@
   init_live_reload();
   var PanelTimeline = class extends BaseAnimation {
     createTimeline() {
-      const parent = this.element.closest(".panels_list");
-      const isLastPanel = (() => {
-        if (!parent) return true;
-        const allPanels = queryElements('[data-animation="panel"]', parent);
-        const currentIndex = allPanels.indexOf(this.element);
-        return currentIndex === allPanels.length - 1;
-      })();
-      if (isLastPanel) return;
+      if (this.checkIfLastPanel()) return;
       this.timeline.to(this.element, {
         opacity: 0,
-        scale: 0.8,
-        transformOrigin: "center bottom",
-        duration: 1
+        ease: "power2.inOut"
       });
+      this.timeline.to(
+        this.element,
+        {
+          scale: 0.8,
+          transformOrigin: "center bottom"
+        },
+        "<"
+      );
     }
     getScrollTriggerConfig() {
       return {
@@ -2740,6 +2755,13 @@
         end: "bottom top",
         scrub: 1
       };
+    }
+    checkIfLastPanel() {
+      const parent = this.element.closest(".panels_list");
+      if (!parent) return true;
+      const allPanels = queryElements('[data-animation="panel"]', parent);
+      const currentIndex = allPanels.indexOf(this.element);
+      return currentIndex === allPanels.length - 1;
     }
   };
 
@@ -2973,7 +2995,7 @@
   // src/newAnimations/index.ts
   var animations = () => {
     const app = App.getInstance();
-    defaults();
+    defaults(app.debug);
     const manager = new AnimationManager();
     app.eventBus.on("app:initialized" /* APP_INITIALIZED */, () => {
       manager.init();

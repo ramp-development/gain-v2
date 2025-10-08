@@ -5,28 +5,36 @@ import { queryElements } from '$utils/queryElements';
 import { BaseAnimation } from './base/baseAnimation';
 
 export class AITeamTimeline extends BaseAnimation {
+  protected track: HTMLElement;
+  protected wrap: HTMLElement;
+
+  constructor(element: HTMLElement) {
+    super(element);
+
+    this.track = this.queryElement(`[${attrs.elements}="track"]`) as HTMLElement;
+    this.wrap = queryElement(`[${attrs.elements}="wrap"]`, this.track) as HTMLElement;
+  }
+
   protected createTimeline(): void {
     // Find elements to animate
-    const track = this.queryElement(`[${attrs.elements}="track"]`);
-    if (!track) return;
-    const wrap = queryElement(`[${attrs.elements}="wrap"]`, track);
-    if (!wrap) return;
-
-    const links = queryElements<HTMLAnchorElement>(`[${attrs.elements}="link"]`, wrap);
-    const backgrounds = queryElements<HTMLElement>(`[${attrs.elements}="background"]`, wrap);
-    const thumbnails = queryElements<HTMLImageElement>(`[${attrs.elements}="thumbnail"]`, wrap);
-    const names = queryElements<HTMLElement>(`[${attrs.elements}="name"]`, wrap);
-    const roles = queryElements<HTMLElement>(`[${attrs.elements}="role"]`, wrap);
-    const descriptions = queryElements<HTMLElement>(`[${attrs.elements}="description"]`, wrap);
+    const links = queryElements<HTMLAnchorElement>(`[${attrs.elements}="link"]`, this.wrap);
+    const backgrounds = queryElements<HTMLElement>(`[${attrs.elements}="background"]`, this.wrap);
+    const thumbnails = queryElements<HTMLImageElement>(
+      `[${attrs.elements}="thumbnail"]`,
+      this.wrap
+    );
+    const names = queryElements<HTMLElement>(`[${attrs.elements}="name"]`, this.wrap);
+    const roles = queryElements<HTMLElement>(`[${attrs.elements}="role"]`, this.wrap);
+    const descriptions = queryElements<HTMLElement>(`[${attrs.elements}="description"]`, this.wrap);
     const mobileDescriptions = queryElements<HTMLElement>(
       `[${attrs.elements}="description-mobile"]`,
-      wrap
+      this.wrap
     );
 
     // Position elements as needed
-    const wrapHeight = wrap.getBoundingClientRect().height;
-    this.timeline.set(track, { height: `${wrapHeight * 4}px` });
-    this.timeline.set(wrap, { top: `${(window.innerHeight - wrapHeight) / 2}px` });
+    const wrapHeight = this.wrap.getBoundingClientRect().height;
+    this.timeline.set(this.track, { height: `${wrapHeight * 4}px` });
+    this.timeline.set(this.wrap, { top: `${(window.innerHeight - wrapHeight) / 2}px` });
     ScrollTrigger.refresh();
 
     links.forEach((link, index) => {
@@ -51,8 +59,14 @@ export class AITeamTimeline extends BaseAnimation {
 
       const nameSplit = new SplitText(names[index], { type: 'words', mask: 'words' });
       const roleSplit = new SplitText(roles[index], { type: 'words', mask: 'words' });
-      const descriptionSplit = new SplitText(descriptions[index], { type: 'lines', mask: 'lines' });
-      const mobileDescriptionSplit = new SplitText(mobileDescriptions[index], {
+
+      const descriptionTextToSplit = queryElements(`p`, descriptions[index]);
+      const mobileDescriptionTextToSplit = queryElements(`p`, mobileDescriptions[index]);
+      const descriptionSplit = new SplitText(descriptionTextToSplit, {
+        type: 'lines',
+        mask: 'lines',
+      });
+      const mobileDescriptionSplit = new SplitText(mobileDescriptionTextToSplit, {
         type: 'lines',
         mask: 'lines',
       });
@@ -96,22 +110,14 @@ export class AITeamTimeline extends BaseAnimation {
   }
 
   protected getScrollTriggerConfig(): ScrollTrigger.Vars {
-    const config = {
+    const wrapHeight = this.wrap.getBoundingClientRect().height;
+    const topAndBottom = (window.innerHeight - wrapHeight) / 2;
+
+    return {
       trigger: this.element,
-      start: 'top top',
-      end: 'bottom bottom',
+      start: `top ${topAndBottom}`,
+      end: `bottom ${window.innerHeight - topAndBottom}`,
       scrub: 1,
     };
-
-    const wrap = this.queryElement(`[${attrs.elements}="wrap"]`);
-    if (wrap) {
-      const wrapHeight = wrap.getBoundingClientRect().height;
-      const topAndBottom = (window.innerHeight - wrapHeight) / 2;
-
-      config.start = `top ${topAndBottom}`;
-      config.end = `bottom ${window.innerHeight - topAndBottom}`;
-    }
-
-    return config;
   }
 }

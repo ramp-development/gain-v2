@@ -26,8 +26,7 @@ export class CardFadeTimeline extends BaseAnimation {
     // Build animation sequence
     this.cards.forEach((card, index) => {
       this.timeline.set(card, {
-        height: () =>
-          `${Math.max(...this.cards.map((card) => card.getBoundingClientRect().height))}px`,
+        height: () => `${Math.max(...this.cards.map((card) => card.offsetHeight))}px`,
         zIndex: numberOfCards - index,
         opacity: 1 - index * 0.2,
       });
@@ -49,7 +48,7 @@ export class CardFadeTimeline extends BaseAnimation {
   protected thresholdSmall(): void {
     this.cards.forEach((card, index) => {
       this.timeline.set(card, {
-        x: `${index}rem`,
+        x: `${index * 0.5}rem`,
         y: `${index * -100}%`,
       });
     });

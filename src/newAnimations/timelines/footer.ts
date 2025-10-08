@@ -15,6 +15,8 @@ export class FooterTimeline extends BaseAnimation {
     const panel = this.queryElement(`[${attr}="panel"]`);
     const contain = this.queryElement(`[${attr}="contain"]`);
 
+    console.log('footer', { inner, content, panel, contain });
+
     if (!inner || !content || !panel || !contain) return;
 
     const firstSpacer = this.queryElement('.u-section-spacer');

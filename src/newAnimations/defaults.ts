@@ -1,12 +1,8 @@
-import { App } from '$app';
-
 /**
  * Initialize GSAP with global defaults
  * Should be called once on app initialization
  */
-export const defaults = (): void => {
-  const app = App.getInstance();
-
+export const defaults = (debug: boolean = false): void => {
   // Global GSAP defaults
   gsap.defaults({
     duration: 2,
@@ -15,6 +11,6 @@ export const defaults = (): void => {
 
   // ScrollTrigger global defaults
   ScrollTrigger.defaults({
-    markers: app.debug, // Show markers if debug
+    markers: debug, // Show markers if debug
   });
 };
