@@ -86,7 +86,6 @@ export class AnimationManager {
   }
 
   private playLoadSequence(): void {
-    console.log('playLoadSequence', this.onLoadAnimations);
     if (this.onLoadAnimations.length === 0) {
       this.app.eventBus.emit(Events.HERO_STATIC);
       return;
@@ -188,9 +187,6 @@ export class AnimationManager {
 
         // Remove from load animations set
         this.relinkScrollAnimations.delete(element);
-
-        // eslint-disable-next-line no-console
-        console.log(`Relinked animation for element:`, element);
       } else {
         // Clean up test trigger if not ready to relink
         testST.kill();
