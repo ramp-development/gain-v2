@@ -1,63 +1,68 @@
 import { Thresholds } from 'src/types/thresholds';
 
-import type { ScrollTriggerConfig, TimelineCreator } from '$types';
-import { containerThreshold } from '$utils/containerThreshold';
-import { debug } from '$utils/debug';
-import { queryElements } from '$utils/queryElements';
+// import { containerThreshold } from '$utils/containerThreshold';
+import { BaseAnimation } from './base/baseAnimation';
 
-export const cardFlipTimeline: TimelineCreator = (
-  element: HTMLElement,
-  context?: Record<string, string>
-) => {
-  const tl = gsap.timeline({
-    paused: true,
-    defaults: { duration: context?.duration || 1.5, ease: context?.ease || 'expo.inOut' },
-  });
+export class CardFlipTimeline extends BaseAnimation {
+  protected createTimeline(): void {
+    // Find elements to animate
+    const cards = this.queryElements('[data-element="card"]');
+    if (!cards.length) return;
 
-  // Find elements to animate
-  const cards = queryElements('[data-element="card"]', element);
-  if (!cards.length) return;
+    const numberOfCards = cards.length;
+    const remainder = numberOfCards % 2;
+    const numberOfCardsNeeded = numberOfCards - remainder;
 
-  const numberOfCards = cards.length;
-  const remainder = numberOfCards % 2;
-  const numberOfCardsNeeded = numberOfCards - remainder;
+    const leftCards = cards.slice(0, numberOfCardsNeeded / 2);
+    const rightCards = cards.slice(numberOfCards - numberOfCardsNeeded / 2);
 
-  const leftCards = cards.slice(0, numberOfCardsNeeded / 2);
-  const rightCards = cards.slice(numberOfCards - numberOfCardsNeeded / 2);
+    // Build animation sequence
+    this.timeline.set(cards, {
+      height: () => `${Math.max(...cards.map((card) => card.getBoundingClientRect().height))}px`,
+      zIndex: (index) => numberOfCards - index,
+      opacity: (index) => 1 - index * 0.2,
+    });
 
-  const isAboveThreshold = () => containerThreshold(element, Thresholds.large, 'above');
+    // Observe container size
+    this.element.observeContainer(`(width < ${Thresholds.medium}rem)`, (match) => {
+      if (match) {
+        this.timeline.set(cards, {
+          x: (index) => `${index}rem`,
+          yPercent: (index) => index * -100,
+        });
+        this.timeline.to(cards, {
+          x: 0,
+          opacity: 1,
+          yPercent: 0,
+          duration: 1,
+          ease: 'back.inOut',
+          stagger: 0.1,
+        });
+      } else {
+        this.timeline.set(leftCards, { xPercent: 100 });
+        this.timeline.set(rightCards, { xPercent: -100 });
+        this.timeline.set(cards, { y: (index) => `${index}rem` });
 
-  // // Build animation sequence
-  gsap.set(cards, {
-    height: () => {
-      const maxCardHeight = Math.max(...cards.map((card) => card.getBoundingClientRect().height));
-      return `${maxCardHeight}px`;
-    },
-    zIndex: (index) => 4 - index,
-    opacity: (index) => 1 - index * 0.2,
-    y: (index) => (isAboveThreshold() ? `${index + 3}rem` : `${index * -100}%`),
-  });
+        this.timeline.to(cards, {
+          y: 0,
+          duration: 0.5,
+          ease: 'back.inOut',
+          stagger: 0.1,
+        });
+        this.timeline.to(
+          cards,
+          { xPercent: 0, opacity: 1, duration: 0.5, ease: 'back.inOut', stagger: 0.1 },
+          '<0.2'
+        );
+      }
+    });
+  }
 
-  element.observeContainer(`(width < ${Thresholds.large}rem)`, (match) => {
-    if (match) {
-      debug('log', 'cardFlipTimeline: (width < Thresholds.large)');
-      gsap.set(cards, { x: (index) => `${index}rem` });
-    } else {
-      debug('log', 'cardFlipTimeline: (width >= Thresholds.large)');
-      gsap.set(leftCards, { xPercent: 100 });
-      gsap.set(rightCards, { xPercent: -100 });
-    }
-  });
-
-  // Build animation sequence
-  tl.to(cards, { x: 0, xPercent: 0, opacity: 1, y: 0, stagger: 0.2 });
-
-  return tl;
-};
-
-export const cardFlipTriggerConfig: ScrollTriggerConfig = {
-  start: 'top 80%',
-  end: 'bottom center',
-  scrub: false,
-  toggleActions: 'play none none none',
-};
+  protected getScrollTriggerConfig(): ScrollTrigger.Vars {
+    return {
+      trigger: this.element,
+      start: 'clamp(top 90%)',
+      scrub: false,
+    };
+  }
+}

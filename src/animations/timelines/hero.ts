@@ -1,71 +1,53 @@
-import type { ScrollTriggerConfig, TimelineCreator } from '$types';
+import { attrs } from '$config/constants';
+import { Events } from '$events';
 import { queryElement } from '$utils/queryElement';
+import { queryElements } from '$utils/queryElements';
 
-import { moveY } from '../utils/moveY';
+import { panelScale } from '../utils/panelScale';
+import { BaseAnimation } from './base/baseAnimation';
 
-/**
- * Hero animation - typically plays on page load
- * Animates the main hero section with staggered reveals
- */
-export const heroTimeline: TimelineCreator = (
-  element: HTMLElement,
-  context?: Record<string, string>
-) => {
-  const tl = gsap.timeline({
-    paused: true,
-    defaults: {
-      duration: context?.duration || 2,
-      ease: context?.ease || 'expo.inOut',
-      clearProps: true,
-    },
-  });
+export class HeroTimeline extends BaseAnimation {
+  protected createTimeline(): void {
+    // Find child elements to animate
+    const attr = 'data-hero';
+    const nav = queryElement(`.nav_component`);
+    const outer = queryElement(`[${attrs.elements}="outer"]`);
+    const inner = queryElement(`[${attrs.elements}="inner"]`);
+    const background = this.queryElement(`[${attr}="background"]`);
+    const title = this.queryElement('h1');
 
-  // Find child elements to animate
-  const nav = queryElement(`.nav_component`);
-  const inner = queryElement('[data-element="inner"]');
-  const title = queryElement('h1', element);
+    if (!nav || !outer || !inner || !background || !title) return;
 
-  // Build animation sequence
-  if (nav) {
-    tl.from(nav, { opacity: 0, y: '-1rem' });
-  }
+    const firstSpacer = queryElement('.u-section-spacer', inner);
+    const sections = queryElements('section', inner);
 
-  if (inner) {
-    tl.fromTo(
+    // Build animation sequence
+    this.timeline.from(nav, { opacity: 0, y: '-1rem' }, '<');
+    this.timeline.from(
       inner,
       {
+        y: () => firstSpacer?.getBoundingClientRect().height || 128,
         opacity: 0,
-        y: () => moveY(true).height,
-      },
-      {
-        opacity: 1,
-        y: 0,
+        onStart: () => {
+          setTimeout(() => {
+            this.app.eventBus.emit(Events.HERO_STATIC);
+          }, 1000);
+        },
+        onComplete: () => {
+          ScrollTrigger.refresh();
+        },
       },
       0
     );
-  }
+    this.timeline.from(background, { height: '125%' }, '<0.1');
 
-  if (title) {
-    // Create SplitText instance to split the title into lines
     const splitTitle = new SplitText(title, { type: 'lines', mask: 'lines' });
+    this.timeline.from(splitTitle.lines, { yPercent: 100, stagger: 0.01 }, '<0.1');
+    this.timeline.from(inner, { scale: () => panelScale() }, '<0.1');
+    this.timeline.from(sections, { opacity: 0 }, '<');
 
-    // Animate the masks to reveal the text
-    tl.from(splitTitle.lines, { yPercent: 100, stagger: 0.01 }, 0.2);
+    this.timeline.eventCallback('onComplete', () => {
+      ScrollTrigger.refresh();
+    });
   }
-
-  // Add any context-specific modifications
-  if (context?.speed === 'fast') {
-    tl.timeScale(1.5);
-  } else if (context?.speed === 'slow') {
-    tl.timeScale(0.7);
-  }
-
-  return tl;
-};
-
-export const heroTriggerConfig: ScrollTriggerConfig = {
-  start: 'bottom bottom',
-  end: 'bottom top',
-  scrub: false,
-  toggleActions: 'play none none none',
-};
+}

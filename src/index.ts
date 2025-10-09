@@ -1,7 +1,6 @@
-// import { initAnimations } from './animations';
+import { animations } from './animations';
 import { App } from './app';
 import { components } from './components';
-import { animations } from './newAnimations';
 
 window.Webflow ||= [];
 window.Webflow.push(() => {

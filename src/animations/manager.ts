@@ -1,347 +1,224 @@
-// GSAP and ScrollTrigger are loaded globally by Webflow
+import type { AnimationInstance, QueuedAnimation, TimelineConfig } from 'src/types/newAnimations';
 
 import { App } from '$app';
 import { Events } from '$events';
-import type { AnimationEventData, AnimationInstance, TriggerType } from '$types';
-import { debug } from '$utils/debug';
+import { queryElements } from '$utils/queryElements';
 
-import { AnimationFactory } from './factory';
+import { registry } from './registry';
 
 export class AnimationManager {
-  private static instance: AnimationManager;
   private app: App;
-  private factory: AnimationFactory;
-  private instances: AnimationInstance[] = [];
-  private animationQueue: AnimationInstance[] = [];
-  private heroInstance: AnimationInstance | null = null;
-  private isPlayingQueue = false;
-  private instanceIdCounter = 0;
-  private initialized = false;
-  private allowNaturalTriggers = false; // Flag to control when natural triggers can fire
+  private animationInstances: Map<Element, AnimationInstance> = new Map();
+  private onLoadAnimations: QueuedAnimation[] = [];
+  private onScrollAnimations: QueuedAnimation[] = [];
+  private relinkScrollAnimations: Set<Element> = new Set();
 
-  private constructor() {
+  constructor() {
     this.app = App.getInstance();
-    this.factory = new AnimationFactory();
   }
 
-  public static getInstance(): AnimationManager {
-    if (!AnimationManager.instance) {
-      AnimationManager.instance = new AnimationManager();
-    }
-    return AnimationManager.instance;
-  }
-
-  /**
-   * Initialize the animation system
-   */
-  public initialize(): void {
-    if (this.initialized) return;
-
-    debug('log', 'Initializing animation system');
-
-    // Step 1: Scan DOM and create all animations (none play automatically)
-    this.scanAndCreateAnimations();
-
-    document.body.setAttribute('data-loaded', 'true');
-
-    debug('log', `Created ${this.instances.length} animation instances`);
-    debug('log', this.instances);
-    this.initialized = true;
-  }
-
-  /**
-   * App is ready - determine what should play
-   */
-  public appReady(): void {
-    debug('log', 'App ready, determining animation playback order');
-
-    // Step 2: Find hero and check if visible
-    this.heroInstance = this.instances.find((i) => i.type === 'hero') || null;
-
-    // Step 3: Check hero visibility
-    let heroVisible = false;
-    if (this.heroInstance && this.heroInstance.scrollTrigger) {
-      heroVisible = this.heroInstance.scrollTrigger.isActive;
-
-      if (!heroVisible) {
-        // Set hero to final frame if not visible
-        this.heroInstance.timeline.progress(1);
-      }
-    }
-
-    // Step 4: Find visible entrance animations
-    const visibleEntranceAnimations = this.instances.filter((instance) => {
-      if (instance.trigger !== 'entrance') return false;
-      if (!instance.scrollTrigger) return false;
-
-      // Check if animation trigger has been passed
-      return instance.scrollTrigger.isActive;
-    });
-
-    debug('log', `Found ${visibleEntranceAnimations.length} visible entrance animations`);
-
-    // Step 5: Build playback queue
-    if (heroVisible && this.heroInstance) {
-      this.animationQueue.push(this.heroInstance);
-    }
-
-    // Step 6: Add visible entrance animations to queue (in DOM order)
-    visibleEntranceAnimations.forEach((animation) => {
-      this.animationQueue.push(animation);
-    });
-
-    // Start playing the queue
-    if (this.animationQueue.length > 0) {
-      debug('log', `Starting animation queue with ${this.animationQueue.length} animations`);
-      this.playNextInQueue();
-    }
-
-    // Step 7: Allow natural ScrollTrigger animations after queue is set up
-    this.allowNaturalTriggers = true;
-
-    this.app.eventBus.on(Events.ANIMATION_COMPLETED, (eventData) => {
-      if (eventData.type === 'hero') {
-        this.refresh();
-      }
-    });
-  }
-
-  /**
-   * Scan DOM for animation elements and create instances
-   */
-  private scanAndCreateAnimations(): void {
-    const elements = document.querySelectorAll<HTMLElement>('[data-animation]');
+  public init(): void {
+    const elements = queryElements<HTMLElement>('[data-animation]');
+    if (!elements.length) return;
 
     elements.forEach((element) => {
-      const type = element.getAttribute('data-animation');
-      if (!type) return;
+      const animationType = element.dataset.animation;
+      if (!animationType) return;
 
-      const trigger = (element.getAttribute('data-trigger') as TriggerType) || 'entrance';
+      const factory = registry[animationType];
 
-      // Get context from data-context-* attributes
-      const context = this.extractContext(element);
-
-      // Create timeline and config from factory
-      const { timeline, triggerConfig } = this.factory.create(type, element, context);
-      if (!timeline) return;
-
-      // Generate unique instance ID
-      const id = `${type}_${(this.instanceIdCounter += 1)}`;
-
-      const instance: AnimationInstance = {
-        id,
-        element,
-        type,
-        timeline,
-        trigger,
-        state: 'pending',
-        triggerConfig,
-        context,
-      };
-
-      // Set up ScrollTrigger for all scroll-based animations
-      if ((trigger === 'entrance' || trigger === 'scrub' || trigger === 'load') && triggerConfig) {
-        // For scrub animations, attach the timeline directly
-        if (trigger === 'scrub') {
-          instance.scrollTrigger = ScrollTrigger.create({
-            trigger: element,
-            ...triggerConfig,
-            animation: timeline,
-          });
-        } else {
-          // For entrance/load animations, create without animation
-          // We'll control playback manually
-          instance.scrollTrigger = ScrollTrigger.create({
-            trigger: element,
-            ...triggerConfig,
-            onToggle: (self) => {
-              // Only allow natural triggers after queue is built
-              if (!this.allowNaturalTriggers) return;
-
-              // For entrance animations not in queue, let them play naturally
-              if (
-                trigger === 'entrance' &&
-                instance.state === 'pending' &&
-                self.isActive &&
-                !this.animationQueue.includes(instance)
-              ) {
-                debug('log', `ScrollTrigger playing ${type} naturally`);
-                this.playAnimation(instance);
-              }
-            },
-          });
-        }
+      if (!factory) {
+        // eslint-disable-next-line no-console
+        console.warn(`Animation type "${animationType}" not found`);
+        return;
       }
 
-      // Set up event listener for event-triggered animations
-      if (trigger === 'event') {
-        const eventName = element.getAttribute('data-event') || type;
-        this.app.eventBus.on(eventName, (data: Record<string, any>) => {
-          if (instance.state === 'pending') {
-            this.playAnimation(instance, data);
-          }
-        });
-      }
-
-      this.instances.push(instance);
+      const config = factory(element);
+      this.processAnimation(element, config);
     });
 
-    // Emit initialization complete
-    this.app.eventBus.emit(Events.ANIMATIONS_INITIALIZED, {
-      instanceCount: this.instances.length,
+    // Set data-loaded attribute to indicate animations are loaded
+    document.body.setAttribute('data-loaded', 'true');
+
+    this.app.eventBus.on(Events.HERO_STATIC, () => {
+      this.createDeferredScrollTriggers();
     });
+
+    this.playLoadSequence();
+    this.storeAnimations([...this.onLoadAnimations, ...this.onScrollAnimations]);
   }
 
-  /**
-   * Play the next animation in the queue
-   */
-  private playNextInQueue(): void {
-    if (this.animationQueue.length === 0) {
-      this.isPlayingQueue = false;
-      debug('log', 'Animation queue complete');
+  private processAnimation(element: HTMLElement, config: TimelineConfig): void {
+    const { animation } = element.dataset;
+    const { timeline, scrollTriggerConfig } = config;
+
+    // If no ScrollTrigger config, it's a load-only animation
+    if (!scrollTriggerConfig) {
+      this.onLoadAnimations.push({ element, timeline });
       return;
     }
 
-    this.isPlayingQueue = true;
-    const nextAnimation = this.animationQueue.shift()!;
-
-    debug('log', `Playing queued animation: ${nextAnimation.type} (${nextAnimation.id})`);
-
-    // Set up completion handler to play next
-    nextAnimation.timeline.eventCallback('onStart', () => {
-      setTimeout(() => {
-        this.playNextInQueue();
-      }, 500);
-    });
-    nextAnimation.timeline.eventCallback('onComplete', () => {
-      debug('log', 'Animation completed', nextAnimation);
-      ScrollTrigger.refresh();
-      this.handleAnimationComplete(nextAnimation);
+    // Create ScrollTrigger to check if in view
+    const scrollTrigger = ScrollTrigger.create({
+      ...scrollTriggerConfig,
+      animation: timeline,
     });
 
-    this.playAnimation(nextAnimation);
-  }
-
-  /**
-   * Play a specific animation
-   */
-  private playAnimation(instance: AnimationInstance, eventData?: Record<string, any>): void {
-    if (instance.state !== 'pending') return;
-
-    debug('log', `Playing animation: ${instance.type} (${instance.id})`);
-
-    // Update state
-    instance.state = 'playing';
-
-    // Emit start event
-    this.handleAnimationStart(instance);
-
-    // Play timeline
-    instance.timeline.restart(true);
-
-    // Set up completion if not in queue (queue handles its own completion)
-    if (!this.isPlayingQueue) {
-      instance.timeline.eventCallback('onComplete', () => {
-        this.handleAnimationComplete(instance);
+    if (
+      this.onLoadAnimations.length <= 1 &&
+      ScrollTrigger.isInViewport(element) &&
+      animation !== 'homeHero'
+    ) {
+      scrollTrigger.kill();
+      this.onLoadAnimations.push({
+        element,
+        timeline,
+        scrollTriggerConfig,
+      });
+    } else {
+      scrollTrigger.kill();
+      this.onScrollAnimations.push({
+        element,
+        timeline,
+        scrollTriggerConfig,
       });
     }
   }
 
-  /**
-   * Extract context data from element attributes
-   */
-  private extractContext(element: HTMLElement): Record<string, any> {
-    const context: Record<string, any> = {};
-    const { attributes } = element;
-
-    for (let i = 0; i < attributes.length; i++) {
-      const attr = attributes[i];
-      if (attr.name.startsWith('data-context-')) {
-        const key = attr.name.replace('data-context-', '');
-        context[key] = attr.value;
-      }
+  private playLoadSequence(): void {
+    console.log('playLoadSequence', this.onLoadAnimations);
+    if (this.onLoadAnimations.length === 0) {
+      this.app.eventBus.emit(Events.HERO_STATIC);
+      return;
     }
 
-    return context;
-  }
-
-  /**
-   * Handle animation start
-   */
-  private handleAnimationStart(instance: AnimationInstance): void {
-    const eventData: AnimationEventData = {
-      id: instance.id,
-      type: instance.type,
-      element: instance.element,
-      state: 'playing',
-      context: instance.context,
-    };
-
-    // Emit generic animation started event
-    this.app.eventBus.emit(Events.ANIMATION_STARTED, null, eventData);
-  }
-
-  /**
-   * Handle animation completion
-   */
-  private handleAnimationComplete(instance: AnimationInstance): void {
-    instance.state = 'completed';
-
-    const eventData: AnimationEventData = {
-      id: instance.id,
-      type: instance.type,
-      element: instance.element,
-      state: 'completed',
-      context: instance.context,
-    };
-
-    // Emit generic animation completed event
-    this.app.eventBus.emit(Events.ANIMATION_COMPLETED, null, eventData);
-  }
-
-  /**
-   * Get all instances of a specific animation type
-   */
-  public getInstancesByType(type: string): AnimationInstance[] {
-    return this.instances.filter((i) => i.type === type);
-  }
-
-  /**
-   * Get a specific instance by ID
-   */
-  public getInstance(id: string): AnimationInstance | undefined {
-    return this.instances.find((i) => i.id === id);
-  }
-
-  /**
-   * Manually trigger an animation
-   */
-  public trigger(type: string, context?: Record<string, any>): void {
-    const instances = this.getInstancesByType(type);
-    instances.forEach((instance) => {
-      if (instance.state === 'pending') {
-        this.playAnimation(instance, context);
+    // Kill ScrollTriggers for scroll-based animations that are in view on load
+    this.onLoadAnimations.forEach(({ scrollTrigger, element }) => {
+      if (scrollTrigger) {
+        scrollTrigger.kill();
+        this.relinkScrollAnimations.add(element);
       }
     });
-  }
 
-  /**
-   * Refresh all ScrollTriggers
-   */
-  public refresh(): void {
-    ScrollTrigger.refresh();
-  }
-
-  /**
-   * Clean up all animations
-   */
-  public destroy(): void {
-    this.instances.forEach((instance) => {
-      instance.timeline.kill();
-      instance.scrollTrigger?.kill();
+    // Create master timeline for all load animations
+    const master = gsap.timeline({
+      paused: true,
+      onComplete: () => {
+        if (this.relinkScrollAnimations.size > 0) {
+          this.setupScrollRelinker();
+        }
+      },
     });
-    this.instances = [];
-    this.animationQueue = [];
-    this.initialized = false;
+
+    // Add all animations (both load-only and temporarily killed scroll animations)
+    this.onLoadAnimations.forEach(({ timeline }, index) => {
+      // Unpause the timeline so the master can control it
+      timeline.paused(false);
+      const overlap = '50%';
+      const position = index === 0 ? 0 : `-=${overlap}`;
+      master.add(timeline, position);
+    });
+
+    master.play();
+  }
+
+  private createDeferredScrollTriggers(): void {
+    this.onScrollAnimations.forEach(({ element, timeline, scrollTriggerConfig }) => {
+      const scrollTrigger = ScrollTrigger.create({
+        ...scrollTriggerConfig,
+        animation: timeline,
+      });
+
+      this.animationInstances.set(element, {
+        timeline,
+        scrollTrigger,
+        scrollTriggerConfig,
+      });
+    });
+  }
+
+  private setupScrollRelinker(): void {
+    ScrollTrigger.create({
+      trigger: document.body,
+      start: 'top top',
+      end: 'bottom bottom',
+      onUpdate: () => this.checkForRelinking(),
+    });
+  }
+
+  private checkForRelinking(): void {
+    this.relinkScrollAnimations.forEach((element) => {
+      const instance = this.animationInstances.get(element);
+
+      if (!instance) return;
+
+      // If already relinked, skip
+      if (instance.relinked) return;
+
+      const { timeline, scrollTriggerConfig } = instance;
+
+      if (!scrollTriggerConfig) return;
+
+      // Create a test ScrollTrigger to check if element is out of view
+      const testST = ScrollTrigger.create({
+        trigger: scrollTriggerConfig.trigger,
+        start: scrollTriggerConfig.start,
+        end: scrollTriggerConfig.end,
+      });
+
+      const isOutOfView = (!testST.isActive && testST.progress === 0) || testST.progress === 1;
+
+      if (isOutOfView) {
+        // Kill test trigger
+        testST.kill();
+
+        // Re-link with original ScrollTrigger config
+        const newST = ScrollTrigger.create({
+          ...scrollTriggerConfig,
+          animation: timeline,
+          // Ensure timeline progress matches scroll position
+          onUpdate: (self) => {
+            timeline.progress(self.progress);
+          },
+        });
+
+        // Update the instance
+        instance.scrollTrigger = newST;
+        instance.relinked = true;
+
+        // Remove from load animations set
+        this.relinkScrollAnimations.delete(element);
+
+        // eslint-disable-next-line no-console
+        console.log(`Relinked animation for element:`, element);
+      } else {
+        // Clean up test trigger if not ready to relink
+        testST.kill();
+      }
+    });
+
+    // If all animations are relinked, kill the watcher
+    if (this.relinkScrollAnimations.size === 0) {
+      // Find and kill the watcher ScrollTrigger
+      ScrollTrigger.getAll().forEach((st) => {
+        if (st.vars.trigger === document.body && !st.animation) {
+          st.kill();
+        }
+      });
+    }
+  }
+
+  private storeAnimations(animations: QueuedAnimation[]): void {
+    animations.forEach(({ element, timeline, scrollTrigger, scrollTriggerConfig }) => {
+      this.animationInstances.set(element, {
+        timeline,
+        scrollTrigger,
+        scrollTriggerConfig,
+      });
+    });
+  }
+
+  public refreshScrollTriggers(): void {
+    ScrollTrigger.refresh();
   }
 }

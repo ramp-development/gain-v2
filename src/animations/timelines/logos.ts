@@ -1,28 +1,22 @@
-import type { ScrollTriggerConfig, TimelineCreator } from '$types';
-import { queryElements } from '$utils/queryElements';
+import { BaseAnimation } from './base/baseAnimation';
 
-export const logosTimeline: TimelineCreator = (
-  element: HTMLElement,
-  context?: Record<string, string>
-) => {
-  const tl = gsap.timeline({
-    paused: true,
-    defaults: { duration: context?.duration || 1.5, ease: context?.ease || 'expo.inOut' },
-  });
+export class LogosTimeline extends BaseAnimation {
+  protected createTimeline(): void {
+    // Find elements to animate
+    const attr = 'data-logos';
+    const logos = this.queryElements(`[${attr}="logo"]`);
+    if (logos.length === 0) return;
 
-  // Find elements to animate
-  const attr = 'data-logos';
-  const logos = queryElements<HTMLElement>(`[${attr}="logo"]`, element);
-  if (logos.length === 0) return;
+    // Build animation sequence
+    this.timeline.fromTo(logos, { yPercent: 100 }, { yPercent: 0, stagger: 0.1 });
+  }
 
-  // Main content reveal
-  tl.fromTo(logos, { yPercent: 100 }, { yPercent: 0, stagger: 0.1 });
-
-  return tl;
-};
-
-export const logosTriggerConfig: ScrollTriggerConfig = {
-  start: 'top 80%',
-  scrub: false,
-  toggleActions: 'play none none none',
-};
+  protected getScrollTriggerConfig(): ScrollTrigger.Vars {
+    return {
+      trigger: this.element,
+      start: 'top 80%',
+      scrub: false,
+      toggleActions: 'play none none none',
+    };
+  }
+}

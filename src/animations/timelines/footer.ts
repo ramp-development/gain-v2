@@ -1,43 +1,81 @@
-import type { ScrollTriggerConfig, TimelineCreator } from '$types';
+import { attrs } from '$config/constants';
 import { queryElement } from '$utils/queryElement';
-import { queryElements } from '$utils/queryElements';
 
-export const footerTimeline: TimelineCreator = (
-  element: HTMLElement,
-  context?: Record<string, string>
-) => {
-  const tl = gsap.timeline({
-    defaults: { duration: context?.duration || 1, ease: 'none', clearProps: true },
-  });
+import { panelScale } from '../utils/panelScale';
+import { BaseAnimation } from './base/baseAnimation';
 
-  // Find child elements to animate
-  const inner = queryElement('[data-element="inner"]');
-  const footer = queryElement('footer', element);
+export class FooterTimeline extends BaseAnimation {
+  private attr = 'data-footer';
 
-  if (inner) {
-    tl.fromTo(
+  protected createTimeline(): void {
+    // Find elements to animate
+    const { attr } = this;
+    const inner = queryElement(`[${attrs.elements}="inner"]`);
+    const content = this.queryElement(`[${attr}="content"]`);
+    const panel = this.queryElement(`[${attr}="panel"]`);
+    const contain = this.queryElement(`[${attr}="contain"]`);
+
+    console.log('footer', { inner, content, panel, contain });
+
+    if (!inner || !content || !panel || !contain) return;
+
+    const firstSpacer = this.queryElement('.u-section-spacer');
+
+    // Build animation sequence
+    this.timeline.from(content, {
+      y: () => (firstSpacer?.getBoundingClientRect().height || 128) * -1,
+      ease: 'none',
+      duration: 2,
+    });
+
+    this.timeline.to(
       inner,
-      { y: 0, scaleX: 1, scaleY: 1 },
       {
-        y: () => {
-          const spacers = queryElements('.u-section-spacer');
-          const lastSpacer = spacers[spacers.length - 1];
-          return (lastSpacer ? lastSpacer.getBoundingClientRect().height : 160) * -1;
-        },
+        scale: () => panelScale(),
         transformOrigin: 'center bottom',
-      }
+        ease: 'power2.inOut',
+        duration: 1.5,
+      },
+      '<0.5'
     );
   }
 
-  if (footer) {
-    tl.from(footer, { opacity: 0.5, yPercent: 10 }, 0);
+  protected getScrollTriggerConfig(): ScrollTrigger.Vars {
+    this.timeline._panelInitialised = false;
+
+    return {
+      onEnter: (self) => {
+        if (this.timeline._panelInitialised) return;
+        const panel = this.queryElement(`[${this.attr}="panel"]`);
+        const contain = this.queryElement(`[${this.attr}="contain"]`);
+        if (!panel || !contain) return;
+
+        const { start, end } = self;
+        const distance = end - start;
+        const position = (distance - panel.getBoundingClientRect().height) / distance;
+        const duration = this.timeline.duration() * (1 - position);
+
+        this.timeline.from(
+          panel,
+          {
+            y: () => getComputedStyle(contain).paddingTop,
+            scale: () => panelScale(),
+            transformOrigin: 'center bottom',
+            ease: 'none',
+            duration,
+          },
+          `${position * 100}%`
+        );
+
+        this.timeline._panelInitialised = true;
+      },
+      onLeaveBack: () => {
+        this.timeline.clearProps = true;
+      },
+      trigger: this.element,
+      start: 'top bottom',
+      end: 'bottom bottom',
+      scrub: 1,
+    };
   }
-
-  return tl;
-};
-
-export const footerTriggerConfig: ScrollTriggerConfig = {
-  start: 'top center',
-  end: 'bottom bottom',
-  scrub: 1,
-};
+}
