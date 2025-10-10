@@ -9,7 +9,8 @@ export class PanelTimeline extends BaseAnimation {
     // Build animation sequence
     this.timeline.to(this.element, {
       opacity: 0,
-      ease: 'power2.inOut',
+      // ease: 'power2.inOut',
+      ease: 'power1.out',
     });
 
     this.timeline.to(
