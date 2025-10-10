@@ -32,8 +32,8 @@ export class HomeHeroTimeline extends BaseAnimation {
     this.timeline.set(background, { opacity: 0, width: '0%', height: '0%' });
 
     this.timeline.to(background, { opacity: 1, duration: 0.25 });
-    this.timeline.to(this.content, { clipPath: 'inset(0%)', duration: 1.5 }, '<');
-    this.timeline.to(background, { width: '100%', height: '100%', duration: 1.5 }, '<');
+    this.timeline.to(this.content, { clipPath: 'inset(0%)' }, '<');
+    this.timeline.to(background, { width: '100%', height: '100%' }, '<');
 
     this.timeline.from(titleSplit.lines, { yPercent: 100, stagger: 0.1 }, '<0.1');
     this.timeline.from(promptSplit.lines, { yPercent: 100, stagger: 0.1 }, '<0.5');
