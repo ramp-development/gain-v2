@@ -28,7 +28,7 @@ export class ModernTimeline extends BaseAnimation {
 
     contentBlocks.forEach((block, index) => {
       const splitTitle = new SplitText(block, { type: 'lines', mask: 'lines' });
-      const position = index === 0 ? '<' : '<0.2';
+      const position = index === 0 ? '<' : '<0.1';
 
       this.timeline.from(splitTitle.lines, { yPercent: 100, stagger: 0.1 }, position);
     });
