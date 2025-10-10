@@ -49,7 +49,6 @@ export class AnimationManager {
   }
 
   private processAnimation(element: HTMLElement, config: TimelineConfig): void {
-    const { animation } = element.dataset;
     const { timeline, scrollTriggerConfig } = config;
 
     // If no ScrollTrigger config, it's a load-only animation
@@ -67,7 +66,7 @@ export class AnimationManager {
     if (
       this.onLoadAnimations.length <= 1 &&
       ScrollTrigger.isInViewport(element) &&
-      animation !== 'homeHero'
+      scrollTrigger.vars.scrub === false
     ) {
       scrollTrigger.kill();
       this.onLoadAnimations.push({
