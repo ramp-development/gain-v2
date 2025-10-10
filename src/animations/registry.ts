@@ -7,6 +7,7 @@ import { BlogCardTimeline } from './timelines/blogCard';
 import { CardFadeTimeline } from './timelines/cardFade';
 import { CardFlipTimeline } from './timelines/cardFlip';
 import { ContentHeaderTimeline } from './timelines/contentHeader';
+import { ExpandTimeline } from './timelines/expand';
 import { FooterTimeline } from './timelines/footer';
 import { HeroTimeline } from './timelines/hero';
 import { HomeHeroTimeline } from './timelines/homeHero';
@@ -23,6 +24,7 @@ export const registry: AnimationRegistry = {
   cardFade: createAnimationFactory(CardFadeTimeline),
   cardFlip: createAnimationFactory(CardFlipTimeline),
   contentHeader: createAnimationFactory(ContentHeaderTimeline),
+  expand: createAnimationFactory(ExpandTimeline),
   footer: createAnimationFactory(FooterTimeline),
   hero: createAnimationFactory(HeroTimeline),
   homeHero: createAnimationFactory(HomeHeroTimeline),
