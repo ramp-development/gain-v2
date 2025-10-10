@@ -28,7 +28,7 @@ export class CardFlipTimeline extends BaseAnimation {
 
     // Build animation sequence
     this.timeline.set(cards, {
-      height: () => `${Math.max(...cards.map((card) => card.getBoundingClientRect().height))}px`,
+      height: () => `${Math.max(...cards.map((card) => card.offsetHeight))}px`,
       zIndex: (index) => numberOfCards - index,
       opacity: (index) => 1 - index * 0.2,
     });
