@@ -1,4 +1,4 @@
-import type { AnimationRegistry } from 'src/types/newAnimations';
+import type { AnimationRegistry } from 'src/types/animations';
 
 import { createAnimationFactory } from './factory';
 import { AITeamTimeline } from './timelines/aiTeam';
@@ -7,6 +7,7 @@ import { BlogCardTimeline } from './timelines/blogCard';
 import { CardFadeTimeline } from './timelines/cardFade';
 import { CardFlipTimeline } from './timelines/cardFlip';
 import { ContentHeaderTimeline } from './timelines/contentHeader';
+import { DitlTimeline } from './timelines/ditl';
 import { ExpandTimeline } from './timelines/expand';
 import { FooterTimeline } from './timelines/footer';
 import { HeroTimeline } from './timelines/hero';
@@ -24,6 +25,7 @@ export const registry: AnimationRegistry = {
   cardFade: createAnimationFactory(CardFadeTimeline),
   cardFlip: createAnimationFactory(CardFlipTimeline),
   contentHeader: createAnimationFactory(ContentHeaderTimeline),
+  ditl: createAnimationFactory(DitlTimeline),
   expand: createAnimationFactory(ExpandTimeline),
   footer: createAnimationFactory(FooterTimeline),
   hero: createAnimationFactory(HeroTimeline),

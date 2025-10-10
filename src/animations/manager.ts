@@ -1,7 +1,8 @@
-import type { AnimationInstance, QueuedAnimation, TimelineConfig } from 'src/types/newAnimations';
+import type { AnimationInstance, QueuedAnimation, TimelineConfig } from 'src/types/animations';
 
 import { App } from '$app';
 import { Events } from '$events';
+import { debug } from '$utils/debug';
 import { queryElements } from '$utils/queryElements';
 
 import { registry } from './registry';
@@ -18,7 +19,7 @@ export class AnimationManager {
   }
 
   public init(): void {
-    const elements = queryElements<HTMLElement>('[data-animation]');
+    const elements = queryElements<HTMLElement>('[data-animation]:not([data-animation="default"])');
     if (!elements.length) return;
 
     elements.forEach((element) => {
@@ -28,8 +29,7 @@ export class AnimationManager {
       const factory = registry[animationType];
 
       if (!factory) {
-        // eslint-disable-next-line no-console
-        console.warn(`Animation type "${animationType}" not found`);
+        debug('warn', `Animation type "${animationType}" not found`);
         return;
       }
 
@@ -90,8 +90,12 @@ export class AnimationManager {
       return;
     }
 
+    let createsShift = false;
     // Kill ScrollTriggers for scroll-based animations that are in view on load
     this.onLoadAnimations.forEach(({ scrollTrigger, element }) => {
+      const { animation } = element.dataset;
+      if (animation === 'hero') createsShift = true;
+
       if (scrollTrigger) {
         scrollTrigger.kill();
         this.relinkScrollAnimations.add(element);
@@ -101,10 +105,11 @@ export class AnimationManager {
     // Create master timeline for all load animations
     const master = gsap.timeline({
       paused: true,
+      onStart: () => {
+        if (!createsShift) this.createDeferredScrollTriggers();
+      },
       onComplete: () => {
-        if (this.relinkScrollAnimations.size > 0) {
-          this.setupScrollRelinker();
-        }
+        if (this.relinkScrollAnimations.size > 0) this.setupScrollRelinker();
       },
     });
 

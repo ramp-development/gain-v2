@@ -1,5 +1,6 @@
 import { attrs } from '$config/constants';
 import { Events } from '$events';
+import { debug } from '$utils/debug';
 import { queryElement } from '$utils/queryElement';
 import { queryElements } from '$utils/queryElements';
 
@@ -16,7 +17,10 @@ export class HeroTimeline extends BaseAnimation {
     const background = this.queryElement(`[${attr}="background"]`);
     const title = this.queryElement('h1');
 
-    if (!nav || !outer || !inner || !background || !title) return;
+    if (!nav || !outer || !inner || !background || !title) {
+      debug('warn', 'heroTimeline', { nav, outer, inner, background, title });
+      return;
+    }
 
     const firstSpacer = queryElement('.u-section-spacer', inner);
     const sections = queryElements('section', inner);

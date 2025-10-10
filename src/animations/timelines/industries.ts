@@ -30,6 +30,7 @@ export class IndustriesTimeline extends BaseAnimation {
         sticky,
         assetsCollection,
         assetsList,
+        assets,
         namesWrap,
         names,
       });

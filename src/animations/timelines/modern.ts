@@ -1,3 +1,5 @@
+import { debug } from '$utils/debug';
+
 import { BaseAnimation } from './base/baseAnimation';
 
 export class ModernTimeline extends BaseAnimation {
@@ -9,7 +11,10 @@ export class ModernTimeline extends BaseAnimation {
     const eyebrowText = this.queryElement('.eyebrow_text');
     const contentBlocks = this.queryElements('.c-heading > *');
 
-    if (!eyebrowMarker || !eyebrowText || !contentBlocks) return;
+    if (!eyebrowMarker || !eyebrowText || !contentBlocks) {
+      debug('warn', 'modernTimeline', { eyebrowMarker, eyebrowText, contentBlocks });
+      return;
+    }
 
     // Build animation sequence
     this.timeline.from(eyebrowMarker, { opacity: 0, scale: 0.9, duration: 1 });

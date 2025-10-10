@@ -1,4 +1,4 @@
-import type { AnimationFactory, TimelineConfig } from 'src/types/newAnimations';
+import type { AnimationFactory, TimelineConfig } from 'src/types/animations';
 
 import type { BaseAnimation } from './timelines/base/baseAnimation';
 

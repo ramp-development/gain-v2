@@ -1,4 +1,5 @@
 import { attrs } from '$config/constants';
+import { debug } from '$utils/debug';
 import { queryElement } from '$utils/queryElement';
 
 import { panelScale } from '../utils/panelScale';
@@ -6,28 +7,42 @@ import { BaseAnimation } from './base/baseAnimation';
 
 export class FooterTimeline extends BaseAnimation {
   private attr = 'data-footer';
+  private inner: HTMLElement;
+  private content: HTMLElement;
+  private panel: HTMLElement;
+  private contain: HTMLElement;
+
+  constructor(element: HTMLElement) {
+    super(element);
+
+    this.inner = queryElement(`[${attrs.elements}="inner"]`) as HTMLElement;
+    this.content = this.queryElement(`[${this.attr}="content"]`) as HTMLElement;
+    this.panel = this.queryElement(`[${this.attr}="panel"]`) as HTMLElement;
+    this.contain = this.queryElement(`[${this.attr}="contain"]`) as HTMLElement;
+  }
 
   protected createTimeline(): void {
-    // Find elements to animate
-    const { attr } = this;
-    const inner = queryElement(`[${attrs.elements}="inner"]`);
-    const content = this.queryElement(`[${attr}="content"]`);
-    const panel = this.queryElement(`[${attr}="panel"]`);
-    const contain = this.queryElement(`[${attr}="contain"]`);
-
-    if (!inner || !content || !panel || !contain) return;
+    if (!this.inner || !this.content || !this.panel || !this.contain) {
+      debug('warn', 'footerTimeline', {
+        inner: this.inner,
+        content: this.content,
+        panel: this.panel,
+        contain: this.contain,
+      });
+      return;
+    }
 
     const firstSpacer = this.queryElement('.u-section-spacer');
 
     // Build animation sequence
-    this.timeline.from(content, {
+    this.timeline.from(this.content, {
       y: () => (firstSpacer?.getBoundingClientRect().height || 128) * -1,
       ease: 'none',
       duration: 2,
     });
 
     this.timeline.to(
-      inner,
+      this.inner,
       {
         scale: () => panelScale(),
         transformOrigin: 'center bottom',
@@ -44,19 +59,17 @@ export class FooterTimeline extends BaseAnimation {
     return {
       onEnter: (self) => {
         if (this.timeline._panelInitialised) return;
-        const panel = this.queryElement(`[${this.attr}="panel"]`);
-        const contain = this.queryElement(`[${this.attr}="contain"]`);
-        if (!panel || !contain) return;
+        if (!this.panel || !this.contain) return;
 
         const { start, end } = self;
         const distance = end - start;
-        const position = (distance - panel.getBoundingClientRect().height) / distance;
+        const position = (distance - this.panel.getBoundingClientRect().height) / distance;
         const duration = this.timeline.duration() * (1 - position);
 
         this.timeline.from(
-          panel,
+          this.panel,
           {
-            y: () => getComputedStyle(contain).paddingTop,
+            y: () => getComputedStyle(this.contain).paddingTop,
             scale: () => panelScale(),
             transformOrigin: 'center bottom',
             ease: 'power2.inOut',

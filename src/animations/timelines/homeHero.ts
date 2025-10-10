@@ -1,3 +1,4 @@
+import { debug } from '$utils/debug';
 import { getVariable } from '$utils/getVariable';
 
 import { BaseAnimation } from './base/baseAnimation';
@@ -17,8 +18,19 @@ export class HomeHeroTimeline extends BaseAnimation {
     const rings = this.queryElements(`[${attr}="ring"]`);
     const assets = this.queryElements(`[${attr}="asset"]`);
 
-    if (!logo || !this.content || !background || !title || !sub || !prompt || !rings || !assets)
+    if (!logo || !this.content || !background || !title || !sub || !prompt || !rings || !assets) {
+      debug('warn', 'homeHeroTimeline', {
+        logo,
+        content: this.content,
+        background,
+        title,
+        sub,
+        prompt,
+        rings,
+        assets,
+      });
       return;
+    }
 
     this.setBaseVars();
 

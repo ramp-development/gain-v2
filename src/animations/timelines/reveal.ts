@@ -1,3 +1,4 @@
+import { debug } from '$utils/debug';
 import { queryElement } from '$utils/queryElement';
 
 import { BaseAnimation } from './base/baseAnimation';
@@ -10,7 +11,11 @@ export class RevealTimeline extends BaseAnimation {
     const background = this.queryElement(`[${attr}="background"]`);
     const bottom = this.queryElement(`[${attr}="bottom"]`);
     const top = this.queryElement(`[${attr}="top"]`);
-    if (!container || !background || !bottom || !top) return;
+
+    if (!container || !background || !bottom || !top) {
+      debug('warn', 'revealTimeline', { container, background, bottom, top });
+      return;
+    }
 
     // Build animation sequence
     container.observeContainer('(width < 48rem)', (match) => {

@@ -1,11 +1,15 @@
 import { attrs } from '$config/constants';
+import { debug } from '$utils/debug';
 
 import { BaseAnimation } from './base/baseAnimation';
 
 export class ExpandTimeline extends BaseAnimation {
   protected createTimeline(): void {
     const wrap = this.queryElement(`[${attrs.elements}="wrap"]`);
-    if (!wrap) return;
+    if (!wrap) {
+      debug('warn', 'expandTimeline', { wrap });
+      return;
+    }
 
     // Build animation sequence
     this.timeline.to(wrap, { scale: () => window.innerWidth / this.element.offsetWidth });

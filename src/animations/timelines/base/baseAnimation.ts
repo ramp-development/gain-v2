@@ -1,4 +1,4 @@
-import type { TimelineConfig } from 'src/types/newAnimations';
+import type { TimelineConfig } from 'src/types/animations';
 
 import { App } from '$app';
 import { queryElement } from '$utils/queryElement';
