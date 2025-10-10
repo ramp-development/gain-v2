@@ -12,11 +12,13 @@ export class HomeHeroTimeline extends BaseAnimation {
     this.content = this.queryElement(`[${attr}="content"]`) as HTMLElement;
     const background = this.queryElement(`[${attr}="background"]`);
     const title = this.queryElement(`[${attr}="title"]`);
+    const sub = this.queryElement(`[${attr}="sub"]`);
     const prompt = this.queryElement(`[${attr}="prompt"]`);
     const rings = this.queryElements(`[${attr}="ring"]`);
     const assets = this.queryElements(`[${attr}="asset"]`);
 
-    if (!logo || !this.content || !background || !title || !prompt || !rings || !assets) return;
+    if (!logo || !this.content || !background || !title || !sub || !prompt || !rings || !assets)
+      return;
 
     this.setBaseVars();
 
@@ -25,6 +27,7 @@ export class HomeHeroTimeline extends BaseAnimation {
     allOtherAssets.forEach((asset) => this.setAssetRadius(asset));
 
     const titleSplit = new SplitText(title, { type: 'lines', mask: 'lines' });
+    const subSplit = new SplitText(sub, { type: 'lines', mask: 'lines' });
     const promptSplit = new SplitText(prompt, { type: 'lines', mask: 'lines' });
 
     // Build animation sequence
@@ -36,6 +39,7 @@ export class HomeHeroTimeline extends BaseAnimation {
     this.timeline.to(background, { width: '100%', height: '100%' }, '<');
 
     this.timeline.from(titleSplit.lines, { yPercent: 100, stagger: 0.1 }, '<0.1');
+    this.timeline.from(subSplit.lines, { yPercent: 100, stagger: 0.1 }, '<0.1');
     this.timeline.from(promptSplit.lines, { yPercent: 100, stagger: 0.1 }, '<0.5');
 
     this.timeline.to(promptSplit.lines, { yPercent: -100, stagger: 0.1 }, '>-0.5');
@@ -45,6 +49,7 @@ export class HomeHeroTimeline extends BaseAnimation {
       '<'
     );
     this.timeline.to(title, { opacity: 0 }, '<');
+    this.timeline.to(sub, { opacity: 0 }, '<');
 
     this.timeline.from(
       rings,
