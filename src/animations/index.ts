@@ -1,28 +1,17 @@
 import { App } from '$app';
 import { Events } from '$events';
 
-import { initGSAPDefaults } from './config';
+import { defaults } from './defaults';
 import { AnimationManager } from './manager';
 
-/**
- * Initialize the animation system
- * This should be called after APP_INITIALIZED
- */
-export const initAnimations = (): void => {
+export const animations = () => {
   const app = App.getInstance();
+  defaults(app.debug);
 
-  // Initialize GSAP defaults
-  initGSAPDefaults();
-  const manager = AnimationManager.getInstance();
-  manager.initialize();
+  const manager = new AnimationManager();
 
   // Set up animation manager after app initialization
   app.eventBus.on(Events.APP_INITIALIZED, () => {
-    manager.appReady();
+    manager.init();
   });
 };
-
-// Export for direct access if needed
-export * from './config';
-export { AnimationManager } from './manager';
-export { timelineRegistry } from './registry';

@@ -13,12 +13,14 @@ export class App {
   public environment: Environment;
   public params: Record<string, string>;
   public lenis: Lenis;
+  public debug: boolean = false;
 
   private constructor() {
     this.eventBus = new EventBus();
     this.environment = getEnvironment();
     this.params = getParams();
     this.lenis = new Lenis();
+    this.debug = this.environment === 'staging' && this.params.debug !== undefined;
   }
 
   public static getInstance(): App {
@@ -39,7 +41,9 @@ export class App {
 
   private smoothScroll(): void {
     // Synchronize Lenis scrolling with GSAP's ScrollTrigger plugin
-    this.lenis.on('scroll', ScrollTrigger.update);
+    this.lenis.on('scroll', () => {
+      ScrollTrigger.update();
+    });
 
     // Add Lenis's requestAnimationFrame (raf) method to GSAP's ticker
     // This ensures Lenis's smooth scroll animation updates on each GSAP tick

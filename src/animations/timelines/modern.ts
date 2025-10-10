@@ -1,33 +1,26 @@
-import type { ScrollTriggerConfig, TimelineCreator } from '$types';
-import { queryElement } from '$utils/queryElement';
-import { queryElements } from '$utils/queryElements';
+import { debug } from '$utils/debug';
 
-/**
- * Modern section animation - entrance animation triggered by scroll
- * Animates content sections with smooth reveals
- */
-export const modernTimeline: TimelineCreator = (
-  element: HTMLElement,
-  context?: Record<string, string>
-) => {
-  const tl = gsap.timeline({
-    paused: true,
-    defaults: { duration: context?.duration || 1.5, ease: context?.ease || 'expo.inOut' },
-  });
+import { BaseAnimation } from './base/baseAnimation';
 
-  // Find elements to animate
-  const eyebrowMarker = queryElement('.eyebrow_marker', element);
-  const eyebrowText = queryElement('.eyebrow_text', element);
-  const contentBlocks = queryElements('.c-heading > *', element);
+export class ModernTimeline extends BaseAnimation {
+  protected createTimeline(): void {
+    this.timeline.vars.defaults = { ease: 'expo.out' };
 
-  // Main content reveal
-  if (eyebrowMarker) {
-    tl.from(eyebrowMarker, { opacity: 0, scale: 0.9, duration: 1.5 });
-  }
+    // Find elements to animate
+    const eyebrowMarker = this.queryElement('.eyebrow_marker');
+    const eyebrowText = this.queryElement('.eyebrow_text');
+    const contentBlocks = this.queryElements('.c-heading > *');
 
-  if (eyebrowText) {
+    if (!eyebrowMarker || !eyebrowText || !contentBlocks) {
+      debug('warn', 'modernTimeline', { eyebrowMarker, eyebrowText, contentBlocks });
+      return;
+    }
+
+    // Build animation sequence
+    this.timeline.from(eyebrowMarker, { opacity: 0, scale: 0.9, duration: 1 });
+
     const splitTitle = new SplitText(eyebrowText, { type: 'lines', mask: 'lines' });
-    tl.from(
+    this.timeline.from(
       splitTitle.lines,
       {
         opacity: 0,
@@ -35,29 +28,22 @@ export const modernTimeline: TimelineCreator = (
         duration: 1.5,
         stagger: 0.1,
       },
-      0.1
+      '<'
     );
-  }
 
-  if (contentBlocks) {
     contentBlocks.forEach((block, index) => {
       const splitTitle = new SplitText(block, { type: 'lines', mask: 'lines' });
-      const position = index === 0 ? 0.1 : '>-1.5';
+      const position = index === 0 ? '<' : '<0.1';
 
-      tl.from(splitTitle.lines, { yPercent: 100, stagger: 0.15 }, position);
+      this.timeline.from(splitTitle.lines, { yPercent: 100, stagger: 0.1 }, position);
     });
   }
 
-  return tl;
-};
-
-/**
- * ScrollTrigger configuration for modern animation
- * Triggers when element is 80% from top of viewport
- */
-export const modernTriggerConfig: ScrollTriggerConfig = {
-  start: 'top 80%',
-  end: 'bottom top',
-  scrub: false,
-  toggleActions: 'play none none none',
-};
+  protected getScrollTriggerConfig(): ScrollTrigger.Vars {
+    return {
+      trigger: this.element,
+      start: 'clamp(top 80%)',
+      scrub: false,
+    };
+  }
+}

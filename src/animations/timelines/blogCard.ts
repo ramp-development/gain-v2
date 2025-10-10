@@ -1,32 +1,23 @@
-import type { ScrollTriggerConfig, TimelineCreator } from '$types';
+import { BaseAnimation } from './base/baseAnimation';
 
-export const blogCardTimeline: TimelineCreator = (
-  element: HTMLElement,
-  context?: Record<string, string>
-) => {
-  const tl = gsap.timeline({
-    paused: true,
-    defaults: {
-      duration: context?.duration || 1.5,
-      ease: context?.ease || 'expo.inOut',
-      clearProps: true,
-    },
-  });
+export class BlogCardTimeline extends BaseAnimation {
+  protected createTimeline(): void {
+    // Find elements to animate
+    const parent = this.element.parentElement;
 
-  // Find elements to animate
-  const parent = element.parentElement;
+    // Build animation sequence
+    this.timeline.set(this.element, { opacity: 0, yPercent: 10 });
+    this.timeline.set(parent, { rotateX: 5 });
+    this.timeline.to(this.element, { opacity: 1, yPercent: 0 });
+    this.timeline.to(parent, { rotateX: 0 }, '<');
+  }
 
-  // Main content reveal
-  gsap.set(element, { opacity: 0, yPercent: 10 });
-  gsap.set(parent, { rotateX: 5 });
-  tl.to(element, { opacity: 1, yPercent: 0 });
-  tl.to(parent, { rotateX: 0 }, '<');
-
-  return tl;
-};
-
-export const blogCardTriggerConfig: ScrollTriggerConfig = {
-  start: 'top bottom',
-  scrub: false,
-  toggleActions: 'play none none none',
-};
+  protected getScrollTriggerConfig(): ScrollTrigger.Vars {
+    return {
+      trigger: this.element,
+      start: 'top bottom',
+      scrub: false,
+      toggleActions: 'play none none none',
+    };
+  }
+}

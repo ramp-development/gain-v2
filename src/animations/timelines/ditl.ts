@@ -1,14 +1,16 @@
 import { BaseAnimation } from './base/baseAnimation';
 
-export class LogosTimeline extends BaseAnimation {
+export class DitlTimeline extends BaseAnimation {
   protected createTimeline(): void {
     // Find elements to animate
-    const attr = 'data-logos';
-    const logos = this.queryElements(`[${attr}="logo"]`);
-    if (logos.length === 0) return;
-
+    const ditlItems = this.queryElements('.ditl_item');
     // Build animation sequence
-    this.timeline.fromTo(logos, { yPercent: 100 }, { yPercent: 0, stagger: 0.1 });
+    this.timeline.fromTo(
+      ditlItems,
+      { opacity: 0, y: '2rem' },
+      { opacity: 1, y: 0, stagger: 0.1 },
+      '-=50%'
+    );
   }
 
   protected getScrollTriggerConfig(): ScrollTrigger.Vars {
@@ -16,7 +18,6 @@ export class LogosTimeline extends BaseAnimation {
       trigger: this.element,
       start: 'top 80%',
       scrub: false,
-      toggleActions: 'play none none none',
     };
   }
 }

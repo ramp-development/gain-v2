@@ -1,136 +1,38 @@
-import type { TimelineDefinition } from '$types';
+import type { AnimationRegistry } from 'src/types/animations';
 
-import { aiTeamTimeline, aiTeamTriggerConfig } from './timelines/aiTeam';
-import { aiTeamHeroTimeline } from './timelines/aiTeamHero';
-import { blogCardTimeline, blogCardTriggerConfig } from './timelines/blogCard';
-import { cardFadeTimeline } from './timelines/cardFade';
-import { cardFlipTimeline, cardFlipTriggerConfig } from './timelines/cardFlip';
-import { contentHeaderTimeline, contentHeaderTriggerConfig } from './timelines/contentHeader';
-import { footerTimeline, footerTriggerConfig } from './timelines/footer';
-import { heroTimeline, heroTriggerConfig } from './timelines/hero';
-import { homeHeroTimeline, homeHeroTriggerConfig } from './timelines/homeHero';
-import { industriesTimeline, industriesTriggerConfig } from './timelines/industries';
-import { logosTimeline, logosTriggerConfig } from './timelines/logos';
-import { modernTimeline, modernTriggerConfig } from './timelines/modern';
-import { panelsTimeline, panelsTriggerConfig } from './timelines/panels';
-import { revealTimeline, revealTriggerConfig } from './timelines/reveal';
+import { createAnimationFactory } from './factory';
+import { AITeamTimeline } from './timelines/aiTeam';
+import { AITeamHeroTimeline } from './timelines/aiTeamHero';
+import { BlogCardTimeline } from './timelines/blogCard';
+import { CardFadeTimeline } from './timelines/cardFade';
+import { CardFlipTimeline } from './timelines/cardFlip';
+import { ContentHeaderTimeline } from './timelines/contentHeader';
+import { DitlTimeline } from './timelines/ditl';
+import { ExpandTimeline } from './timelines/expand';
+import { FooterTimeline } from './timelines/footer';
+import { HeroTimeline } from './timelines/hero';
+import { HomeHeroTimeline } from './timelines/homeHero';
+import { IndustriesTimeline } from './timelines/industries';
+import { LogosTimeline } from './timelines/logos';
+import { ModernTimeline } from './timelines/modern';
+import { PanelTimeline } from './timelines/panel';
+import { RevealTimeline } from './timelines/reveal';
 
-/**
- * Central registry of all available animations
- * Maps animation names to their timeline creators and configurations
- */
-export const timelineRegistry: Record<string, TimelineDefinition> = {
-  // nav: {
-  //   create: navTimeline,
-  //   triggerConfig: navTriggerConfig,
-  //   defaultTrigger: 'scrub',
-  // },
-
-  homeHero: {
-    create: homeHeroTimeline,
-    triggerConfig: homeHeroTriggerConfig,
-    defaultTrigger: 'scrub',
-  },
-
-  // Hero animation - typically loads on page load
-  hero: {
-    create: heroTimeline,
-    triggerConfig: heroTriggerConfig,
-    defaultTrigger: 'load',
-  },
-
-  aiTeamHero: {
-    create: aiTeamHeroTimeline,
-    triggerConfig: undefined,
-    defaultTrigger: 'load',
-  },
-
-  logos: {
-    create: logosTimeline,
-    triggerConfig: logosTriggerConfig,
-    defaultTrigger: 'entrance',
-  },
-
-  industries: {
-    create: industriesTimeline,
-    triggerConfig: industriesTriggerConfig,
-    defaultTrigger: 'scrub',
-  },
-
-  // Modern section animation - entrance on scroll
-  modern: {
-    create: modernTimeline,
-    triggerConfig: modernTriggerConfig,
-    defaultTrigger: 'entrance',
-  },
-
-  // Panel animation - scrubs with scroll
-  panel: {
-    create: panelsTimeline,
-    triggerConfig: panelsTriggerConfig,
-    defaultTrigger: 'scrub',
-  },
-
-  footer: {
-    create: footerTimeline,
-    triggerConfig: footerTriggerConfig,
-    defaultTrigger: 'scrub',
-  },
-
-  reveal: {
-    create: revealTimeline,
-    triggerConfig: revealTriggerConfig,
-    defaultTrigger: 'scrub',
-  },
-
-  cardFlip: {
-    create: cardFlipTimeline,
-    triggerConfig: cardFlipTriggerConfig,
-    defaultTrigger: 'entrance',
-  },
-
-  cardFade: {
-    create: cardFadeTimeline,
-    triggerConfig: cardFlipTriggerConfig,
-    defaultTrigger: 'entrance',
-  },
-
-  contentHeader: {
-    create: contentHeaderTimeline,
-    triggerConfig: contentHeaderTriggerConfig,
-    defaultTrigger: 'entrance',
-  },
-
-  aiTeam: {
-    create: aiTeamTimeline,
-    triggerConfig: aiTeamTriggerConfig,
-    defaultTrigger: 'scrub',
-  },
-
-  blogCard: {
-    create: blogCardTimeline,
-    triggerConfig: blogCardTriggerConfig,
-    defaultTrigger: 'entrance',
-  },
+export const registry: AnimationRegistry = {
+  aiTeam: createAnimationFactory(AITeamTimeline),
+  aiTeamHero: createAnimationFactory(AITeamHeroTimeline),
+  blogCard: createAnimationFactory(BlogCardTimeline),
+  cardFade: createAnimationFactory(CardFadeTimeline),
+  cardFlip: createAnimationFactory(CardFlipTimeline),
+  contentHeader: createAnimationFactory(ContentHeaderTimeline),
+  ditl: createAnimationFactory(DitlTimeline),
+  expand: createAnimationFactory(ExpandTimeline),
+  footer: createAnimationFactory(FooterTimeline),
+  hero: createAnimationFactory(HeroTimeline),
+  homeHero: createAnimationFactory(HomeHeroTimeline),
+  industries: createAnimationFactory(IndustriesTimeline),
+  logos: createAnimationFactory(LogosTimeline),
+  modern: createAnimationFactory(ModernTimeline),
+  panel: createAnimationFactory(PanelTimeline),
+  reveal: createAnimationFactory(RevealTimeline),
 };
-
-/**
- * Get a timeline definition by name
- */
-export function getTimelineDefinition(name: string): TimelineDefinition | undefined {
-  return timelineRegistry[name];
-}
-
-/**
- * Check if a timeline exists
- */
-export function hasTimeline(name: string): boolean {
-  return name in timelineRegistry;
-}
-
-/**
- * Get all available timeline names
- */
-export function getTimelineNames(): string[] {
-  return Object.keys(timelineRegistry);
-}

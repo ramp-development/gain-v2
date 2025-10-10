@@ -1,63 +1,83 @@
 import { Thresholds } from 'src/types/thresholds';
 
-import type { ScrollTriggerConfig, TimelineCreator } from '$types';
-import { containerThreshold } from '$utils/containerThreshold';
-import { debug } from '$utils/debug';
-import { queryElements } from '$utils/queryElements';
+import { attrs } from '$config/constants';
 
-export const cardFlipTimeline: TimelineCreator = (
-  element: HTMLElement,
-  context?: Record<string, string>
-) => {
-  const tl = gsap.timeline({
-    paused: true,
-    defaults: { duration: context?.duration || 1.5, ease: context?.ease || 'expo.inOut' },
-  });
+// import { containerThreshold } from '$utils/containerThreshold';
+import { BaseAnimation } from './base/baseAnimation';
 
-  // Find elements to animate
-  const cards = queryElements('[data-element="card"]', element);
-  if (!cards.length) return;
+export class CardFlipTimeline extends BaseAnimation {
+  protected duration: number;
 
-  const numberOfCards = cards.length;
-  const remainder = numberOfCards % 2;
-  const numberOfCardsNeeded = numberOfCards - remainder;
+  constructor(element: HTMLElement) {
+    super(element);
 
-  const leftCards = cards.slice(0, numberOfCardsNeeded / 2);
-  const rightCards = cards.slice(numberOfCards - numberOfCardsNeeded / 2);
+    this.duration = 1;
+  }
 
-  const isAboveThreshold = () => containerThreshold(element, Thresholds.large, 'above');
+  protected createTimeline(): void {
+    // Find elements to animate
+    const cards = this.queryElements(`[${attrs.elements}="card"]`);
+    if (!cards.length) return;
 
-  // // Build animation sequence
-  gsap.set(cards, {
-    height: () => {
-      const maxCardHeight = Math.max(...cards.map((card) => card.getBoundingClientRect().height));
-      return `${maxCardHeight}px`;
-    },
-    zIndex: (index) => 4 - index,
-    opacity: (index) => 1 - index * 0.2,
-    y: (index) => (isAboveThreshold() ? `${index + 3}rem` : `${index * -100}%`),
-  });
+    const numberOfCards = cards.length;
+    const remainder = numberOfCards % 2;
+    const numberOfCardsNeeded = numberOfCards - remainder;
 
-  element.observeContainer(`(width < ${Thresholds.large}rem)`, (match) => {
-    if (match) {
-      debug('log', 'cardFlipTimeline: (width < Thresholds.large)');
-      gsap.set(cards, { x: (index) => `${index}rem` });
-    } else {
-      debug('log', 'cardFlipTimeline: (width >= Thresholds.large)');
-      gsap.set(leftCards, { xPercent: 100 });
-      gsap.set(rightCards, { xPercent: -100 });
-    }
-  });
+    const leftCards = cards.slice(0, numberOfCardsNeeded / 2);
+    const rightCards = cards.slice(numberOfCards - numberOfCardsNeeded / 2);
 
-  // Build animation sequence
-  tl.to(cards, { x: 0, xPercent: 0, opacity: 1, y: 0, stagger: 0.2 });
+    // Build animation sequence
+    this.timeline.set(cards, {
+      height: () => `${Math.max(...cards.map((card) => card.offsetHeight))}px`,
+      zIndex: (index) => numberOfCards - index,
+      opacity: (index) => 1 - index * 0.2,
+    });
 
-  return tl;
-};
+    // Observe container size
+    this.element.observeContainer(`(width < ${Thresholds.medium}rem)`, (match) => {
+      if (match) {
+        this.timeline.set(cards, {
+          x: (index) => `${index * 0.5}rem`,
+          yPercent: (index) => index * -100,
+        });
+        this.timeline.to(cards, {
+          x: 0,
+          opacity: 1,
+          yPercent: 0,
+          duration: this.duration,
+          ease: 'back.inOut',
+          stagger: 0.05,
+        });
+      } else {
+        this.timeline.set(leftCards, { xPercent: 100 });
+        this.timeline.set(rightCards, { xPercent: -100 });
+        this.timeline.set(cards, { y: (index) => `${index}rem` });
 
-export const cardFlipTriggerConfig: ScrollTriggerConfig = {
-  start: 'top 80%',
-  end: 'bottom center',
-  scrub: false,
-  toggleActions: 'play none none none',
-};
+        this.timeline.addLabel('cardStart');
+        this.timeline.to(cards, {
+          y: gsap.utils.random(-8, 8),
+          duration: this.duration / 2,
+        });
+        this.timeline.to(cards, {
+          y: 0,
+          duration: this.duration / 2,
+          ease: 'back.inOut',
+          stagger: 0.05,
+        });
+        this.timeline.to(
+          cards,
+          { xPercent: 0, opacity: 1, duration: this.duration, ease: 'back.inOut', stagger: 0.05 },
+          'cardStart+=0.1'
+        );
+      }
+    });
+  }
+
+  protected getScrollTriggerConfig(): ScrollTrigger.Vars {
+    return {
+      trigger: this.element,
+      start: 'clamp(top 90%)',
+      scrub: false,
+    };
+  }
+}

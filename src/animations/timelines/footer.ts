@@ -1,43 +1,92 @@
-import type { ScrollTriggerConfig, TimelineCreator } from '$types';
+import { attrs } from '$config/constants';
+import { debug } from '$utils/debug';
 import { queryElement } from '$utils/queryElement';
-import { queryElements } from '$utils/queryElements';
 
-export const footerTimeline: TimelineCreator = (
-  element: HTMLElement,
-  context?: Record<string, string>
-) => {
-  const tl = gsap.timeline({
-    defaults: { duration: context?.duration || 1, ease: 'none', clearProps: true },
-  });
+import { panelScale } from '../utils/panelScale';
+import { BaseAnimation } from './base/baseAnimation';
 
-  // Find child elements to animate
-  const inner = queryElement('[data-element="inner"]');
-  const footer = queryElement('footer', element);
+export class FooterTimeline extends BaseAnimation {
+  private attr = 'data-footer';
+  private inner: HTMLElement;
+  private content: HTMLElement;
+  private panel: HTMLElement;
+  private contain: HTMLElement;
 
-  if (inner) {
-    tl.fromTo(
-      inner,
-      { y: 0, scaleX: 1, scaleY: 1 },
+  constructor(element: HTMLElement) {
+    super(element);
+
+    this.inner = queryElement(`[${attrs.elements}="inner"]`) as HTMLElement;
+    this.content = this.queryElement(`[${this.attr}="content"]`) as HTMLElement;
+    this.panel = this.queryElement(`[${this.attr}="panel"]`) as HTMLElement;
+    this.contain = this.queryElement(`[${this.attr}="contain"]`) as HTMLElement;
+  }
+
+  protected createTimeline(): void {
+    if (!this.inner || !this.content || !this.panel || !this.contain) {
+      debug('warn', 'footerTimeline', {
+        inner: this.inner,
+        content: this.content,
+        panel: this.panel,
+        contain: this.contain,
+      });
+      return;
+    }
+
+    const firstSpacer = this.queryElement('.u-section-spacer');
+
+    // Build animation sequence
+    this.timeline.from(this.content, {
+      y: () => (firstSpacer?.getBoundingClientRect().height || 128) * -1,
+      ease: 'none',
+      duration: 2,
+    });
+
+    this.timeline.to(
+      this.inner,
       {
-        y: () => {
-          const spacers = queryElements('.u-section-spacer');
-          const lastSpacer = spacers[spacers.length - 1];
-          return (lastSpacer ? lastSpacer.getBoundingClientRect().height : 160) * -1;
-        },
+        scale: () => panelScale(),
         transformOrigin: 'center bottom',
-      }
+        ease: 'power2.inOut',
+        duration: 1.5,
+      },
+      '<0.5'
     );
   }
 
-  if (footer) {
-    tl.from(footer, { opacity: 0.5, yPercent: 10 }, 0);
+  protected getScrollTriggerConfig(): ScrollTrigger.Vars {
+    this.timeline._panelInitialised = false;
+
+    return {
+      onEnter: (self) => {
+        if (this.timeline._panelInitialised) return;
+        if (!this.panel || !this.contain) return;
+
+        const { start, end } = self;
+        const distance = end - start;
+        const position = (distance - this.panel.getBoundingClientRect().height) / distance;
+        const duration = this.timeline.duration() * (1 - position);
+
+        this.timeline.from(
+          this.panel,
+          {
+            y: () => getComputedStyle(this.contain).paddingTop,
+            scale: () => panelScale(),
+            transformOrigin: 'center bottom',
+            ease: 'power2.inOut',
+            duration,
+          },
+          `${position * 100}%`
+        );
+
+        this.timeline._panelInitialised = true;
+      },
+      onLeaveBack: () => {
+        this.timeline.clearProps = true;
+      },
+      trigger: this.element,
+      start: 'top bottom',
+      end: 'bottom bottom',
+      scrub: 1,
+    };
   }
-
-  return tl;
-};
-
-export const footerTriggerConfig: ScrollTriggerConfig = {
-  start: 'top center',
-  end: 'bottom bottom',
-  scrub: 1,
-};
+}

@@ -1,0 +1,84 @@
+<script>
+    (() => {
+        const PROD_URL = 'https://cdn.jsdelivr.net/gh/ramp-development/gain-v2@v1.0.0/dist/index.js';
+
+        const { hostname } = window.location;
+        const isStaging = hostname.includes('.webflow.io');
+
+        if (!isStaging) {
+            console.log('Production: Loading from PROD_URL');
+            appendScript(createScript(PROD_URL));
+            return;
+        }
+
+        const LOCALHOST_URL = 'http://localhost:3000/index.js';
+        const BRANCH_URL = 'https://cdn.jsdelivr.net/gh/ramp-development/gain-v2@bugfix/buttery-animations/dist/index.js';
+        const STORAGE_KEY = 'script-source';
+
+        // Get script parameter from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const scriptParam = urlParams.get('script');
+
+        // Save to session storage if parameter exists
+        if (scriptParam) {
+            sessionStorage.setItem(STORAGE_KEY, scriptParam);
+        }
+
+        // Get source from parameter or session storage
+        const source = scriptParam || sessionStorage.getItem(STORAGE_KEY) || 'prod';
+
+        console.log(`Staging: Loading from source "${source}"`);
+
+        // Load based on source with appropriate fallbacks
+        if (source === 'local') {
+            // Try localhost, fallback to prod
+            tryLoadScript(LOCALHOST_URL, 'localhost')
+                .then(script => appendScript(script))
+                .catch(() => {
+                    console.log('Localhost unavailable, loading from PROD_URL');
+                    appendScript(createScript(PROD_URL));
+                });
+        } else if (source === 'branch') {
+            // Try branch, fallback to localhost
+            tryLoadScript(BRANCH_URL, 'branch')
+                .then(script => appendScript(script))
+                .catch(() => {
+                    console.log('Branch unavailable, trying localhost');
+                    return tryLoadScript(LOCALHOST_URL, 'localhost');
+                })
+                .then(script => {
+                    if (script) appendScript(script);
+                })
+                .catch(() => {
+                    console.log('Localhost unavailable, loading from PROD_URL');
+                    appendScript(createScript(PROD_URL));
+                });
+        } else {
+            // Default to prod
+            appendScript(createScript(PROD_URL));
+        }
+
+        function tryLoadScript(url, name) {
+            return fetch(url)
+                .then(response => {
+                    if (response.ok) {
+                        console.log(`${name} available, loading script`);
+                        return createScript(url);
+                    }
+                    throw new Error(`${name} not available`);
+                });
+        }
+
+        function createScript(url) {
+            const script = document.createElement('script');
+            script.defer = true;
+            script.src = url;
+            return script;
+        }
+
+        function appendScript(script) {
+            console.log('Appending script', script.src);
+            document.head.appendChild(script);
+        }
+    })();
+</script>

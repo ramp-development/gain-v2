@@ -1,88 +1,25 @@
-import type { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-/**
- * Available trigger types for animations
- */
-export type TriggerType = 'load' | 'entrance' | 'scrub' | 'event' | 'sequence';
-
-/**
- * Animation instance state
- */
-export type AnimationState = 'pending' | 'playing' | 'completed';
-
-/**
- * ScrollTrigger configuration for timeline
- */
-export interface ScrollTriggerConfig {
-  start?: string;
-  end?: string;
-  scrub?: boolean | number;
-  pin?: boolean;
-  toggleActions?: string;
-  markers?: boolean;
-  invalidateOnRefresh?: boolean;
-  refreshPriority?: number;
-  onUpdate?: (self: ScrollTrigger) => void;
+// types/animations.ts
+export interface TimelineConfig {
+  timeline: gsap.core.Timeline;
+  scrollTriggerConfig?: ScrollTrigger.Vars;
 }
 
-/**
- * Timeline creator function signature
- */
-export type TimelineCreator = (
-  element: HTMLElement,
-  context?: Record<string, string>
-) => gsap.core.Timeline | undefined;
+export type AnimationFactory = (element: HTMLElement) => TimelineConfig;
 
-/**
- * Timeline definition with its configuration
- */
-export interface TimelineDefinition {
-  create: TimelineCreator;
-  triggerConfig?: ScrollTriggerConfig;
-  defaultTrigger?: TriggerType;
+export interface AnimationRegistry {
+  [key: string]: AnimationFactory;
 }
 
-/**
- * Animation instance tracking
- */
 export interface AnimationInstance {
-  id: string;
+  timeline: gsap.core.Timeline;
+  scrollTrigger?: ScrollTrigger;
+  scrollTriggerConfig?: ScrollTrigger.Vars;
+  relinked?: boolean;
+}
+
+export interface QueuedAnimation {
   element: HTMLElement;
   timeline: gsap.core.Timeline;
-  type: string; // Animation name (hero, modern, etc.)
-  trigger: TriggerType;
-  state: AnimationState;
   scrollTrigger?: ScrollTrigger;
-  triggerConfig?: ScrollTriggerConfig;
-  context?: Record<string, string>;
-}
-
-/**
- * Animation registry entry
- */
-export interface AnimationRegistryEntry {
-  timeline: TimelineCreator;
-  config?: ScrollTriggerConfig;
-  defaultTrigger?: TriggerType;
-}
-
-/**
- * Animation event data
- */
-export interface AnimationEventData {
-  id: string;
-  type: string;
-  element: HTMLElement;
-  state?: AnimationState;
-  progress?: number;
-  context?: Record<string, string>;
-}
-
-/**
- * Post-hero check result
- */
-export interface PostHeroCheck {
-  instance: AnimationInstance;
-  shouldPlay: boolean;
-  reason?: 'passed-trigger' | 'in-viewport' | 'not-ready';
+  scrollTriggerConfig?: ScrollTrigger.Vars;
 }
