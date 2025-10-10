@@ -1,33 +1,40 @@
 import { Thresholds } from 'src/types/thresholds';
 
+import { attrs } from '$config/constants';
+
 // import { queryElement } from '$utils/queryElement';
 import { BaseAnimation } from './base/baseAnimation';
 
 export class CardFadeTimeline extends BaseAnimation {
-  protected cards!: HTMLElement[];
-  protected leftCards!: HTMLElement[];
-  protected rightCards!: HTMLElement[];
-  protected remainder!: number;
+  protected cards: HTMLElement[];
+  protected numberOfCards: number;
+  protected leftCards: HTMLElement[];
+  protected rightCards: HTMLElement[];
+  protected remainder: number;
+  protected duration: number;
 
-  protected createTimeline(): void {
-    this.timeline.vars.defaults = { stagger: 0.1, duration: 0.5, ease: 'back.inOut' };
+  constructor(element: HTMLElement) {
+    super(element);
 
-    // Find elements to animate
-    this.cards = this.queryElements('[data-element="card"]');
-    if (!this.cards.length) return;
+    this.cards = this.queryElements(`[${attrs.elements}="card"]`);
 
-    const numberOfCards = this.cards.length;
-    this.remainder = numberOfCards % 2;
-    const numberOfCardsNeeded = numberOfCards - this.remainder;
+    this.numberOfCards = this.cards.length;
+    this.remainder = this.numberOfCards % 2;
+    const numberOfCardsNeeded = this.numberOfCards - this.remainder;
 
     this.leftCards = this.cards.slice(0, numberOfCardsNeeded / 2);
-    this.rightCards = this.cards.slice(numberOfCards - numberOfCardsNeeded / 2);
+    this.rightCards = this.cards.slice(this.numberOfCards - numberOfCardsNeeded / 2);
 
+    this.duration = 1;
+    this.timeline.vars.defaults = { stagger: 0.05, duration: this.duration, ease: 'back.inOut' };
+  }
+
+  protected createTimeline(): void {
     // Build animation sequence
     this.cards.forEach((card, index) => {
       this.timeline.set(card, {
         height: () => `${Math.max(...this.cards.map((card) => card.offsetHeight))}px`,
-        zIndex: numberOfCards - index,
+        zIndex: this.numberOfCards - index,
         opacity: 1 - index * 0.2,
       });
     });
@@ -104,11 +111,16 @@ export class CardFadeTimeline extends BaseAnimation {
     });
 
     this.cards.forEach((card, index) => {
-      this.timeline.set(card, { y: `${index}rem` });
+      this.timeline.set(card, { y: `${index * 0.5}rem` });
     });
 
-    this.timeline.to(this.cards, { y: 0 });
-    this.timeline.to(this.cards, { xPercent: 0, opacity: 1 }, '<0.2');
+    this.timeline.addLabel('cardStart');
+    this.timeline.to(this.cards, {
+      y: gsap.utils.random(-8, 8),
+      duration: this.duration / 2,
+    });
+    this.timeline.to(this.cards, { y: 0, duration: this.duration / 2 });
+    this.timeline.to(this.cards, { xPercent: 0, opacity: 1 }, 'cardStart+=0.1');
   }
 
   protected getScrollTriggerConfig(): ScrollTrigger.Vars {
