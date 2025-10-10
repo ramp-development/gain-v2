@@ -1,3 +1,4 @@
+import { App } from '$app';
 import { attrs } from '$config/constants';
 import { queryElement } from '$utils/queryElement';
 
@@ -7,6 +8,8 @@ export const nav = () => {
   const main = queryElement('.page_main');
   const scrollElement = outer || main;
   if (!nav || !scrollElement) return;
+
+  const app = App.getInstance();
 
   const variant = 'w-variant-144a276f-7272-627f-9552-6194bfeced8d';
 
@@ -25,6 +28,7 @@ export const nav = () => {
       if (outer) nav.classList.add(variant);
     },
     onLeaveBack: () => {
+      if (app.lenis.actualScroll <= 0) return;
       if (outer) nav.classList.remove(variant);
     },
     onUpdate: (self) => {
