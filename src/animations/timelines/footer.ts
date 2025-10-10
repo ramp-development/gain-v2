@@ -59,7 +59,7 @@ export class FooterTimeline extends BaseAnimation {
             y: () => getComputedStyle(contain).paddingTop,
             scale: () => panelScale(),
             transformOrigin: 'center bottom',
-            ease: 'none',
+            ease: 'power2.inOut',
             duration,
           },
           `${position * 100}%`
