@@ -13,7 +13,9 @@ export const nav = () => {
 
   const variant = 'w-variant-144a276f-7272-627f-9552-6194bfeced8d';
 
-  const velocityThreshold = 1000;
+  // check if touch device
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  const velocityThreshold = isTouchDevice ? 1000 : 500;
 
   const timeline = gsap.timeline({ paused: true });
 
