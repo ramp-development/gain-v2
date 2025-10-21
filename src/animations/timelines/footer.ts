@@ -35,14 +35,19 @@ export class FooterTimeline extends BaseAnimation {
     const firstSpacer = this.queryElement('.u-section-spacer');
 
     // Build animation sequence
-    this.timeline.from(this.content, {
-      y: () => (firstSpacer?.getBoundingClientRect().height || 128) * -1,
-      ease: 'none',
-      duration: 2,
-    });
+    this.timeline.fromTo(
+      this.content,
+      {
+        y: () => (firstSpacer?.offsetHeight || 128) * -1,
+        ease: 'none',
+        duration: 2,
+      },
+      { y: 0 }
+    );
 
-    this.timeline.to(
+    this.timeline.fromTo(
       this.inner,
+      { scale: 1 },
       {
         scale: () => panelScale(),
         transformOrigin: 'center bottom',
@@ -63,10 +68,10 @@ export class FooterTimeline extends BaseAnimation {
 
         const { start, end } = self;
         const distance = end - start;
-        const position = (distance - this.panel.getBoundingClientRect().height) / distance;
+        const position = (distance - this.panel.offsetHeight) / distance;
         const duration = this.timeline.duration() * (1 - position);
 
-        this.timeline.from(
+        this.timeline.fromTo(
           this.panel,
           {
             y: () => getComputedStyle(this.contain).paddingTop,
@@ -75,13 +80,14 @@ export class FooterTimeline extends BaseAnimation {
             ease: 'power2.inOut',
             duration,
           },
+          { y: 0, scale: 1 },
           `${position * 100}%`
         );
 
         this.timeline._panelInitialised = true;
       },
       onLeaveBack: () => {
-        this.timeline.clearProps = true;
+        ScrollTrigger.refresh();
       },
       trigger: this.element,
       start: 'top bottom',
