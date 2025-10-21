@@ -30,7 +30,7 @@ export class HeroTimeline extends BaseAnimation {
     this.timeline.from(
       inner,
       {
-        y: () => firstSpacer?.getBoundingClientRect().height || 128,
+        y: () => firstSpacer?.offsetHeight || 128,
         opacity: 0,
         onStart: () => {
           setTimeout(() => {
@@ -47,7 +47,12 @@ export class HeroTimeline extends BaseAnimation {
 
     const splitTitle = new SplitText(title, { type: 'lines', mask: 'lines' });
     this.timeline.from(splitTitle.lines, { yPercent: 100, stagger: 0.01 }, '<0.1');
-    this.timeline.from(inner, { scale: () => panelScale() }, '<0.1');
+    this.timeline.fromTo(
+      inner,
+      { scale: () => panelScale(), transformOrigin: 'center top' },
+      { scale: 1 },
+      '<0.1'
+    );
     this.timeline.from(sections, { opacity: 0 }, '<');
 
     this.timeline.eventCallback('onComplete', () => {
