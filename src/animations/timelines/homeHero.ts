@@ -90,7 +90,6 @@ export class HomeHeroTimeline extends BaseAnimation {
       const fromOptions: Record<string, number | string> = {
         opacity: 0,
         duration: 0.25,
-        // backdropFilter: 'blur(1rem)',
       };
 
       if (top) fromOptions[topVar] = top * 2;
@@ -100,7 +99,6 @@ export class HomeHeroTimeline extends BaseAnimation {
 
       const toOptions: Record<string, number | string> = {
         opacity: 1,
-        // backdropFilter: 'blur(1rem)',
       };
 
       if (top) toOptions[topVar] = top;
@@ -116,7 +114,10 @@ export class HomeHeroTimeline extends BaseAnimation {
       );
     });
 
+    let lastWidth = window.innerWidth;
     window.addEventListener('resize', () => {
+      if (lastWidth === window.innerWidth) return;
+      lastWidth = window.innerWidth;
       this.setBaseVars();
       allOtherAssets.forEach((asset) => this.setAssetRadius(asset));
       ScrollTrigger.refresh();
