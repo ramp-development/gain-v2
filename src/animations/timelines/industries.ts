@@ -99,7 +99,6 @@ export class IndustriesTimeline extends BaseAnimation {
       start: 'top top',
       end: 'bottom bottom',
       scrub: 1,
-      markers: true,
     };
   }
 }
