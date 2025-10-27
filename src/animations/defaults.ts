@@ -13,4 +13,6 @@ export const defaults = (debug: boolean = false): void => {
   ScrollTrigger.defaults({
     markers: debug, // Show markers if debug
   });
+
+  // ScrollTrigger.normalizeScroll(true);
 };
