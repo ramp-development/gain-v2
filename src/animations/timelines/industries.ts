@@ -5,19 +5,25 @@ import { debug } from '$utils/debug';
 import { BaseAnimation } from './base/baseAnimation';
 
 export class IndustriesTimeline extends BaseAnimation {
+  protected attr = 'data-industry';
+  protected track: HTMLElement;
+
+  constructor(element: HTMLElement) {
+    super(element);
+
+    this.track = this.queryElement(`[${this.attr}="track"]`) as HTMLElement;
+  }
+
   protected createTimeline(): void {
     // Find elements to animate
-    const attr = 'data-industry';
-    const track = this.queryElement(`[${attr}="track"]`);
-    const sticky = this.queryElement(`[${attr}="sticky"]`);
-    const assetsCollection = this.queryElement(`[${attr}="assets-collection"]`);
-    const assetsList = this.queryElement(`[${attr}="assets-list"]`);
-    const assets = this.queryElements(`[${attr}="asset"]`);
-    const namesWrap = this.queryElement(`[${attr}="names-wrap"]`);
-    const names = this.queryElements(`[${attr}="name"]`);
+    const sticky = this.queryElement(`[${this.attr}="sticky"]`);
+    const assetsCollection = this.queryElement(`[${this.attr}="assets-collection"]`);
+    const assetsList = this.queryElement(`[${this.attr}="assets-list"]`);
+    const assets = this.queryElements(`[${this.attr}="asset"]`);
+    const namesWrap = this.queryElement(`[${this.attr}="names-wrap"]`);
+    const names = this.queryElements(`[${this.attr}="name"]`);
 
     if (
-      !track ||
       !sticky ||
       !assetsCollection ||
       !assetsList ||
@@ -26,7 +32,6 @@ export class IndustriesTimeline extends BaseAnimation {
       names.length === 0
     ) {
       debug('warn', 'industriesTimeline', {
-        track,
         sticky,
         assetsCollection,
         assetsList,
@@ -49,7 +54,6 @@ export class IndustriesTimeline extends BaseAnimation {
     });
 
     // Build animation sequence
-    // element.observeContainer(`(width < ${Thresholds.medium})rem`, (match) => {
     this.element.observeContainer(`(width < ${Thresholds.medium}em)`, (match) => {
       if (match) {
         // get the height of the assets list including padding and margin
@@ -61,9 +65,9 @@ export class IndustriesTimeline extends BaseAnimation {
 
         // Build the animation sequence
         const trackHeight = elementHeight - listHeight + moveListBy;
-        this.timeline.set(track, { height: `${trackHeight}px` });
+        gsap.set(this.track, { height: `${trackHeight}px` });
 
-        assetsTl.to(assets, { x: -moveListBy });
+        assetsTl.fromTo(assets, { x: 0 }, { x: -moveListBy });
       } else {
         // get the height of the assets list including padding and margin
         const stickyHeight = sticky.getBoundingClientRect().height;
@@ -73,7 +77,7 @@ export class IndustriesTimeline extends BaseAnimation {
 
         // Build the animation sequence
         const trackHeight = stickyHeight - assetsCollectionHeight + assetsListHeight;
-        this.timeline.set(track, { height: `${trackHeight}px` });
+        gsap.set(this.track, { height: `${trackHeight}px` });
 
         assets.forEach((asset, index) => {
           const position = (moveListBy / assets.length) * (index + 1) * -1;

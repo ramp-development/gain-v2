@@ -43,8 +43,8 @@ export class HomeHeroTimeline extends BaseAnimation {
     const promptSplit = new SplitText(prompt, { type: 'lines', mask: 'lines' });
 
     // Build animation sequence
-    this.timeline.set(this.content, { clipPath: 'inset(50%)' });
-    this.timeline.set(background, { opacity: 0, width: '0%', height: '0%' });
+    gsap.set(this.content, { clipPath: 'inset(50%)' });
+    gsap.set(background, { opacity: 0, width: '0%', height: '0%' });
 
     this.timeline.to(background, { opacity: 1, duration: 0.25 });
     this.timeline.to(this.content, { clipPath: 'inset(0%)' }, '<');

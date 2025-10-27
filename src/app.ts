@@ -41,7 +41,25 @@ export class App {
 
   private smoothScroll(): void {
     // Synchronize Lenis scrolling with GSAP's ScrollTrigger plugin
+    let direction = 0;
     this.lenis.on('scroll', () => {
+      if (direction !== this.lenis.direction) {
+        console.log(`last direction: ${direction}`);
+        direction = this.lenis.direction;
+        console.log(`new direction: ${direction}`);
+        setTimeout(() => {
+          ScrollTrigger.update();
+        }, 10);
+        setTimeout(() => {
+          ScrollTrigger.update();
+        }, 50);
+        setTimeout(() => {
+          ScrollTrigger.update();
+        }, 100);
+        setTimeout(() => {
+          ScrollTrigger.update();
+        }, 500);
+      }
       ScrollTrigger.update();
     });
 

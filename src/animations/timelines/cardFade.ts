@@ -32,7 +32,7 @@ export class CardFadeTimeline extends BaseAnimation {
   protected createTimeline(): void {
     // Build animation sequence
     this.cards.forEach((card, index) => {
-      this.timeline.set(card, {
+      gsap.set(card, {
         height: () => `${Math.max(...this.cards.map((card) => card.offsetHeight))}px`,
         zIndex: this.numberOfCards - index,
         opacity: 1 - index * 0.2,
@@ -54,7 +54,7 @@ export class CardFadeTimeline extends BaseAnimation {
 
   protected thresholdSmall(): void {
     this.cards.forEach((card, index) => {
-      this.timeline.set(card, {
+      gsap.set(card, {
         x: `${index * 0.5}rem`,
         y: `${index * -100}%`,
       });
@@ -71,21 +71,21 @@ export class CardFadeTimeline extends BaseAnimation {
     const rowGap = parseFloat(getComputedStyle(this.element).getPropertyValue('row-gap'));
     const columnGap = parseFloat(getComputedStyle(this.element).getPropertyValue('column-gap'));
 
-    this.timeline.set(this.leftCards[0], {
+    gsap.set(this.leftCards[0], {
       x: (index, trigger) => trigger.getBoundingClientRect().width / 2 - 2 * columnGap,
     });
 
-    this.timeline.set(this.leftCards[1], {
+    gsap.set(this.leftCards[1], {
       x: (index, trigger) => -(trigger.getBoundingClientRect().width / 2 + 2 * columnGap),
       y: '1rem',
     });
 
-    this.timeline.set(this.rightCards[0], {
+    gsap.set(this.rightCards[0], {
       x: (index, trigger) => trigger.getBoundingClientRect().width / 2 + columnGap,
       y: (index, trigger) => trigger.getBoundingClientRect().height * -1,
     });
 
-    this.timeline.set(this.rightCards[1], {
+    gsap.set(this.rightCards[1], {
       x: (index, trigger) => -(trigger.getBoundingClientRect().width / 2 - columnGap),
       y: (index, trigger) => trigger.getBoundingClientRect().height * -1 + rowGap,
     });
@@ -99,19 +99,19 @@ export class CardFadeTimeline extends BaseAnimation {
 
   protected thresholdLarge(): void {
     this.leftCards.forEach((card, index) => {
-      this.timeline.set(card, {
+      gsap.set(card, {
         xPercent: (this.leftCards.length - index - 1) * 100 + (this.remainder === 1 ? 0 : 50),
       });
     });
 
     this.rightCards.forEach((card, index) => {
-      this.timeline.set(card, {
+      gsap.set(card, {
         xPercent: index * -100 - (this.remainder === 1 ? 0 : 50),
       });
     });
 
     this.cards.forEach((card, index) => {
-      this.timeline.set(card, { y: `${index * 0.5}rem` });
+      gsap.set(card, { y: `${index * 0.5}rem` });
     });
 
     this.timeline.addLabel('cardStart');

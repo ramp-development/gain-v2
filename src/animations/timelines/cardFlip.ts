@@ -27,7 +27,7 @@ export class CardFlipTimeline extends BaseAnimation {
     const rightCards = cards.slice(numberOfCards - numberOfCardsNeeded / 2);
 
     // Build animation sequence
-    this.timeline.set(cards, {
+    gsap.set(cards, {
       height: () => `${Math.max(...cards.map((card) => card.offsetHeight))}px`,
       zIndex: (index) => numberOfCards - index,
       opacity: (index) => 1 - index * 0.2,
@@ -36,7 +36,7 @@ export class CardFlipTimeline extends BaseAnimation {
     // Observe container size
     this.element.observeContainer(`(width < ${Thresholds.medium}rem)`, (match) => {
       if (match) {
-        this.timeline.set(cards, {
+        gsap.set(cards, {
           x: (index) => `${index * 0.5}rem`,
           yPercent: (index) => index * -100,
         });
@@ -49,9 +49,9 @@ export class CardFlipTimeline extends BaseAnimation {
           stagger: 0.05,
         });
       } else {
-        this.timeline.set(leftCards, { xPercent: 100 });
-        this.timeline.set(rightCards, { xPercent: -100 });
-        this.timeline.set(cards, { y: (index) => `${index}rem` });
+        gsap.set(leftCards, { xPercent: 100 });
+        gsap.set(rightCards, { xPercent: -100 });
+        gsap.set(cards, { y: (index) => `${index}rem` });
 
         this.timeline.addLabel('cardStart');
         this.timeline.to(cards, {

@@ -6,8 +6,8 @@ export class BlogCardTimeline extends BaseAnimation {
     const parent = this.element.parentElement;
 
     // Build animation sequence
-    this.timeline.set(this.element, { opacity: 0, yPercent: 10 });
-    this.timeline.set(parent, { rotateX: 5 });
+    gsap.set(this.element, { opacity: 0, yPercent: 10 });
+    gsap.set(parent, { rotateX: 5 });
     this.timeline.to(this.element, { opacity: 1, yPercent: 0 });
     this.timeline.to(parent, { rotateX: 0 }, '<');
   }
