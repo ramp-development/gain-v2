@@ -14,7 +14,7 @@ export class LogosTimeline extends BaseAnimation {
   protected getScrollTriggerConfig(): ScrollTrigger.Vars {
     return {
       trigger: this.element,
-      start: 'top 80%',
+      start: 'clamp(top 90%)',
       scrub: false,
       toggleActions: 'play none none none',
     };
