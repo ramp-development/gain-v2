@@ -1,6 +1,7 @@
 import { attrs } from '$config/constants';
 import { queryElement } from '$utils/queryElement';
 import { queryElements } from '$utils/queryElements';
+import { updateButtonText } from '$utils/updateButtonText';
 
 export const careersList = () => {
   const component = queryElement<HTMLDivElement>(`[${attrs.elements}="careers"]`);
@@ -8,7 +9,10 @@ export const careersList = () => {
 
   const items = queryElements<HTMLDivElement>(`[${attrs.elements}="careers-item"]`, component);
   updateHeaderText(items);
-  items.forEach(handleButtonMailto);
+  items.forEach((item) => {
+    handleMailTo(item);
+    handleDetails(item);
+  });
 
   function updateHeaderText(items: HTMLDivElement[]) {
     const count = queryElement<HTMLSpanElement>(`[${attrs.elements}="careers-count"]`, component);
@@ -24,7 +28,7 @@ export const careersList = () => {
     }
   }
 
-  function handleButtonMailto(item: HTMLDivElement) {
+  function handleMailTo(item: HTMLDivElement) {
     const button = queryElement<HTMLAnchorElement>(`a[href^="mailto:"]`, item);
     if (!button) return;
 
@@ -40,5 +44,42 @@ export const careersList = () => {
     const encodedBody = encodeURIComponent(bodyValue);
 
     button!.href = `${mailto}?subject=${encodedSubject}&body=${encodedBody}`;
+  }
+
+  function handleDetails(item: HTMLDivElement) {
+    const trigger = queryElement<HTMLDivElement>('[data-details-trigger]', item);
+    const content = queryElement<HTMLDivElement>('[data-details-content]', item);
+
+    if (!trigger) return;
+
+    if (!content) {
+      trigger.remove();
+      return;
+    }
+
+    const contentHeight = content.getBoundingClientRect().height;
+    gsap.set(content, { display: 'none', height: '0' });
+    let isOpen = false;
+
+    trigger.addEventListener('click', () => {
+      isOpen = !isOpen;
+      if (isOpen) {
+        gsap.to(content, {
+          display: 'block',
+          height: contentHeight,
+          duration: 0.5,
+          ease: 'power2.inOut',
+        });
+        updateButtonText(trigger, 'Hide');
+      } else {
+        gsap.to(content, {
+          display: 'none',
+          height: '0',
+          duration: 0.5,
+          ease: 'power2.inOut',
+        });
+        updateButtonText(trigger, 'Show');
+      }
+    });
   }
 };
