@@ -1,4 +1,5 @@
 import { attrs } from '$config/constants';
+import { getButtonText } from '$utils/getButtonText';
 import { queryElement } from '$utils/queryElement';
 import { queryElements } from '$utils/queryElements';
 import { updateButtonText } from '$utils/updateButtonText';
@@ -60,6 +61,8 @@ export const careersList = () => {
     const contentHeight = content.getBoundingClientRect().height;
     gsap.set(content, { display: 'none', height: '0' });
     let isOpen = false;
+    let originalText = getButtonText(trigger);
+    if (!originalText) originalText = 'Show';
 
     trigger.addEventListener('click', () => {
       isOpen = !isOpen;
@@ -78,7 +81,7 @@ export const careersList = () => {
           duration: 0.5,
           ease: 'power2.inOut',
         });
-        updateButtonText(trigger, 'Show');
+        updateButtonText(trigger, originalText);
       }
     });
   }

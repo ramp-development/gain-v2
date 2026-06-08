@@ -1,6 +1,7 @@
 import { Thresholds } from 'src/types/thresholds';
 
 import { attrs } from '$config/constants';
+import { queryElement } from '$utils/queryElement';
 
 // import { queryElement } from '$utils/queryElement';
 import { BaseAnimation } from './base/baseAnimation';
@@ -30,26 +31,53 @@ export class CardFadeTimeline extends BaseAnimation {
   }
 
   protected createTimeline(): void {
-    // Build animation sequence
-    this.cards.forEach((card, index) => {
-      gsap.set(card, {
-        height: () => `${Math.max(...this.cards.map((card) => card.offsetHeight))}px`,
-        zIndex: this.numberOfCards - index,
-        opacity: 1 - index * 0.2,
-      });
-    });
+    setTimeout(() => {
+      // Build animation sequence
+      const maxCardHeight = Math.max(...this.cards.map((card) => card.offsetHeight));
+      const maxCardNumberHeight = Math.max(
+        ...this.cards.map(
+          (card) => queryElement(`[data-element="card-number"]`, card)?.offsetHeight || 0
+        )
+      );
+      const maxCardTitleHeight = Math.max(
+        ...this.cards.map(
+          (card) => queryElement(`[data-element="card-title"]`, card)?.offsetHeight || 0
+        )
+      );
+      const maxCardSubHeight = Math.max(
+        ...this.cards.map(
+          (card) => queryElement(`[data-element="card-sub"]`, card)?.offsetHeight || 0
+        )
+      );
 
-    // Observe container size
-    this.element.observeContainer(`(width < ${Thresholds.large}rem)`, (match) => {
-      if (match) {
-        this.element.observeContainer(`(width < ${Thresholds.small}rem)`, (match) => {
-          if (match) this.thresholdSmall();
-          else this.thresholdMedium();
+      this.cards.forEach((card, index) => {
+        const cardNumber = queryElement(`[data-element="card-number"]`, card);
+        const cardTitle = queryElement(`[data-element="card-title"]`, card);
+        const cardSub = queryElement(`[data-element="card-sub"]`, card);
+        if (!cardNumber || !cardTitle || !cardSub) return;
+
+        gsap.set(cardNumber, { height: `${maxCardNumberHeight}px` });
+        gsap.set(cardTitle, { height: `${maxCardTitleHeight}px` });
+        gsap.set(cardSub, { height: `${maxCardSubHeight}px` });
+        gsap.set(card, {
+          height: () => `${maxCardHeight}px`,
+          zIndex: this.numberOfCards - index,
+          opacity: 1 - index * 0.2,
         });
-      } else {
-        this.thresholdLarge();
-      }
-    });
+      });
+
+      // Observe container size
+      this.element.observeContainer(`(width < ${Thresholds.large}rem)`, (match) => {
+        if (match) {
+          this.element.observeContainer(`(width < ${Thresholds.small}rem)`, (match) => {
+            if (match) this.thresholdSmall();
+            else this.thresholdMedium();
+          });
+        } else {
+          this.thresholdLarge();
+        }
+      });
+    }, 250);
   }
 
   protected thresholdSmall(): void {
