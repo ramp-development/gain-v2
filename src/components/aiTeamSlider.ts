@@ -6,14 +6,7 @@ export const aiTeamSlider = () => {
   if (!component) return;
 
   const slider = queryElement<HTMLElement>(`[${attr}="slider"]`, component);
-  const button = queryElement<HTMLButtonElement>(`[${attr}="button"]`, component);
-  if (!slider || !button) return;
-
-  const buttonLink = queryElement<HTMLAnchorElement>('[href]', button);
-  const buttonText = queryElement<HTMLDivElement>('.button_main_text', button);
-  if (!buttonLink || !buttonText) return;
-
-  const originalText = buttonText.textContent;
+  if (!slider) return;
 
   // Function to create options based on current threshold
   const options = {
@@ -27,16 +20,20 @@ export const aiTeamSlider = () => {
 
   // Initialize Splide slider
   const splide = new Splide(slider, options);
+  splide.mount();
 
-  splide.on('ready', () => {
-    updateButton(splide.index);
-  });
+  const button = queryElement<HTMLButtonElement>(`[${attr}="button"]`, component);
+  if (!button) return;
 
-  splide.on('moved', (newIndex) => {
+  const buttonLink = queryElement<HTMLAnchorElement>('[href]', button);
+  const buttonText = queryElement<HTMLDivElement>('.button_main_text', button);
+  const originalText = buttonText?.textContent;
+
+  updateButton(splide.index);
+
+  splide.on('move', (newIndex) => {
     updateButton(newIndex);
   });
-
-  splide.mount();
 
   function updateButton(activeIndex: number) {
     const activeSlide = splide.Components.Slides.getAt(activeIndex)?.slide;
