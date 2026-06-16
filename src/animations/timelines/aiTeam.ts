@@ -33,7 +33,7 @@ export class AITeamTimeline extends BaseAnimation {
 
     // Position elements as needed
     const wrapHeight = this.wrap.getBoundingClientRect().height;
-    gsap.set(this.track, { height: `${wrapHeight * 4}px` });
+    gsap.set(this.track, { height: `${wrapHeight * (links.length + 1)}px` });
     gsap.set(this.wrap, { top: `${(window.innerHeight - wrapHeight) / 2}px` });
     ScrollTrigger.refresh();
 
