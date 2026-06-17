@@ -37,6 +37,7 @@ export class HomeHeroTimeline extends BaseAnimation {
     const firstAsset = assets[0];
     const allOtherAssets = assets.slice(1).filter((asset) => !!getVariable('--ha-width', asset));
     allOtherAssets.forEach((asset) => this.setAssetRadius(asset));
+    this.scaleAssetPositions(assets);
 
     const titleSplit = new SplitText(title, { type: 'lines', mask: 'lines' });
     const subSplit = new SplitText(sub, { type: 'lines', mask: 'lines' });
@@ -120,6 +121,7 @@ export class HomeHeroTimeline extends BaseAnimation {
       lastWidth = window.innerWidth;
       this.setBaseVars();
       allOtherAssets.forEach((asset) => this.setAssetRadius(asset));
+      this.scaleAssetPositions(assets);
       ScrollTrigger.refresh();
     });
   }
@@ -137,26 +139,51 @@ export class HomeHeroTimeline extends BaseAnimation {
     if (!this.content) return;
     const widthVar = '--hv-width';
     const heightVar = '--hv-height';
+    const scaleVar = '--hv-scale';
 
-    // Reset the width and height variables
+    // Reset the variables
     this.content.style.removeProperty(widthVar);
     this.content.style.removeProperty(heightVar);
 
-    // Dynamically pull the width and height variables
-    const widthDefault = getVariable(widthVar, this.content);
-    const heightDefault = getVariable(heightVar, this.content);
-    if (!widthDefault || !heightDefault) return;
+    // Get the base design dimensions (these should be the original design values)
+    const baseWidth = getVariable(widthVar, this.content);
+    const baseHeight = getVariable(heightVar, this.content);
+    if (!baseWidth || !baseHeight) return;
 
-    // Get the default and current aspect ratios
-    const defaultAspectRatio = widthDefault / heightDefault;
+    // Get current container dimensions
     const contentRect = this.content.getBoundingClientRect();
-    const currentAspectRatio = contentRect.width / contentRect.height;
 
-    // Calculate the scale and width/height
-    const scale = currentAspectRatio / defaultAspectRatio;
-    const width = widthDefault * scale;
-    const height = heightDefault * scale;
-    gsap.set(this.content, { [widthVar]: width, [heightVar]: height });
+    // Calculate scale factors for both dimensions
+    const scaleX = contentRect.width / baseWidth;
+    const scaleY = contentRect.height / baseHeight;
+
+    // Use the smaller scale to maintain aspect ratio (contain mode)
+    // Or use Math.max for cover mode
+    const scale = Math.min(scaleX, scaleY);
+
+    // Apply scaled dimensions
+    const scaledWidth = baseWidth * scale;
+    const scaledHeight = baseHeight * scale;
+
+    // Store the scale factor for potential use with positioning
+    gsap.set(this.content, {
+      [widthVar]: scaledWidth,
+      [heightVar]: scaledHeight,
+      [scaleVar]: scale,
+    });
+
+    // // Debug info
+    // debug('info', 'homeHeroTimeline:setBaseVars', {
+    //   baseWidth,
+    //   baseHeight,
+    //   containerWidth: contentRect.width,
+    //   containerHeight: contentRect.height,
+    //   scaleX,
+    //   scaleY,
+    //   finalScale: scale,
+    //   scaledWidth,
+    //   scaledHeight,
+    // });
   }
 
   protected setAssetRadius(asset: HTMLElement): void {
@@ -172,5 +199,29 @@ export class HomeHeroTimeline extends BaseAnimation {
     // calculate and apply the radius
     const radius = (hlRadius * (asset.offsetWidth / hlWidth + asset.offsetHeight / hlHeight)) / 2;
     asset.style.borderRadius = `${radius}px`;
+  }
+
+  protected scaleAssetPositions(assets: HTMLElement[]): void {
+    if (!this.content) return;
+
+    // Get the current scale factor from the content element
+    const scale = getVariable('--hv-scale', this.content);
+    if (!scale) return;
+
+    const positionVars = ['--ha-top', '--ha-bottom', '--ha-left', '--ha-right'];
+
+    assets.forEach((asset) => {
+      positionVars.forEach((varName) => {
+        const baseValue = getVariable(
+          varName.replace('--ha-', '--hl-'),
+          asset.parentElement as HTMLElement
+        );
+        if (baseValue !== null && baseValue !== undefined) {
+          // Apply the scale to the position value
+          const scaledValue = baseValue * scale;
+          asset.style.setProperty(varName, `${scaledValue}px`);
+        }
+      });
+    });
   }
 }
